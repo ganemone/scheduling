@@ -21,10 +21,11 @@ class Manager extends CI_Controller {
 		$result = $this->admin->getEmployeeList();
 		$companyInfo['company'] = $this->input->cookie("Company");
 		$companyInfo['names'] = $result;
+		$companyInfo['url'] = json_encode(base_url());
 		$this->initialize();
-		$this->load->view("/impromptu/prompt.php");
+		$this->load->view("/impromptu/prompt.php"); 
 		$this->load->view("/impromptu/prompt_css.php");
-		$this->load->view("/admin/adminMenu.php");
+		$this->load->view("/admin/adminMenu.php", $companyInfo);
 		$this->load->view("/admin/adminCalendar.php", $companyInfo);
 		
 	}
@@ -128,7 +129,7 @@ class Manager extends CI_Controller {
 	function logOut()
 	{
 		delete_cookie("Company");
-		header("Location: http://localhost/ci-tutorial/index.php/site");
+	    header("location: " . base_url() .  "index.php/site");
 	}
 	function tutorialEvents()
 	{

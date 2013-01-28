@@ -98,7 +98,7 @@
    
       			$.ajax({
       				type:"POST",
-      				url:"http://localhost/ci-tutorial/index.php/user/populateMonthInfoForm",
+      				url:"<?php echo $url ?>index.php/user/populateMonthInfoForm",
       				data: {
       					employeeId: employeeId,
       					month: _month
@@ -137,7 +137,7 @@
 		},
 		eventSources: [
 		{
-			url: 'http://localhost/ci-tutorial/index.php/user/eventSources',
+			url: "<?php echo $url ?>index.php/user/eventSources',
 			error: function() {
 				alert("An error ocurred"); }
 		}]});
@@ -150,7 +150,7 @@
 			var notes = $("#notes").val();
 			$.ajax({
 				type:"POST",
-				url:"http://localhost/ci-tutorial/index.php/user/updateMonthInfo",
+				url:"<?php echo $url ?>index.php/user/updateMonthInfo",
 				data: {
 					employeeId: id,
 					date: date,
@@ -252,7 +252,7 @@
 				var formattedDate = year + '-' + month + '-' + _date;
 				$.ajax({
 					type: "POST",
-					url: "http://localhost/ci-tutorial/index.php/user/updateHourAction",
+					url: "<?php echo $url ?>index.php/user/updateHourAction",
 					data: { employeeId: <?php echo $employeeId ?>, 
 							day: formattedDate, 
 							available:title,
@@ -474,6 +474,6 @@
 	<td><button id='cancelMonthForm'>CANCEL</button></td>
 	</table>
 </div>
-<img src='http://localhost/ci-tutorial/images/ajax-loader.gif' id='loading' class='loading'/>
+<img src='<?php echo $url ?>images/ajax-loader.gif' id='loading' class='loading'/>
 </body>
 </html>

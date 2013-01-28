@@ -14,7 +14,7 @@
 			//$("#calendar").css("width", width);
 			//calendar.fullCalendar('render');
 		});
-		
+		var url = <?php echo $url ?>;
 		$("#deleteOption").attr('checked', false);
 		$("#toggleAll").attr('checked', false);
 		//$("#calendar").css("height",$(document).height() - 30);
@@ -86,7 +86,7 @@
 						{
 							$.ajax({
 							type:"POST",
-							url: "http://localhost/ci-tutorial/index.php/manager/deleteEvent",
+							url: <?php echo $url ?> + "index.php/manager/deleteEvent",
 							data: 
 							{
 								employeeId: calEvent.title.split(":")[1],
@@ -118,7 +118,7 @@
 					{ 
 						$.ajax({
 							type:"POST",
-							url: "http://localhost/ci-tutorial/index.php/manager/getEmployeeWeekHours",
+							url: <?php echo $url ?> + "index.php/manager/getEmployeeWeekHours",
 							data: {
 								employeeId: calEvent.title.split(":")[1],
 								dayNum: calEvent.start.getDay(),
@@ -197,7 +197,7 @@
 							begin: start.toTimeString().split(" ")[0],
 							end: end.toTimeString().split(" ")[0] 
 							},
-							url: "http://localhost/ci-tutorial/index.php/manager/scheduleEmployee",
+							url: <?php echo $url ?> + "index.php/manager/scheduleEmployee",
 							success: function(msg) {
 								calendar.fullCalendar("refetchEvents");
 							}
@@ -214,7 +214,7 @@
 			eventSources: [
 				
 				{
-					url:"http://localhost/ci-tutorial/index.php/manager/eventSource",
+					url: <?php echo $url ?> + "index.php/manager/eventSource",
 					data: { busy: busy },
 					error: function()
 					{
@@ -226,7 +226,7 @@
 					}
 				},
 				{
-					url:"http://localhost/ci-tutorial/index.php/manager/scheduledEventSource",
+					url: <?php echo $url ?> + "index.php/manager/scheduledEventSource",
 					error: function()
 					{
 						alert("An error ocurred");
@@ -262,7 +262,7 @@
 			
 			$.ajax({
 				type:"POST",
-				url:"http://localhost/ci-tutorial/index.php/manager/deleteEvent",
+				url: <?php echo $url ?> + "index.php/manager/deleteEvent",
 				data: { 
 					employeeId: id,
 					day: day
@@ -270,7 +270,7 @@
 				success: function() {
 					$.ajax({
 						type:"POST",
-						url:"http://localhost/ci-tutorial/index.php/manager/scheduleEmployee",
+						url: <?php echo $url ?> + "index.php/manager/scheduleEmployee",
 						data: {
 							employeeId: id,
 							day: _day,
@@ -289,7 +289,7 @@
 	$("#busyOption").click(function() {
 		$.ajax({
 			type: "GET",
-			url: "http://localhost/ci-tutorial/index.php/manager/toggleOption",
+			url: <?php echo $url ?> + "index.php/manager/toggleOption",
 			data: { option: "busy" },
 			success: function(msg) {
 				calendar.fullCalendar("refetchEvents");
@@ -300,11 +300,11 @@
 		if(scheduled == "true")
 		{
 			scheduled = "false";
-			calendar.fullCalendar("removeEventSource","http://localhost/ci-tutorial/index.php/manager/scheduledEventSource");
+			calendar.fullCalendar("removeEventSource",<?php echo $url ?> + "index.php/manager/scheduledEventSource");
 		}
 		else {
 			scheduled = "true";
-			calendar.fullCalendar("addEventSource", "http://localhost/ci-tutorial/index.php/manager/scheduledEventSource");
+			calendar.fullCalendar("addEventSource", <?php echo $url ?> + "index.php/manager/scheduledEventSource");
 		}
 	});
 	
@@ -312,11 +312,11 @@
 		if(available == "true")
 		{
 			available = "false";
-			calendar.fullCalendar("removeEventSource","http://localhost/ci-tutorial/index.php/manager/eventSource");
+			calendar.fullCalendar("removeEventSource",<?php echo $url ?> + "index.php/manager/eventSource");
 		}
 		else {
 			available = "true";
-			calendar.fullCalendar("addEventSource","http://localhost/ci-tutorial/index.php/manager/eventSource");
+			calendar.fullCalendar("addEventSource",<?php echo $url ?> + "index.php/manager/eventSource");
 		}
 	});
 	$("#toggleAll").click(function() 
@@ -327,23 +327,23 @@
 			disp = '1';
 			employees = 'true';
 			$("#employees").children("button").each(function() {
-				$(this).css("color", "green");
-			})
+				document.getElementById($(this).attr("id")).style.color = 'Green';
+			});
 		}
 		else 
 		{
 			disp = '0';
 			employees = 'false';
 			$("#employees").children("button").each(function() {
-				$(this).css("color", "black");
-			})
+				document.getElementById($(this).attr("id")).style.color = 'Black';
+			});
 		}
 		$.ajax({
 			type:"POST",
 			data: {
 				display: disp
 			},
-			url:"http://localhost/ci-tutorial/index.php/manager/toggleAll",
+			url: <?php echo $url ?> + "index.php/manager/toggleAll",
 			success: function(msg)
 			{
 				$("#calendar").fullCalendar('refetchEvents');
@@ -380,7 +380,7 @@
 			$.ajax({
 				type:"POST",
 				data: { employeeId: id },
-				url:"http://localhost/ci-tutorial/index.php/manager/toggleDisplay",
+				url: <?php echo $url ?> + "index.php/manager/toggleDisplay",
 				success: function(msg)
 				{
 					$("#calendar").fullCalendar('refetchEvents');
@@ -470,6 +470,7 @@
 		z-index: 0;
 	}
 	#h2 {
+
 		background-color: Black;
 		z-index:1;
 	}
@@ -479,6 +480,9 @@
 		left:50%;
 	}
 	#headerButtons {
+	}
+	#title { 
+	margin-left:20px;
 	}
 
 </style>
@@ -522,7 +526,7 @@ END;
 </div>
 <div id='middleContainer'></div>
 <div id='headerButtons'></div>
-<img src='http://localhost/ci-tutorial/images/ajax-loader.gif' id='loading' class='loading'/>
-<span id='top'><h2><?php echo $company ?> Scheduling Page</h2></span>
+<img src='http://10.10.10.77/~giancarloanemone/scheduling/images/ajax-loader.gif' id='loading' class='loading'/>
+<span id='top'><div id='title'><h2><?php echo $company ?> Scheduling Page</h2></div></span>
 </body>
 </html>

@@ -4,7 +4,7 @@
 echo $adminLoginErrors;
 // Outputs any validation errors
 // Log in form below
-echo form_open('/site/adminLogin'); 
+echo form_open('site/adminLogin'); 
 echo form_label('Employee Id: ','employeeId');
 echo form_input('employeeId');
 echo form_label('Password: ','password');

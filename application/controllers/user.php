@@ -18,6 +18,7 @@ class User extends CI_Controller {
 	}
 	function index()
 	{
+		$this->employeeInfo['url'] = base_url();
 		$employeeId = $this->input->cookie('EmployeeId');	
 		$info = $this->employee->getInfo($employeeId);
 		$this->employeeInfo['firstName'] = $info->firstName;
@@ -28,6 +29,7 @@ class User extends CI_Controller {
 		$this->employeeInfo['employeeId'] = $this->input->cookie('EmployeeId'); // gets the employeeId from the cookie
 		$this->load->view('userMenu.php', $this->employeeInfo);
 		$this->load->view("availabilityCalendar.php", $this->employeeInfo); // loads the actual calendar view]
+		
 	}
 	function eventSources()
 	{

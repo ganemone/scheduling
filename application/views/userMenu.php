@@ -40,13 +40,13 @@ $(document).ready(function() {
 	$("#tutorial").button();
 	$("#logOut").button();
 	$("#logOut").click(function() {
-	window.location = 'http://localhost/ci-tutorial/index.php/user/logOut';
+	window.location = "<?php echo $url ?>index.php/user/logOut";
 	});
 	$("#about").click(function() {
-		window.location = "http://localhost/ci-tutorial/index.php/site/about";
+		window.location = "<?php echo $url ?>index.php/site/about";
 	});
 	$("#home").click(function () {
-		window.location = "http://localhost/ci-tutorial/index.php/user";
+		window.location = "<?php echo $url ?>index.php/user";
 	});
 });
 </script>

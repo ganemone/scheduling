@@ -22,13 +22,13 @@
 		$("#tutorial").button();
 		$("#logOut").button();
 		$("#logOut").click(function() {
-		window.location = 'http://localhost/ci-tutorial/index.php/manager/logOut';
+		window.location = <?php echo $url ?> + 'index.php/manager/logOut';
 		});
 		$("#about").click(function() {
-			window.location = "http://localhost/ci-tutorial/index.php/site/about";
+			window.location = <?php echo $url ?> + "index.php/site/about";
 		});
 		$("#home").click(function () {
-			window.location = "http://localhost/ci-tutorial/index.php/manager";
+			window.location = <?php echo $url ?> + "index.php/manager";
 		});
 		var tutorialSubmit = function(e,v,m,f) {
 			if(v === -1)
@@ -83,7 +83,7 @@
 			position: { container: '#headerButtons', x:-10, y:-10, width:300, arrow: 'rm'},
 			submit: function(e,v,m,f) {
 				$("#calendar").fullCalendar('changeView', 'agendaWeek');
-				$("#calendar").fullCalendar("addEventSource", "http://localhost/ci-tutorial/index.php/manager/tutorialEvents");
+				$("#calendar").fullCalendar("addEventSource", <?php echo $url ?> + "index.php/manager/tutorialEvents");
 				
 				if(v === -1)
 				{
@@ -117,14 +117,23 @@
 		{
 			title: "Employee Information",
 			html: "Clicking on an employees scheduled shift will show a window with information about their weekly desired hours, current week scheduled hours, and special notes (Try it!)",
-			buttons: { Done: 2 },
+			buttons: { Prev: -1, Next: 1 },
 			focus: 1,
 			position: { container: '#headerButtons', x:150, y:200, width:300},
+			submit: tutorialSubmit
+		},
+		{
+			title: "The End!",
+			html: "Now you are ready to use the Scheduling Software! If you have any questions, feel free to contact Giancarlo Anemone at ganemone@gmail.com",
+			buttons: { Done: 2},
+			focus: 1,
+			position: { container: '#container', x:0, y:0, width:300 },
 			submit: function(e,v,m,f)
 			{
-				$("#calendar").fullCalendar('removeEventSource', "http://localhost/ci-tutorial/index.php/manager/tutorialEvents");
+				$("#calendar").fullCalendar('removeEventSource', <?php echo $url ?> + "index.php/manager/tutorialEvents");
 			}
 		}
+		
 		];
 		$("#tutorial").click(function() {
 			$.prompt(tutorialStates);

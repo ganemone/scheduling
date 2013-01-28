@@ -15,6 +15,7 @@ class Site extends CI_Controller {
 		$this->data['adminLoginErrors'] = '';
 		// Loads the cookie helper
 		$this->load->helper('cookie');
+		$this->load->helper('url');
     }
     function index()
     {
@@ -42,9 +43,10 @@ class Site extends CI_Controller {
             $password = $this->input->post('password');
             // Checks database for login 
             $result = $this->admin->login($employeeId, $password);
+			$base = base_url();
 			if($result)
 			{
-				header("location: http://localhost/ci-tutorial/index.php/manager");
+				header("location: " . base_url() .  "index.php/manager");
 			}
 			else {
 				$this->data['adminLoginErrors'] = "Incorrect Password/ID Combination" . mysql_error();
@@ -83,7 +85,7 @@ class Site extends CI_Controller {
                 //$this->data'loginErrors'];
                 //$this->load->view('user', $this->data);
                 //$this->load->view('createForm',$this->data);
-            	header("Location: http://localhost/ci-tutorial/index.php/user");
+            	header("location: " . base_url() .  "index.php/user");
 			}
             else 
             {
@@ -125,7 +127,7 @@ class Site extends CI_Controller {
             }
             else 
             {
-                header("Location: http://localhost/ci-tutorial/index.php/user");
+                header("location: " . base_url() .  "index.php/user");
             }
         }
     }
