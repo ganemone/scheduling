@@ -526,7 +526,7 @@ END;
 </div>
 <div id='middleContainer'></div>
 <div id='headerButtons'></div>
-<img src='http://10.10.10.77/~giancarloanemone/scheduling/images/ajax-loader.gif' id='loading' class='loading'/>
+<img src="http://unknown60c54789b344/~giancarloanemone/ScheduleRepo/images/ajax-loader.gif" id='loading' class='loading'/>
 <span id='top'><div id='title'><h2><?php echo $company ?> Scheduling Page</h2></div></span>
 </body>
 </html>

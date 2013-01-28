@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://unknown60c54789b344/~giancarloanemone/scheduling';
+$config['base_url']	= 'http://unknown60c54789b344/~giancarloanemone/ScheduleRepo';
 
 /*
 |--------------------------------------------------------------------------
