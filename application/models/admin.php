@@ -172,4 +172,9 @@ class admin extends CI_Model {
 		return $result;
 		
 	}
+	function finalizeMonth($start, $end)
+	{
+		$date = Date('Y-m-d', strtotime($start));
+		return $this->db->query("INSERT INTO weekInfo (employeeId, month, viewable) VALUES ('0','$date','1')");
+	}
 }

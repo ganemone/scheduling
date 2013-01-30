@@ -76,9 +76,7 @@
 			{
 				var split = <?php echo $maxMonth ?>.split("-");
 				var d = new Date(split[0], split[1]-1, split[2]);
-				alert(d);
-				alert(start);
-				if(start > d)
+				if(start >= d)
 					setDate(start);	
 				else {
 					alert("You can't alter this data anymore");
@@ -137,7 +135,7 @@
 		},
 		eventSources: [
 		{
-			url: "<?php echo $url ?>index.php/user/eventSources',
+			url: "<?php echo $url ?>index.php/user/eventSources",
 			error: function() {
 				alert("An error ocurred"); }
 		}]});
@@ -168,13 +166,13 @@
 		});
 		$("#showMonthInfoForm").button();
 		$("#showDraggable").button();
-		$("#keyEvents").button();
+		$("#quickEnter").button();
 		$("#cancelMonthForm").button();
 		
 		$("#showMonthInfoForm").click(function() {
 			$(this).hide();
 			$('#showDraggable').hide();
-			$('#keyEvents').hide();
+			$('#quickEnter').hide();
 			$("#monthInfo").slideDown();	
 		});
 		
@@ -183,14 +181,17 @@
 			setTimeout(function() {
 				$("#showMonthInfoForm").show();
 				$("#showDraggable").show();
-				$("#keyEvents").show();
+				$("#quickEnter").show();
 			}, 500);
 		});
 		$("#showDraggable").click(function() {
 			$("#external-events").slideToggle();
 		});
 		$("#quickEnter").click(function() {
-			
+			var split = <?php echo $maxMonth ?>.split("-");
+			var d = new Date(split[0], split[1]-1, split[2]);
+			$('#calendar').fullCalendar('gotoDate', d);
+			$('#calendar').fullCalendar("select", d);
 		});
 		
 		function customEvent(date, increment)
@@ -242,7 +243,7 @@
 		function updateEvent(title, date, allDay, start, end)
 		{
 			var today = new Date();
-			if(date <= today) {
+			if(date < today) {
 				alert("You cannot alter this data anymore");
 			}
 			else {
@@ -461,7 +462,7 @@
 <ul>
 <li><button id='showMonthInfoForm'>Update Information</button></li>
 <li><button id='showDraggable'>Drag Events</button></li>
-<li><button id='keyEvents'>Quick Enter</button></li>
+<li><button id='quickEnter'>Quick Enter</button></li>
 </ul>
 </div>
 

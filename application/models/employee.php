@@ -61,7 +61,7 @@ class employee extends CI_Model {
 	}
 	function getMaxMonth($employeeId)
 	{
-		$query = $this->db->query("SELECT month, MAX(month) FROM weekInfo WHERE employeeId = '$employeeId'");
+		$query = $this->db->query("SELECT month, MAX(month) FROM weekInfo");
 		$next = Date('Y-m', strtotime($query->row()->month . "Next Month")) . '-1';
 		return $next;
 	}
@@ -85,17 +85,7 @@ class employee extends CI_Model {
 	{
 		$finalizedMonth = $this->getMaxMonth($employeeId);
 		$json = $this->getScheduledEvents($finalizedMonth, $employeeId);
-		$query = $this->db->query("SELECT * FROM hours WHERE employeeId='$employeeId' && day > '$finalizedMonth' ORDER BY day");	
-		/*
-		$split = explode("-",$date);
-		for($j = 1; $j <= $split[2] ; ++$j)
-		{
-			$d = Date('Y-m-d',strtotime("$split[0]-$split[1]-$j"));
-			array_push($json, json_encode(array(
-			"title" => "N/A",
-			"start" => $d,
-			"color" => "LightGrey")));
-		}*/
+		$query = $this->db->query("SELECT * FROM hours WHERE employeeId='$employeeId' && day >= '$finalizedMonth' ORDER BY day");	
 		foreach ($query->result() as $row)
 		{
 			if($row->available == "Custom")

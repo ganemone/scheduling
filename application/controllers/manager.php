@@ -11,13 +11,10 @@ class Manager extends CI_Controller {
 	}
 	function index()
 	{
-		$this->companyInfo['company'] = $this->input->cookie("Company");
-		$this->load->view('/admin/adminHome',$this->companyInfo);
-	}
-	function schedule()
-	{
-		$this->load->view("fullcalendar.php"); // loads the full calendar js plug-in
-		$this->load->view("fullcalendar_css.php"); // loads the css
+		$this->companyInfo['company'] = $this->input->cookie("Company");// Loads Company Id Number	
+	
+		$this->load->view("fullcalendar.php"); //Loads the full calendar js plug-in
+		$this->load->view("fullcalendar_css.php"); // Loads the CSS
 		$result = $this->admin->getEmployeeList();
 		$companyInfo['company'] = $this->input->cookie("Company");
 		$companyInfo['names'] = $result;
@@ -133,19 +130,47 @@ class Manager extends CI_Controller {
 	}
 	function tutorialEvents()
 	{
-		$date = date('Y-m-d');
 
 	echo json_encode(array(
 	
 		array(
 			'id' => 111,
 			'title' => "Test Schedule",
-			'start' => "$date 10:00",
-			'end' => "$date 15:00",
+			'start' => "2012-01-01 10:00",
+			'end' => "2012-01-01 15:00",
 			'allDay' => false,
 			'color' => 'orange'
 			
+		),
+		array(
+			'id' => 112,
+			'title' => "Test Available",
+			'start' => "2012-01-01",
+			'allDay' => true,
+			'color' => 'green'
+		),
+		array(
+			'id' => 113,
+			'title' => "Test Busy",
+			'start' => "2012-01-02",
+			'allDay' => true,
+			'color' => 'Black'
+		),
+		array(
+			'id' => 114,
+			'title' => "Test Custom",
+			'start' => "2012-01-03 10:30",
+			'end' => "2012-01-03 18:00",
+			'allDay' => false
 		)
 	));
 	}
+	function finalize()
+	{
+		$start = $this->input->post('start');
+		$end = $this->input->post('end');
+		$result = $this->admin->finalizeMonth($start, $end);
+		return $result;
+	}
+	
 }
