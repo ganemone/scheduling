@@ -1,0 +1,96 @@
+
+body 
+{
+	margin: 10px !important;
+	padding: 10px !important;
+}
+/* ----------- */
+/* User Styles */
+/* ----------- */
+
+/* Footer Styles */
+footer #bottomSpan
+{
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+}
+
+/* Space between header and buttons */
+.jumbotron h2
+{
+	margin-top:-20px;
+}
+
+.row
+{
+	margin-left:-50px;
+}
+
+.toolbar ul li
+{
+	margin: 5px 0 0 0;
+	text-align: left;
+}
+
+.toolbar-btn
+{
+	width: 150px;
+}
+.btn-group
+{
+	width: 150px !important;
+}
+.toolbar-dropdown
+{
+	position:relative;
+	width: 100%;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.toolbar-dropdown .caret
+{
+	position: absolute; right: 8px;
+	top: 5px;
+}
+
+.disabled
+{
+	background: #949494;
+	color: black;
+	text-decoration: line-through;
+}
+.disabled:hover
+{
+	background: #949494 !important;
+	color: black !important;
+	text-decoration: line-through !important;
+}
+#copy_brand
+{
+	color: #000;
+	font-weight: bold;
+	font-size:10pt;
+	position: fixed; right: 5px;
+   text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.4);
+
+	-webkit-transition: all .3s linear;  
+	-moz-transition:    all .3s linear;  
+	-o-transition: 	  all .3s linear;  
+	-ms-transition: 	  all .3s linear;  
+	transition: 	     all .3s linear;
+}
+
+#copy_brand:hover
+{
+	color:#FAFAFA;
+}
+#employeeLoginForm .form-inline {
+	width: 50%;
+}
+@media only screen and (max-width: 529px) {
+	#employeeLoginForm .form-inline {
+		width: 100%;
+		margin-left: 20px;
+	}
+}

@@ -1,783 +1,525 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-<head></head>
-<body>
-<div id='errors'>
-</div>
-<style type='text/css'>
-
-	body {
-		margin-top: 5px;
-		text-align: center;
-		font-size: 14px;
-		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-		background-color:snow;
-		opacity: 0.8;
-		z-index: -2;
-		}
-
-	#calendar {
-		position:absolute; left:13.5em; top:5em;
-		width: 70em;
-		margin: 0 auto;
-		white-space:nowrap;
-		z-index:-1;
-		}
-	#selectTimeSlot {
-		position:absolute; left:0.5em; top:6em;
-	}
-	#employees {
-		float:left;
-		position:absolute;top:8em;
-		width:10em;
-		text-align:left;
-		background:lightGrey;
-		height:20em;
-		overflow:auto;
-		overflow-x:hidden;
-		
-	}
-	#deleteConfirmation, #finalizeConfirmation {
-		display:none;
-	}
-	.employeeName {
-		width:8em;
-	}
-	#options {
-		float:left;
-		position:absolute;top:29em;
-		width: 13em;
-		text-align:left;
-	}
-	.employeeInfo {
-		display:none;
-		text-align:left;
-	}
-	.loading {
-		display:none;
-	    position: fixed;
-	    top: 50%;
-	    left: 50%;
-	    margin-left: -50px; 
-	    margin-top: -50px; 
-	    text-align:center;
-	    z-index:9999;
-        overflow: auto;
-	}
-	.table {
-		font:inherit;
-		font-size:inherit;
-		margin:0px;
-	}
-	li {
-		display:inline;
-		list-style-type:none;
-	}
-	.menu {
-		position:fixed;right:0;top:0;
-		z-index:1;
-	}
-	.menuTemp {
-		position:absolute; right:0; top:0;
-		z-index:1;
-	}
-	.temp {
-		position:absolute; top:0; left:0;
-		/*z-index: -1;*/
-		width:100%;
-		height:4.5em;
-		background-color:lightgrey;
-		text-align:left;
-		z-index: 0;
-		
-	}
-	.top {
-		position:absolute;top:0;left:0;
-		position: fixed;
-		width:100%;
-		height:4.5em;
-		background-color:lightgrey;
-		text-align:left;
-		z-index: 0;
-	}
-	#h2 {
-
-		background-color: Black;
-		z-index:1;
-	}
-	#middleContainer {
-		position:fixed;
-		top:25%;
-		left:50%;
-	}
-	#headerButtons {
-	}
-	#title { 
-	margin-left:20px;
-	}
-
-</style>
-<div id='calendar'></div>
-<div id='employees'>
-	<?php 
-	for($j=0; $j<count($names); ++$j)
-	{
-		$split = explode(":", $names[$j]);
-		$name = $split[0];
-		$id = $split[1];
-		echo <<<END
-		<button class='employeeName' id='$id' onclick="toggleEvents('$id');">$name</button>
-		<br>
-		<script>$("#$id").button();
-		document.getElementById($id).style.color = 'Black';
-		</script>
+   <head></head>
+   <body>
+      <div id='errors'></div>
+      <div id='calendar'></div>
+      <div id='employeeWrapper'>
+         <div id='employees'>
+            <?php // This prints out a list of employees
+            for ($j = 0; $j < count($names); ++$j)
+            {
+               $split = explode(":", $names[$j]);
+               $name = $split[0];
+               $id = $split[1];
+               $color = $split[2];
+               echo <<<END
+   		<button class='employeeName' id='$id' onclick="toggleEvents('$id');">$name</button>
+   		<br>
+   		<script>$("#$id").button();
+   		document.getElementById($id).style.color = 'Black';
+   		document.getElementById($id).style.border = "1px solid $color";
+   		</script>
 END;
-	}
-	
+            }
+            ?>
+         </div>
+      </div>
+      <div id='colors'>
+         <h4>Color Code</h4>
+         <div style="background: #32CD32">
+            Available
+         </div>
+         <div style="background: #000000">
+            Busy
+         </div>
+         <div style="background: #3366CC">
+            Floor Staff Scheduled
+         </div>
+         <div style="background: #B81900">
+            SFL Staff Scheduled
+         </div>
+         <div style="background: #EB8F00">
+            Support Staff Scheduled
+         </div>
+         <div style="background: #480091">
+            Event
+         </div>
+         <div style="background: #790ead">
+            Scheduled for Event
+         </div>
+      </div>
+      <div id='external-events' class='templates left-bar'>
+         <h4>Templates</h4>
+      </div>
+      <div id='deleteConfirmation' title='Confirmation'>
+         Would You like to delete this event?
+      </div>
+      <div id='finalizeConfirmation' title='Confirmation'>
+         Are you sure you would like to finalize the schedule for
+      </div>
 
-	?>
-</div>
-<div id='deleteConfirmation' title='Confirmation'>
-	Would You like to delete this event?
-</div>
-<div id='finalizeConfirmation' title='Confirmation'>
-	Are you sure you would like to finalize the schedule for 
-</div>
-<div id='selectTimeSlot'>Time Slot:<select id='selectTime'>
-<option value='60'>Hour</option>
-<option value='30'>Half Hour</option>
-<option value='15'>15 Minute</option>
-</select></div>
-<div id='options'>
-	Toggle Display Options:
-	<table class='table'>
-	<tr><td><label>All Employees:</td><td> <input type='checkbox' name='toggleAll' id='toggleAll'></input></label></td></tr>
-	<tr><td><label>Busy Events:</td>    <td> <input type="checkbox" name='busyOption' id='busyOption' checked></input></label></td></tr>
-	<tr><td><label>Scheduled Events:</td><td><input type="checkbox" name="scheduledOption" id="scheduledOption" checked></input></label></td></tr>
-	<tr><td><label>Available Events:</td><td><input type="checkbox" name="availableOption" id="availableOption" checked></input></label></td></tr>
-	<tr><td><label>Click to Delete:</td><td><input type="checkbox" name="deleteOption" id="deleteOption"></input></label></td></tr>
-	</table>
-</div>
-<div id='employeeInfo' class='employeeInfo' title='Employee Info'>
-	<div id='desired'></div>
-	<div id='current'></div>
-	<div id='notes'></div>
-</div>
-<div id='middleContainer'></div>
-<div id='headerButtons'></div>
+      <div id='options' class='left-bar'>
+         <h4>Options</h4>
+         <table class='table'>
+            <tr>
+               <td><label>All <b>E</b>mployees:</td><td>
+               <input type='checkbox' name='toggleAll' id='toggleAll' checked='checked'>
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label>S<b>F</b>L Employees:</td><td>
+               <input type="checkbox" name="sflOption" id="sflOption">
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label><b>B</b>usy:</td><td>
+               <input type="checkbox" name='busyOption' id='busyOption' checked='checked'>
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label><b>S</b>cheduled:</td><td>
+               <input type="checkbox" name="scheduledOption" id="scheduledOption" checked="checked">
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label><b>A</b>vailable:</td><td>
+               <input type="checkbox" name="availableOption" id="availableOption" checked="checked">
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label>Events:</td><td>
+               <input type="checkbox" name="eventOption" id="eventOption" checked="checked">
+               </input></label></td>
+            </tr>
+            <tr>
+               <td><label>Click to Delete:</td><td>
+               <input type="checkbox" name="deleteOption" id="deleteOption">
+               </input></label></td>
+            </tr>
+         </table>
+         <div id='selectTimeSlot' class='styled-select'>
+            Slot:
+            <select id='selectTime' class='styled-select'>
+               <option value='60'>Hour</option>
+               <option value='30' selected='selected'>Half Hour</option>
+               <option value='15'>15 Minute</option>
+            </select>
+         </div>
+         <div>
+            Sorting:
+            <select id='sorting' class='slyled-select' onchange="updateSort();">
+               <option value='firstName' selected='selected'>First Name</option>
+               <option value='employeeId'>Employee Id</option>
+               <option value='standard'>Calendar Default</option>
+            </select>
+         </div>
+      </div>
+      <input type='radio' name='group' id='hiddenRadio'>
+      </input>
+      <div id='employeeInfo' class='employeeInfo' title=''>
+         <div id='desired'></div>
+         <div id='current'></div>
+         <div id='notes'></div>
+      </div>
+      <div id='middleContainer'></div>
+      <div id='headerButtons'></div>
 
-<img src="/~giancarloanemone/images/ajax-loader.gif" id='loading' class='loading'/>
-<span id='top' class='top'><div id='title'><h2><?php echo $company ?> Scheduling Page</h2></div></span>
-</body>
+      <img src="/images/ajax-loader.gif" id='loading' class='loading'/>
+      <span id='top' class='top'>
+         <div id='title'>
+            <h2><?php echo $company
+            ?>
+            Scheduling Page</h2>
+         </div></span>
+
+      <div id='customTimes' class='styled-select' title='Custom Shift'>
+         <table>
+            <tr>
+               <td>Start:</td>
+               <td>
+               <select id='start' name='start'>
+                  <option value="06:00:00">6:00am</option>
+                  <option value='06:15:00'>6:15am</option>
+                  <option value='06:30:00'>6:30am</option>
+                  <option value='06:45:00'>6:45am</option>
+                  <option value="07:00:00">7:00am</option>
+                  <option value='07:15:00'>7:15am</option>
+                  <option value='07:30:00'>7:30am</option>
+                  <option value='07:45:00'>7:45am</option>
+                  <option value="08:00:00">8:00am</option>
+                  <option value='08:15:00'>8:15am</option>
+                  <option value='08:30:00'>8:30am</option>
+                  <option value='08:45:00'>8:45am</option>
+                  <option value='09:00:00'>9:00am</option>
+                  <option value='09:15:00'>9:15am</option>
+                  <option value='09:30:00'>9:30am</option>
+                  <option value='09:45:00'>9:45am</option>
+                  <option value='10:00:00'>10:00am</option>
+                  <option value='10:15:00'>10:15am</option>
+                  <option value='10:30:00'>10:30am</option>
+                  <option value='10:45:00'>10:45am</option>
+                  <option value='11:00:00'>11:00am</option>
+                  <option value='11:15:00'>11:15am</option>
+                  <option value='11:30:00'>11:30am</option>
+                  <option value='11:45:00'>11:45am</option>
+                  <option value='12:00:00'>12:00pm</option>
+                  <option value='12:15:00'>12:15pm</option>
+                  <option value='12:30:00'>12:30pm</option>
+                  <option value='12:45:00'>12:45pm</option>
+                  <option value='13:00:00'>1:00pm</option>
+                  <option value='13:15:00'>1:15pm</option>
+                  <option value='13:30:00'>1:30pm</option>
+                  <option value='13:45:00'>1:45pm</option>
+                  <option value='14:00:00'>2:00pm</option>
+                  <option value='14:15:00'>2:15pm</option>
+                  <option value='14:30:00'>2:30pm</option>
+                  <option value='14:45:00'>2:45pm</option>
+                  <option value='15:00:00'>3:00pm</option>
+                  <option value='15:15:00'>3:15pm</option>
+                  <option value='15:30:00'>3:30pm</option>
+                  <option value='15:45:00'>3:45pm</option>
+                  <option value='16:00:00'>4:00pm</option>
+                  <option value='16:15:00'>4:15pm</option>
+                  <option value='16:30:00'>4:30pm</option>
+                  <option value='16:45:00'>4:45pm</option>
+                  <option value='17:00:00'>5:00pm</option>
+                  <option value='17:15:00'>5:15pm</option>
+                  <option value='17:30:00'>5:30pm</option>
+                  <option value='17:45:00'>5:45pm</option>
+                  <option value='18:00:00'>6:00pm</option>
+                  <option value='18:15:00'>6:15pm</option>
+                  <option value='18:30:00'>6:30pm</option>
+                  <option value='18:45:00'>6:45pm</option>
+                  <option value='19:00:00'>7:00pm</option>
+                  <option value='19:15:00'>7:15pm</option>
+                  <option value='19:30:00'>7:30pm</option>
+                  <option value='19:45:00'>7:45pm</option>
+                  <option value='20:00:00'>8:00pm</option>
+                  <option value='20:15:00'>8:15pm</option>
+                  <option value='20:30:00'>8:30pm</option>
+               </select></td>
+            </tr>
+            <tr>
+               <td>End:</td>
+               <td>
+               <select id='end' name='end'>
+                  <option value='09:00:00'>9:00am</option>
+                  <option value='09:15:00'>9:15am</option>
+                  <option value='09:30:00'>9:30am</option>
+                  <option value='09:45:00'>9:45am</option>
+                  <option value='10:00:00'>10:00am</option>
+                  <option value='10:15:00'>10:15am</option>
+                  <option value='10:30:00'>10:30am</option>
+                  <option value='10:45:00'>10:45am</option>
+                  <option value='11:00:00'>11:00am</option>
+                  <option value='11:15:00'>11:15am</option>
+                  <option value='11:30:00'>11:30am</option>
+                  <option value='11:45:00'>11:45am</option>
+                  <option value='12:00:00'>12:00pm</option>
+                  <option value='12:15:00'>12:15pm</option>
+                  <option value='12:30:00'>12:30pm</option>
+                  <option value='12:45:00'>12:45pm</option>
+                  <option value='13:00:00'>1:00pm</option>
+                  <option value='13:15:00'>1:15pm</option>
+                  <option value='13:30:00'>1:30pm</option>
+                  <option value='13:45:00'>1:45pm</option>
+                  <option value='14:00:00'>2:00pm</option>
+                  <option value='14:15:00'>2:15pm</option>
+                  <option value='14:30:00'>2:30pm</option>
+                  <option value='14:45:00'>2:45pm</option>
+                  <option value='15:00:00'>3:00pm</option>
+                  <option value='15:15:00'>3:15pm</option>
+                  <option value='15:30:00'>3:30pm</option>
+                  <option value='15:45:00'>3:45pm</option>
+                  <option value='16:00:00'>4:00pm</option>
+                  <option value='16:15:00'>4:15pm</option>
+                  <option value='16:30:00'>4:30pm</option>
+                  <option value='16:45:00'>4:45pm</option>
+                  <option value='17:00:00'>5:00pm</option>
+                  <option value='17:15:00'>5:15pm</option>
+                  <option value='17:30:00'>5:30pm</option>
+                  <option value='17:45:00'>5:45pm</option>
+                  <option value='18:00:00'>6:00pm</option>
+                  <option value='18:15:00'>6:15pm</option>
+                  <option value='18:30:00'>6:30pm</option>
+                  <option value='18:45:00'>6:45pm</option>
+                  <option value='19:00:00'>7:00pm</option>
+                  <option value='19:15:00'>7:15pm</option>
+                  <option value='19:30:00'>7:30pm</option>
+                  <option value='19:45:00'>7:45pm</option>
+                  <option value='20:00:00'>8:00pm</option>
+                  <option value='20:15:00'>8:15pm</option>
+                  <option value='20:30:00'>8:30pm</option>
+                  <option value='20:45:00'>8:45pm</option>
+                  <option value='21:00:00'>9:00pm</option>
+               </select></td>
+            </tr>
+         </table>
+      </div>
+
+      <button id='viewInfo'>
+         Get Info
+      </button>
+
+      <div id="editEventPopup" class='contextMenu'>
+         <table>
+            <tr>
+               <td>Floor</td><td>
+               <input type="radio" name="category" value="SF" class="rightClickMenuItem" id='floorOption' />
+               </td>
+            </tr>
+            <tr>
+               <td>Mens</td><td>
+               <input type="radio" name="category" value="M" class="rightClickMenuItem" />
+               </td>
+            </tr>
+            <tr>
+               <td>Womens</td><td>
+               <input type="radio" name="category" value="W" class="rightClickMenuItem" />
+               </td>
+            </tr>
+            <tr>
+               <td>Cash</td><td>
+               <input type="radio" name="category" value="C" class="rightClickMenuItem" />
+               </td>
+            </tr>
+            <tr>
+               <td>Greeter</td><td>
+               <input type="radio" name="category" value="G" class="rightClickMenuItem" />
+               </td>
+            </tr>
+            <tr>
+               <td>Soccer</td><td>
+               <input type="radio" name="category" value="S" class="rightClickMenuItem" id='soccerOption'/>
+               </td>
+            </tr>
+            <tr>
+               <td>Shoe Sherpa</td><td>
+               <input type="radio" name="category" value="SS" class="rightClickMenuItem" id='shoeOption'/>
+               </td>
+            </tr>
+            <tr>
+               <td>SFL</td><td>
+               <input type="checkbox" name="SFL" value="1" id="sflRightClickItem" />
+               </td>
+            </tr>
+            <tr>
+               <td>Support</td><td>
+               <input type="radio" name="category" value="SP" class="rightClickMenuItem" id='supportOption' onclick="clearEditEventPopup();" />
+               </td>
+            </tr>
+         </table>
+      </div>
+      <div id='employeeRightClickDiv' style='display:none; background:rgba(0,0,0,0.5);'>
+         Hide Availability
+         <input type='checkbox' name='removeAvailability' id='toggleEmployeeAvailability' onclick="toggleEmployeeAvailability();">
+      </div>
+      <!--<form id='coEventForm' style="display: none">
+      <input type='text' name='eventName' />
+      <input type='text' id='datePickerStart' />
+      <input type='text' id='datePickerEnd' />
+      </form>-->
+      <div id='addCoEvent' style="display:none">
+         <input type="text" value="" placeholder="Event Title..." name="co_title" id='coEventTitle'  />
+         <input type="text" value="" placeholder="Event Date..." name="co_eventDate" id="coEventDatePicker"  />
+         <br style="clear:left;">
+         <input type="text" value="" placeholder="Location..." name="co_location" id="coEventLocation"  />
+         <label for="coEventRepeating" >Repeat:</label>
+         <select name="co_repeating" id="coEventRepeating" onchange="repeatOptionChanged();">
+            <option value="0">None</option>
+            <option value="1">Weekly</option>
+            <option value="2">Bi-Weekly</option>
+            <option value="4">Monthly</option>
+         </select>
+         <br style="clear:left;">
+         <input type="text" value="" placeholder="Repeat Until..." name="co_eventRepeatEnd" id="coEventRepeatEnd" />
+         <br style="clear:left;">
+         <label for="coEventStart">Start</label>
+         <select id='coEventStart' name='start'>
+            <option value="06:00:00">6:00am</option>
+            <option value='06:15:00'>6:15am</option>
+            <option value='06:30:00'>6:30am</option>
+            <option value='06:45:00'>6:45am</option>
+            <option value="07:00:00">7:00am</option>
+            <option value='07:15:00'>7:15am</option>
+            <option value='07:30:00'>7:30am</option>
+            <option value='07:45:00'>7:45am</option>
+            <option value="08:00:00">8:00am</option>
+            <option value='08:15:00'>8:15am</option>
+            <option value='08:30:00'>8:30am</option>
+            <option value='08:45:00'>8:45am</option>
+            <option value='09:00:00'>9:00am</option>
+            <option value='09:15:00'>9:15am</option>
+            <option value='09:30:00'>9:30am</option>
+            <option value='09:45:00'>9:45am</option>
+            <option value='10:00:00'>10:00am</option>
+            <option value='10:15:00'>10:15am</option>
+            <option value='10:30:00'>10:30am</option>
+            <option value='10:45:00'>10:45am</option>
+            <option value='11:00:00'>11:00am</option>
+            <option value='11:15:00'>11:15am</option>
+            <option value='11:30:00'>11:30am</option>
+            <option value='11:45:00'>11:45am</option>
+            <option value='12:00:00'>12:00pm</option>
+            <option value='12:15:00'>12:15pm</option>
+            <option value='12:30:00'>12:30pm</option>
+            <option value='12:45:00'>12:45pm</option>
+            <option value='13:00:00'>1:00pm</option>
+            <option value='13:15:00'>1:15pm</option>
+            <option value='13:30:00'>1:30pm</option>
+            <option value='13:45:00'>1:45pm</option>
+            <option value='14:00:00'>2:00pm</option>
+            <option value='14:15:00'>2:15pm</option>
+            <option value='14:30:00'>2:30pm</option>
+            <option value='14:45:00'>2:45pm</option>
+            <option value='15:00:00'>3:00pm</option>
+            <option value='15:15:00'>3:15pm</option>
+            <option value='15:30:00'>3:30pm</option>
+            <option value='15:45:00'>3:45pm</option>
+            <option value='16:00:00'>4:00pm</option>
+            <option value='16:15:00'>4:15pm</option>
+            <option value='16:30:00'>4:30pm</option>
+            <option value='16:45:00'>4:45pm</option>
+            <option value='17:00:00'>5:00pm</option>
+            <option value='17:15:00'>5:15pm</option>
+            <option value='17:30:00'>5:30pm</option>
+            <option value='17:45:00'>5:45pm</option>
+            <option value='18:00:00'>6:00pm</option>
+            <option value='18:15:00'>6:15pm</option>
+            <option value='18:30:00'>6:30pm</option>
+            <option value='18:45:00'>6:45pm</option>
+            <option value='19:00:00'>7:00pm</option>
+            <option value='19:15:00'>7:15pm</option>
+            <option value='19:30:00'>7:30pm</option>
+            <option value='19:45:00'>7:45pm</option>
+            <option value='20:00:00'>8:00pm</option>
+            <option value='20:15:00'>8:15pm</option>
+            <option value='20:30:00'>8:30pm</option>
+            <option value='20:45:00'>8:45pm</option>
+            <option value='21:00:00'>9:00pm</option>
+         </select>
+         <label for="coEventEnd"> End</label>
+         <select id='coEventEnd' name='end'>
+            <option value='09:00:00'>9:00am</option>
+            <option value='09:15:00'>9:15am</option>
+            <option value='09:30:00'>9:30am</option>
+            <option value='09:45:00'>9:45am</option>
+            <option value='10:00:00'>10:00am</option>
+            <option value='10:15:00'>10:15am</option>
+            <option value='10:30:00'>10:30am</option>
+            <option value='10:45:00'>10:45am</option>
+            <option value='11:00:00'>11:00am</option>
+            <option value='11:15:00'>11:15am</option>
+            <option value='11:30:00'>11:30am</option>
+            <option value='11:45:00'>11:45am</option>
+            <option value='12:00:00'>12:00pm</option>
+            <option value='12:15:00'>12:15pm</option>
+            <option value='12:30:00'>12:30pm</option>
+            <option value='12:45:00'>12:45pm</option>
+            <option value='13:00:00'>1:00pm</option>
+            <option value='13:15:00'>1:15pm</option>
+            <option value='13:30:00'>1:30pm</option>
+            <option value='13:45:00'>1:45pm</option>
+            <option value='14:00:00'>2:00pm</option>
+            <option value='14:15:00'>2:15pm</option>
+            <option value='14:30:00'>2:30pm</option>
+            <option value='14:45:00'>2:45pm</option>
+            <option value='15:00:00'>3:00pm</option>
+            <option value='15:15:00'>3:15pm</option>
+            <option value='15:30:00'>3:30pm</option>
+            <option value='15:45:00'>3:45pm</option>
+            <option value='16:00:00'>4:00pm</option>
+            <option value='16:15:00'>4:15pm</option>
+            <option value='16:30:00'>4:30pm</option>
+            <option value='16:45:00'>4:45pm</option>
+            <option value='17:00:00'>5:00pm</option>
+            <option value='17:15:00'>5:15pm</option>
+            <option value='17:30:00'>5:30pm</option>
+            <option value='17:45:00'>5:45pm</option>
+            <option value='18:00:00'>6:00pm</option>
+            <option value='18:15:00'>6:15pm</option>
+            <option value='18:30:00'>6:30pm</option>
+            <option value='18:45:00'>6:45pm</option>
+            <option value='19:00:00'>7:00pm</option>
+            <option value='19:15:00'>7:15pm</option>
+            <option value='19:30:00'>7:30pm</option>
+            <option value='19:45:00'>7:45pm</option>
+            <option value='20:00:00'>8:00pm</option>
+            <option value='20:15:00'>8:15pm</option>
+            <option value='20:30:00'>8:30pm</option>
+            <option value='20:45:00'>8:45pm</option>
+            <option value='21:00:00' selected="selected">9:00pm</option>
+         </select>
+         <br style="clear:left;">
+      </div>
+      <div id='overrideAvailability' class='contextMenu'>
+         Available<input type="radio" name='availability' value="Available" class='overrideRightClick'><br>
+         Custom<input type="radio" name='availability' value="Custom" class='overrideRightClick'><br>
+         Busy<input type="radio" name="availability" value="Busy" class='overrideRightClick'>
+      </div>
+   </body>
 </html>
 <script type='text/javascript'>
-	var tutorial = false;
-	$(document).ready(function() {
-	
-		
-		var url = <?php echo $url ?>;
-		var busy = "true";
-		var scheduled = "true";
-		var available = "true";
-		var employees = "false";
-		var deleteOption = "false";
-		var names = <?php echo json_encode($names) ?>;
-		
-		$("#deleteOption").attr('checked', false);
-		$("#toggleAll").attr('checked', false);
-		
-		$("#calendar").css("width", $(document).width() - $("#options").width() - 50);
-		var offsetLeft = $(document).width() - $("#options").width() - 350;
-		$("#headerButtons").offset({ top: 10, left: offsetLeft });
-		
-		var htmlForm = "";
-		
-		 for(var j=0; j<names.length; j++)
-		 {
-		 	var input = names[j].split(":");
-		 	var split = input[0].replace(" ", ":");	
-		 	htmlForm += '<label>' + input[0] + '<input type="checkbox" name=' + split + ' value=' + input[1] + '></label><br>';
-		 }
-				 
-		htmlForm += '<br>';
-		
-		$("#selectTime").change(function() {
-			var view = $("#calendar").fullCalendar('getView').name;
-			renderCalendar(parseInt($(this).val()),view);
-		});
-		function renderCalendar(timeSlot, view) 
-		{
-		$("#calendar").fullCalendar('destroy');
-		var calendar = $('#calendar').fullCalendar({
-			header: {
-				left: 'prev,next',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
-			},
-			selectable: true,
-			//selectHelper: true,
-			slotMinutes: timeSlot,
-			minTime: 8,
-			maxTime: 21,
-			editable: true,
-			resizeable: true,
-			defaultView: view,
-			viewDisplay: function(view)
-			{
-				if(view.name == 'month')
-				{
-					h = NaN;
-				}
-				else
-				{
-					h = 3000;
-				}
-				$('#calendar').fullCalendar('option', 'contentHeight',h);
-			},
-			loading: function (bool) 
-			{ 
- 				if (bool) 
-     				$('#loading').show(); 
-  				else 
-    				$('#loading').fadeOut(); 
-			},
-			eventClick: function(calEvent, jsEvent, view) 
-			{
-				if(calEvent.title == 'Test Schedule')
-				{
-					document.getElementById('desired').innerHTML = "Desired Hours: 20-30(Sample)";
-					document.getElementById('current').innerHTML = "Scheduled Hours: 15.25(Sample)";
-					document.getElementById('notes').innerHTML = "Notes: I would like to have at least one monday off this month (Sample)";
-					$("#employeeInfo").dialog();
-				}
-				else if(calEvent.title.indexOf(":") == -1)
-				{
-					calendar.fullCalendar("changeView","agendaWeek");
-				}
-				else
-				{
-					if(deleteOption == 'true')
-					{
-						$("#deleteConfirmation").dialog({
-						autoOpen: false,
-						show: "fold",
-						hide: "fold",
-						modal: true,
-						buttons: { 
-						Delete: function() 
-						{
-							$.ajax({
-							type:"POST",
-							url: <?php echo $url ?> + "index.php/manager/deleteEvent",
-							data: 
-							{
-								employeeId: calEvent.title.split(":")[1],
-								day: calEvent.start
-							},
-							success: function(msg) 
-							{
-								calendar.fullCalendar("removeEvents", function(e)
-								{
-									if(e.start == calEvent.start && e.title == calEvent.title)
-									{
-										return true;
-									}
-									return false;
-								});
-							}
-							});
-							$(this).dialog("close");
-						},
-						Cancel: function()
-						{
-							$(this).dialog('close');
-						}
-					}
-					});
-					$("#deleteConfirmation").dialog('open');
-					}			
-					else 
-					{ 
-						$.ajax({
-							type:"POST",
-							url: <?php echo $url ?> + "index.php/manager/getEmployeeWeekHours",
-							data: {
-								employeeId: calEvent.title.split(":")[1],
-								dayNum: calEvent.start.getDay(),
-								date: calEvent.start
-							},
-							success: function(msg) {
-								var hourInfo = JSON.parse(msg);
-								document.getElementById('desired').innerHTML = "Desired Hours: " + hourInfo['desired'];
-								document.getElementById('current').innerHTML = "Scheduled Hours: " + hourInfo['scheduled'];
-								document.getElementById('notes').innerHTML = "Notes: " + hourInfo['notes'];
-								$("#employeeInfo").dialog();
-					
-							}
-						});
-					}
-				}
-			},
-			eventDrop: function(event,dayDelta,minuteDelta,allDay,revertFunc)
-			{
-				eventMove(event,dayDelta,minuteDelta,revertFunc);
-			},
-			eventResize: function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) 
-			{ 
-				eventMove(event,dayDelta,minuteDelta,revertFunc);	
-			},
-			select: function(start, end, allDay) {
-				if(tutorial == true)
-				{
-					return true;
-				}
-				var view = calendar.fullCalendar('getView').name;	
-				var startHour = start.getHours();
-				var endHour = end.getHours();
-				var startMin = start.toTimeString().split(" ")[0].split(":")[1];
-				var endMin = end.toTimeString().split(" ")[0].split(":")[1];
-
-				if(startHour > 12)
-				{
-					startHour-=12;
-					startTime = startHour + ":" + startMin + "pm"; 
-				}
-				else
-				{
-					startTime = startHour + ":" + startMin + "am";
-				}
-				if(endHour > 12)
-				{
-					endHour-=12;
-					endTime = endHour + ":" + endMin + "pm";
-				}
-				else 
-				{
-					endTime = endHour + ":" + endMin + "am";
-				}
-				if(view == 'month')
-				{
-					calendar.fullCalendar('changeView', 'agendaWeek');
-					calendar.fullCalendar('gotoDate', start);
-				}
-				else { 
-				var state = {
-				state0:	{
-				title: "Shift: " + (start.getMonth() + 1)  + "/" + start.getDate() + "/" + start.getFullYear() + 
-				"<br>From: " + startTime + " Until: " + endTime,
-				html: htmlForm,
-				submit:function(e,v,m,f) 
-				{ 
-					var title = "";
-					for (var key in f) 
-					{
- 					//title += key.replace(":", " ");
- 					//title += ":";
- 					var id = f[key];
- 					day = start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate();
- 					// Ajax request to update the database
- 					$.ajax({
-							type: "POST",
-							data: { employeeId: id,
-							day: day,	
-							begin: start.toTimeString().split(" ")[0],
-							end: end.toTimeString().split(" ")[0] 
-							},
-							url: <?php echo $url ?> + "index.php/manager/scheduleEmployee",
-							success: function(msg) {
-								calendar.fullCalendar("refetchEvents");
-							}
-						});	
-					}	
-					
-				}
-			}}
-			$.prompt(state);
-			};
-			
-			calendar.fullCalendar('unselect');
-			},
-			eventSources: [
-				
-				{
-					url: <?php echo $url ?> + "index.php/manager/eventSource",
-					data: { busy: busy },
-					error: function(msg, textStatus, errorThrown)
-					{
-						alert(errorThrown);
-					}
-				},
-				{
-					url: <?php echo $url ?> + "index.php/manager/scheduledEventSource",
-					error: function(msg, textStatus, errorThrown)
-					{
-						alert(errorThrown);
-					},
-				}
-			]
-		});
-		}
-		renderCalendar(30, 'month');
-	// Function that handles an event begin moved or resized
-	function eventMove(event,dayDelta,minuteDelta,revertFunc)
-	{
-		var title = event.title;
-		if(title == "Test Schedule")
-		{
-			return true;
-		}
-		else if(title.indexOf(":") == -1)
-		{
-			revertFunc();
-		}
-		else {
-			var id = title.split(":")[1];
-			var day = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate() - dayDelta);
-			
-			var _day = event.start;	
-			var start = event.start.toTimeString();
-			var end = event.end.toTimeString();
-			
-			
-			$.ajax({
-				type:"POST",
-				url: <?php echo $url ?> + "index.php/manager/deleteEvent",
-				data: { 
-					employeeId: id,
-					day: day
-				},
-				success: function() {
-					$.ajax({
-						type:"POST",
-						url: <?php echo $url ?> + "index.php/manager/scheduleEmployee",
-						data: {
-							employeeId: id,
-							day: _day,
-							begin: start.split(" ")[0],
-							end: end.split(" ")[0]
-						},
-						success: function(msg) {
-							
-						}
-						
-					})
-				}
-			});
-		}
-	}
-	$("#busyOption").click(function() {
-		$.ajax({
-			type: "GET",
-			url: <?php echo $url ?> + "index.php/manager/toggleOption",
-			data: { option: "busy" },
-			success: function(msg) {
-				calendar.fullCalendar("refetchEvents");
-			}
-		});
-	});
-	$("#scheduledOption").click(function() {
-		if(scheduled == "true")
-		{
-			scheduled = "false";
-			calendar.fullCalendar("removeEventSource",<?php echo $url ?> + "index.php/manager/scheduledEventSource");
-		}
-		else {
-			scheduled = "true";
-			calendar.fullCalendar("addEventSource", <?php echo $url ?> + "index.php/manager/scheduledEventSource");
-		}
-	});
-	
-	$("#availableOption").click(function() {
-		if(available == "true")
-		{
-			available = "false";
-			calendar.fullCalendar("removeEventSource",<?php echo $url ?> + "index.php/manager/eventSource");
-		}
-		else {
-			available = "true";
-			calendar.fullCalendar("addEventSource",<?php echo $url ?> + "index.php/manager/eventSource");
-		}
-	});
-	$("#toggleAll").click(function() 
-	{
-		var disp='';
-		if(employees == 'false')
-		{
-			disp = '1';
-			employees = 'true';
-			$("#employees").children("button").each(function() {
-				document.getElementById($(this).attr("id")).style.color = 'Green';
-			});
-		}
-		else 
-		{
-			disp = '0';
-			employees = 'false';
-			$("#employees").children("button").each(function() {
-				document.getElementById($(this).attr("id")).style.color = 'Black';
-			});
-		}
-		$.ajax({
-			type:"POST",
-			data: {
-				display: disp
-			},
-			url: <?php echo $url ?> + "index.php/manager/toggleAll",
-			success: function(msg)
-			{
-				$("#calendar").fullCalendar('refetchEvents');
-			},
-			error: function(msg, textStatus, errorThrown)
-			{
-				alert(errorThrown);
-			}
-		});
-	});
-	$("#deleteOption").click(function() {
-		if(deleteOption == 'false')
-		{
-			deleteOption = 'true';
-		}
-		else {
-			deleteOption = 'false';
-		}
-	});
-	
-});
-		function setTutorial(bool)
-		{
-			tutorial = bool;
-		}
-		function toggleEvents(id)
-		{
-			if(document.getElementById(id).style.color == 'Black')
-			{
-				document.getElementById(id).style.color = 'Green';
-			}
-			else
-			{
-				document.getElementById(id).style.color = 'Black';
-			}
-			
-			$.ajax({
-				type:"POST",
-				data: { employeeId: id },
-				url: <?php echo $url ?> + "index.php/manager/toggleDisplay",
-				success: function(msg)
-				{
-					$("#calendar").fullCalendar('refetchEvents');
-				},
-				error: function(msg)
-				{
-					alert(msg);
-				}
-			});
-		}
-		$("#finalize").button();
-		$("#home").button();
-		$("#about").button();
-		$("#tutorial").button();
-		$("#logOut").button();
-		
-		$("#finalize").click(function() {
-			var date = $("#calendar").fullCalendar('getDate');
-			var startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-			var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-			document.getElementById("finalizeConfirmation").innerHTML = "Are you sure you would like to finalize the schedule from " + startDate.toDateString() + " until " + endDate.toDateString();
-			$("#finalizeConfirmation").dialog({
-				autoOpen:false,
-				show:'fold',
-				hide:'fold',
-				buttons: {
-					Yes: function()
-					{
-						$(this).dialog('close');
-						$.ajax({
-						type: "POST",
-						url: <?php echo $url ?> + "index.php/manager/finalize",
-						data: {
-						start: startDate,
-						end: endDate
-						},
-						success: function(msg) {
-							$("#calendar").fullCalendar("refetchEvents");
-						},
-						error: function(msg, textStatus, errorThrown) {
-							alert(errorThrown);
-						}
-					});
-					},
-					Cancel: function()
-					{
-						$(this).dialog('close');
-					}
-				}
-			});
-			$("#finalizeConfirmation").dialog('open');
-		});
-		$("#logOut").click(function() {
-		window.location = <?php echo $url ?> + 'index.php/manager/logOut';
-		});
-		$("#about").click(function() {
-			window.location = <?php echo $url ?> + "index.php/site/about";
-		});
-		$("#home").click(function () {
-			window.location = <?php echo $url ?> + "index.php/manager";
-		});
-		
-		var tutorialSubmit = function(e,v,m,f) {
-			if(v === -1)
-			{
-				$.prompt.prevState();
-				return false;
-			}
-			else if(v === 1)
-			{
-				$.prompt.nextState();
-				return false;
-			}
-		}
-		var tutorialStates = [
-		{
-			title: "Welcome",
-			html: "Would you like to take a tutorial of the scheduling software?",
-			buttons: { Sure: 1 },
-			focus: 1,
-			position: { container: '#container', x:0, y:0, width:300 },
-			submit: function(e,v,m,f)
-			{
-				if(v === -1)
-				{
-					$.prompt.prevState();
-					return false;
-				}
-				else if(v === 1)
-				{
-					$("#top").removeClass('top');
-					$("#top").addClass("temp");
-					$("#menu").removeClass('menu');
-					$("#menu").addClass('menuTemp');
-					$.prompt.nextState();
-					return false;
-				}
-			}
-		},
-		{
-			title:"Time Slot",
-			html: "This drop down list will update the time slots shown in the week and day views",
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			position: { container: '#selectTimeSlot', x:170, y:-10, width:300, arrow: 'lt'},
-			submit: tutorialSubmit
-		},
-		{
-			title: "Employees",
-			html: "This box contains a list of your employees. Clicking on their name will toggle the visibility of their availability and scheduled days",
-			buttons: { Prev: -1, Next: 1 },
-			focus: 1,
-			position: { container: '#employees', x:150, y:0, width:300, arrow: 'lt' },
-			submit: tutorialSubmit
-		},
-		{
-			title: "Options",
-			html: "This area shows the options that can be changed at any point to display various information. Click to delete allows for deleting of scheduled events by clicking.",
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			position: { container: '#options', x:170, y:0, width:300, arrow: 'lt' },
-			submit: tutorialSubmit
-		},
-		{
-			title: "Availability",
-			html: "Availability is color coded. Black indicates that the employee is busy and cannot work that day. Green indicates the employee is free all day, and Blue indicates a custom availability.",
-			position: { container: '#container', x:0, y:0, width:300 },
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			submit: tutorialSubmit
-		},
-		{
-			title: "Menu",
-			html: "Here is your main menu! Pay attention to the Finalize Schedule button. Clicking this button will finalize the schedule for the current month, and make it visible to employees.",
-			position: { container: '#container', x:-170, y:10, width:300, arrow: 'rt' },
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			submit: tutorialSubmit
-		},
-		{
-			title: "Scheduling",
-			html: "When in the month view, clicking on a day will switch to view that week. You can also manually switch between views using these buttons.",
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			position: { container: '#headerButtons', x:-10, y:-10, width:300, arrow: 'rm'},
-			submit: function(e,v,m,f) {
-				if(v === -1)
-				{
-					$.prompt.prevState();
-					return false;
-				}
-				else if(v === 1)
-				{
-					$("#calendar").fullCalendar('changeView', 'agendaWeek');
-					$("#calendar").fullCalendar("addEventSource", <?php echo $url ?> + "index.php/manager/tutorialEvents");
-					$("#calendar").fullCalendar('gotoDate', new Date('2012','0','1'));
-					$.prompt.nextState();
-					return false;
-				}
-				
-			}
-		},
-		{
-			title: "Scheduling Continued",
-			html: "When in the week or day view, employees can be scheduled by simply dragging from the desired start time to the end time. A pop up window will allow for the selection of one or multiple employees for the selected shift.",
-			buttons: { Prev: -1, Next: 1},
-			focus: 1,
-			position: { container: '#headerButtons', x:150, y:100, width:300},
-			submit: tutorialSubmit
-		},
-		{
-			title: "Shift Editing",
-			html: "Scheduled events can be shifted and resized by clicking and dragging (Try it!)",
-			buttons: { Prev: -1, Next: 1 },
-			focus: 1,
-			position: { container: '#headerButtons', x:150, y:200, width:300},
-			submit: tutorialSubmit
-		},
-		{
-			title: "Employee Information",
-			html: "Clicking on an employees scheduled shift will show a window with information about their weekly desired hours, current week scheduled hours, and special notes (Try it!)",
-			buttons: { Prev: -1, Next: 1 },
-			focus: 1,
-			position: { container: '#headerButtons', x:150, y:200, width:300},
-			submit: tutorialSubmit
-		},
-		{
-			title: "The End!",
-			html: "Now you are ready to use the Scheduling Software! If you have any questions, feel free to contact Giancarlo Anemone at ganemone@gmail.com",
-			buttons: { Done: 2},
-			focus: 1,
-			position: { container: '#container', x:0, y:0, width:300 },
-			submit: function(e,v,m,f)
-			{
-				$("#calendar").fullCalendar('removeEventSource', <?php echo $url ?> + "index.php/manager/tutorialEvents");
-				setTutorial(false);
-				$("#menu").removeClass('temp');
-				$("#top").removeClass('temp');
-				$("#menu").addClass("menu");
-				$("#top").addClass("top");
-			}
-		}
-		];
-		$("#tutorial").click(function() {
-			setTutorial(true);
-			$.prompt(tutorialStates, {
-				close: function(e,v,m,f)
-				{
-					tutorial = false;
-					$("#menu").removeClass('temp');
-					$("#top").removeClass('temp');
-					$("#menu").addClass("menu");
-					$("#top").addClass("top");
-				}
-			});
-		});
+   var peoplePerHour = <? echo $peoplePerHour ?>;
+   var tutorial = false;
+   var url =    "<? echo base_url() ?>";
+   var employees = false;
+   var busy = false;
+   var names =  <?php echo json_encode($names) ?>;
+   var unstoredEvents = [];
+   var selectList = "<div class='styled-select'><select class='selectedEmployee' name='group' id='employeeSelectList' onclick='selectHidden();'><option value='NA' id='firstOption'>--------------</option>";
+   var removedEmployees = [-1];
+   for (var j = 0; j < names.length; j++)
+   {
+      var input = names[j].split(":");
+      selectList += '<option value=' + input[1] + ' >' + input[0] + '</option>';
+   }
+   selectList += "</select></div>"; 
 </script>
+<script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerTutorial.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerCalendar.js"></script>
+<!--<script src="<? echo base_url() ?>jsMin/manager/manager.min.js"></script>-->
+<script type="text/javascript">
+   $(document).ready(function()
+   {
+      // Initializes Variables
+      $("#finalize").button();
+      $("#home").button();
+      $("#template").button();
+      $("#addCOEvent").button();
+      $("#logOut").button();
+      $("#viewInfo").button();
+      $("#tutorial").button();
 
+      $("#deleteOption").attr('checked', false);
+      $("#toggleAll").attr('checked', false);
+      $("#busyOption").attr('checked', true);
+      $("#sflOption").attr('checked', false);
+      $("#availableOption").attr('checked', true);
+      $("#scheduledOption").attr('checked', true);
+
+      // Sets the calendar size based on the page size
+      $("#calendar").css("width", $(document).width() - $("#options").width() - 100);
+      var offsetLeft = $(document).width() - $("#options").width() - 350;
+      $("#coEventRepeatEnd").attr("disabled", "disabled");
+      $("#headerButtons").offset(
+      {
+         top : 10,
+         left : offsetLeft
+      });
+
+      var templates;
+      loadTemplates();
+   });
+   $("#coEventRepeatEnd").datepicker(
+   {
+      showButtonPanel : true,
+      prevText : "__",
+      nextText : "__",
+      dateFormat : "yy-mm-dd"
+   }); 
+</script>

@@ -1,0 +1,273 @@
+<html>
+   <style type='text/css'>
+    body {
+        margin-top: 0px;
+        margin-left: 0px;
+        margin-right: 0px;
+        text-align: center;
+        font-size: 14px;
+        font-family: 'Noto Sans', sans-serif;
+    }
+    #wrap {
+        width: 1100px;
+        margin: 0 auto;
+    }
+    #alter {
+        display: none;
+    }
+    #external-events {
+        float: left;
+        width: 195px;
+        padding: 0 10px;
+        border: 1px solid #ccc;
+        background: #eee;
+        text-align: left;
+        display: none;
+        margin: 10px;
+    }
+    #external-events h4 {
+        font-size: 16px;
+        margin-top: 0;
+        padding-top: 1em;
+    }
+
+    .external-event {/* try to mimick the look of a real event */
+        margin: 10px 0px;
+        padding: 2px 4px;
+        color: #fff;
+        font-size: .85em;
+        cursor: pointer;
+        width: 185px;
+    }
+    #colorCode {
+        width: 195px;
+        padding: 0 10px;
+        text-align: left;
+        display: none;
+    }
+    #busy, #busyCode {
+        background: #000000;
+    }
+    #available, #availableCode {
+        background: #32CD32;
+    }
+    #custom, #customCode {
+        background: #3366CC;
+    }
+    #scheduledCode {
+        background: ORANGE;
+    }
+    #coverCode {
+        background: PURPLE;
+    }
+    #pickUpCode {
+        background: RED;
+    }
+    #eventCode {
+        background: #480091;
+    }
+    #external-events p {
+        margin: 1.5em 0;
+        font-size: 11px;
+        color: #666;
+    }
+
+    #external-events p input {
+        margin: 0;
+        vertical-align: middle;
+    }
+    #calendar {
+        position: absolute;
+        right: 5px;
+        top: 12%;
+        margin: 10px;
+        height:900px;
+    }
+    #customTimes, #shiftCoverRequest, #coverRequestConfirmation, #pickUpShift {
+        display: none;
+    }
+    #buttons, #buttons2 {
+        float: left;
+        margin-left: -2em;
+        padding: 0px;
+        text-align: left;
+    }
+    #monthInfo {
+        display: none;
+    }
+    #monthTable {
+        font-size: 8pt;
+    }
+    #minHours, #maxHours {
+        width: 7em;
+    }
+
+    .loading {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin-left: -50px;
+        margin-top: -50px;
+        text-align: center;
+        z-index: 9999;
+        overflow: auto;
+    }
+    #buttons li {
+        display: block;
+        list-style-type: none;
+        margin: 1px;
+    }
+    #buttons li button
+    {
+       font-size:20pt;
+       width:10.5em;
+       height:3.5em;
+    }
+    .menuButton {
+       font-size:18pt;
+       width:8em;
+       height:1.5em;
+    }
+    .ui-dialog-titlebar-close {
+        display: none;
+    }
+    #container {
+        position: absolute;
+        left: 40%;
+        top: 0%;
+    }
+    .clearRight {
+        clear: right;
+    }
+    .clearLeft {
+        clear: left;
+    }
+    .ui-dialog-content.ui-widget-content {
+        font-size: 11pt;
+    }
+    #ui-datepicker-div.ui-helper-clearfix.ui-corner-all {
+        display: none;
+    }
+    #newsfeed {
+        display:none;
+        float: left;
+        border: 2px solid black;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        border-radius: 10px;
+        margin-left:5px;
+        margin-bottom:10px;
+        margin-top:-25px;
+        padding:3px;
+    }
+    #newsfeed ul {
+        height: 550px;
+        width: 280px;
+        overflow-y: scroll;
+        list-style-type: none;
+        margin-left: 3px;
+        margin-top: 0px;
+        margin-right: -1px;
+        padding: 0px;
+    }
+    #newsfeed li {
+        padding-left: 5px;
+        text-align: left;
+    }
+    #newsfeed li textarea {
+        float: left;
+    }
+    #newsfeed li button {
+        float: left;
+    }
+    #newsfeed li div {
+        text-align: left;
+    }
+    #newsfeed #addNewPost {
+        margin-right: 60px;
+        -moz-box-shadow: inset 0px 0px 0px 0px #caefab;
+        -webkit-box-shadow: inset 0px 0px 0px 0px #caefab;
+        box-shadow: inset 0px 0px 0px 0px #caefab;
+        background-color: #FFFFFF;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+        border: 2px solid #000000;
+        display: inline-block;
+        padding: 2px 2px;
+        text-decoration: none;
+    }
+    #addNewPost:hover {
+        background-color: #AAAAAA;
+    }
+    #newsfeed .mainButton {
+        -moz-box-shadow: inset 0px 0px 0px 0px #caefab;
+        -webkit-box-shadow: inset 0px 0px 0px 0px #caefab;
+        box-shadow: inset 0px 0px 0px 0px #caefab;
+        background-color: #FFFFFF;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+        border: 2px solid #000000;
+        display: inline-block;
+        padding: 2px 2px;
+        text-decoration: none;
+    }
+    #newsfeed .mainButton:hover {
+        background-color: #AAAAAA;
+    }
+    #enterAvailability {
+       display:none;
+       background:#999999;
+       width:350px;
+       font-size:20pt;
+       font:white;
+       z-index: 999999;
+    }
+    .mobileRadio {
+       height:80px;
+       width:80px;
+    }
+    
+    /*needs implementing...*/
+      .mobileSelect
+      {
+         height: 40px;
+         width: 150px;
+         font-size: 20pt;
+      }
+      #availabilitySubmit
+      {
+         height: 50px;
+         width: 150px;
+         font-size: 20pt;
+      }
+      #closeButton
+      {
+         height: 50px;
+         width: 50px;
+         margin-left: -10px;
+      }
+      .disabled
+      {
+         disabled: disabled;
+         background: #949494;
+         color: black;
+         text-decoration: line-through;
+      }
+      span.fc-button.fc-button-month.fc-state-default.fc-corner-left, span.fc-button.fc-button-basicWeek.fc-state-default, span.fc-button.fc-button-basicDay.fc-state-default.fc-corner-right, span.fc-button.fc-button-next.fc-state-default.fc-corner-right, span.fc-button.fc-button-prev.fc-state-default.fc-corner-left, span.fc-header-title
+      {
+         font-size: 16pt;
+      }
+      span.fc-button.fc-button-today.fc-state-default.fc-corner-left.fc-corner-right
+      {
+         display: none;
+      }
+
+      span.fc-text-arrow
+      {
+         margin-left: 15px;
+      }
+   </style>
+</html>

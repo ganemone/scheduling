@@ -1,0 +1,784 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head></head>
+	<body>
+		<div id='errors'></div>
+		<div id='calendar'></div>
+		
+		<div id='employees'>
+			<?php
+			// This prints out a list of employees
+			for ($j = 0; $j < count($names); ++$j) {
+				$split = explode(":", $names[$j]);
+				$name = $split[0];
+				$id = $split[1];
+				echo <<<END
+		<button class='employeeName' id='$id' onclick="toggleEvents('$id');">$name</button>
+		<br>
+		<script>$("#$id").button();
+		document.getElementById($id).style.color = 'Black';
+		</script>
+END;
+			}
+	?>
+</div>
+		<div id='deleteConfirmation' title='Confirmation'>
+			Would You like to delete this event?
+		</div>
+		<div id='finalizeConfirmation' title='Confirmation'>
+			Are you sure you would like to finalize the schedule for
+		</div>
+		<div id='selectTimeSlot'>
+			Time Slot:
+			<select id='selectTime'>
+				<option value='60'>Hour</option>
+				<option value='30' selected='selected'>Half Hour</option>
+				<option value='15'>15 Minute</option>
+			</select>
+		</div>
+		<div id='options'>
+			Toggle Display Options:
+			<table class='table'>
+				<tr>
+					<td><label>All Employees:</td><td>
+					<input type='checkbox' name='toggleAll' id='toggleAll'>
+					</input></label></td>
+				</tr>
+				<tr>
+					<td><label>Busy Events:</td><td>
+					<input type="checkbox" name='busyOption' id='busyOption' checked>
+					</input></label></td>
+				</tr>
+				<tr>
+					<td><label>Scheduled Events:</td><td>
+					<input type="checkbox" name="scheduledOption" id="scheduledOption" checked>
+					</input></label></td>
+				</tr>
+				<tr>
+					<td><label>Available Events:</td><td>
+					<input type="checkbox" name="availableOption" id="availableOption" checked>
+					</input></label></td>
+				</tr>
+				<tr>
+					<td><label>Click to Delete:</td><td>
+					<input type="checkbox" name="deleteOption" id="deleteOption">
+					</input></label></td>
+				</tr>
+			</table>
+		</div>
+		<div id='employeeInfo' class='employeeInfo' title='Employee Info'>
+			<div id='desired'></div>
+			<div id='current'></div>
+			<div id='notes'></div>
+		</div>
+		<div id='middleContainer'></div>
+		<div id='headerButtons'></div>
+
+		<img src="/images/ajax-loader.gif" id='loading' class='loading'/>
+		<span id='top' class='top'>
+			<div id='title'>
+				<h2><?php echo $company
+				?>
+				Scheduling Page</h2>
+			</div></span>
+	</body>
+</html>
+<script type='text/javascript'>
+
+var tutorial = false;
+var url = 'http://localhost/ScheduleRepo/index.php';
+
+$(document).ready(function() {
+// Initializes Variables
+var busy = "true";
+var scheduled = "true";
+var available = "true";
+var employees = "false";
+var deleteOption = "false";
+
+var names =  <?php echo json_encode($names) ?>;
+
+	// Initializes the menu to be unchecked
+	$("#deleteOption").attr('checked', false);
+	$("#toggleAll").attr('checked', false);
+
+	// Sets the calendar size based on the page size
+	$("#calendar").css("width", $(document).width() - $("#options").width() - 50);
+	var offsetLeft = $(document).width() - $("#options").width() - 350;
+	$("#headerButtons").offset({
+		top : 10,
+		left : offsetLeft
+	});
+	// Creates a form based on the current employees for scheduling 
+	var htmlForm = "";
+	for (var j = 0; j < names.length; j++) {
+		var input = names[j].split(":");
+		var split = input[0].replace(" ", ":");
+		htmlForm += '<label>' + input[0] + '<input type="checkbox" name=' + split + ' value=' + input[1] + '></label><br>';
+	}
+	htmlForm += '<br>';
+
+	// Function for updating time slots in the agendaWeek and agendaDay Views
+	$("#selectTime").change(function() {
+		var view = $("#calendar").fullCalendar('getView').name;
+		renderCalendar(parseInt($(this).val()), view, url);
+	});
+	
+	/*	Function to render the calendar. Takes inputs timeSlot (the desired amount time interval), 
+	 *  View (the current view of the calendar), and url(the base url). 
+	 */
+	function renderCalendar(timeSlot, view, url) {
+		$("#calendar").fullCalendar('destroy');
+		var calendar = $('#calendar').fullCalendar({
+			header : {
+				left : 'prev,next',
+				center : 'title',
+				right : 'month,agendaWeek,agendaDay'
+			},
+			selectable : true,
+			slotMinutes : timeSlot,
+			minTime : 8,
+			maxTime : 21,
+			editable : true,
+			resizeable : true,
+			defaultView : view,
+			/*	Function to be executed when the view changes. Updates the contentHeight for scrolling in the week and day
+			 *  views. Takes the view changed to as the input.  
+			 * 
+			 */
+			viewDisplay : function(view) {
+				if (view.name == 'month') {
+					h = NaN;
+				} else {
+					h = 3000;
+				}
+				$('#calendar').fullCalendar('option', 'contentHeight', h);
+			},
+			/*	Function to display the loading gif.
+			 *  
+			 */
+			loading : function(bool) {
+				if (bool)
+					$('#loading').show();
+				else
+					$('#loading').fadeOut();
+			},
+			/*	Function called when an event is clicked on.
+			 * 	calEvent = calendar event object clicked on.
+			 * 	jsEvent is not currently used. 
+			 * 	view = the view in which the action was executed.
+			 */
+			eventClick : function(calEvent, jsEvent, view) {
+				// For tutorial purposes
+				if (calEvent.title == 'Test Schedule') {
+					document.getElementById('desired').innerHTML = "Desired Hours: 20-30(Sample)";
+					document.getElementById('current').innerHTML = "Scheduled Hours: 15.25(Sample)";
+					document.getElementById('notes').innerHTML = "Notes: I would like to have at least one monday off this month (Sample)";
+					$("#employeeInfo").dialog();
+				// Executed if the event is an availability event
+				} else if (calEvent.title.indexOf(":") == -1) {
+					calendar.fullCalendar("changeView", "agendaWeek");
+				// Implements deleting event if the clickToDelete option is selected, or gets current week information if it is not selected.
+				} else {
+					if (deleteOption == 'true') {
+						$("#deleteConfirmation").dialog({
+							autoOpen : false,
+							show : "fold",
+							hide : "fold",
+							modal : true,
+							buttons : {
+								Delete : function() {
+									$.ajax({
+										type : "POST",
+										url : url + "/manager/deleteEvent",
+										data : {
+											employeeId : calEvent.title.split(":")[1],
+											day : calEvent.start
+										},
+										success : function(msg) {
+											calendar.fullCalendar("removeEvents", function(e) {
+												if (e.start == calEvent.start && e.title == calEvent.title) {
+													return true;
+												}
+												return false;
+											});
+										}
+									});
+									$(this).dialog("close");
+								},
+								Cancel : function() {
+									$(this).dialog('close');
+								}
+							}
+						});
+						$("#deleteConfirmation").dialog('open');
+					} else {
+						$.ajax({
+							type : "POST",
+							url : url + "/manager/getEmployeeWeekHours",
+							data : {
+								employeeId : calEvent.title.split(":")[1],
+								dayNum : calEvent.start.getDay(),
+								date : calEvent.start
+							},
+							success : function(msg) {
+								var hourInfo = JSON.parse(msg);
+								document.getElementById('desired').innerHTML = "Desired Hours: " + hourInfo['desired'];
+								document.getElementById('current').innerHTML = "Scheduled Hours: " + hourInfo['scheduled'];
+								document.getElementById('notes').innerHTML = "Notes: " + hourInfo['notes'];
+								$("#employeeInfo").dialog();
+
+							}
+						});
+					}
+				}
+			},
+			/*	Function called when an event is droped onto the calendar. Simply calls the eventMove function. 
+			 * 
+			 */
+			eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc) {
+				eventMove(event, dayDelta, minuteDelta, revertFunc);
+			},
+			/*	Function called when an event is resized on the calendar. Calls the eventMove function.
+			 * 
+			 */
+			eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
+				eventMove(event, dayDelta, minuteDelta, revertFunc);
+			},
+			/*	Function called when a day selected, or a time range is selected. 
+			 * 	start = the beggining selected time.
+			 * 	end = the ending selected time.
+			 * 	allDay = bool, is the event 
+			 * 
+			 */
+			select : function(start, end, allDay) {
+				if (tutorial == true) {
+					return true;
+				}
+				var view = calendar.fullCalendar('getView').name;
+				var startHour = start.getHours();
+				var endHour = end.getHours();
+				var startMin = start.toTimeString().split(" ")[0].split(":")[1];
+				var endMin = end.toTimeString().split(" ")[0].split(":")[1];
+
+				if (startHour > 12) {
+					startHour -= 12;
+					startTime = startHour + ":" + startMin + "pm";
+				} else {
+					startTime = startHour + ":" + startMin + "am";
+				}
+				if (endHour > 12) {
+					endHour -= 12;
+					endTime = endHour + ":" + endMin + "pm";
+				} else {
+					endTime = endHour + ":" + endMin + "am";
+				}
+				if (view == 'month') {
+					calendar.fullCalendar('changeView', 'agendaWeek');
+					calendar.fullCalendar('gotoDate', start);
+				} else {
+					var state = {
+						state0 : {
+							title : "Shift: " + (start.getMonth() + 1) + "/" + start.getDate() + "/" + start.getFullYear() + "<br>From: " + startTime + " Until: " + endTime,
+							html : htmlForm,
+							submit : function(e, v, m, f) {
+								var title = "";
+								for (var key in f) {
+									//title += key.replace(":", " ");
+									//title += ":";
+									var id = f[key];
+									day = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
+									// Ajax request to update the database
+									$.ajax({
+										type : "POST",
+										data : {
+											employeeId : id,
+											day : day,
+											begin : start.toTimeString().split(" ")[0],
+											end : end.toTimeString().split(" ")[0]
+										},
+										url : url + "/manager/scheduleEmployee",
+										success : function(msg) {
+											calendar.fullCalendar("refetchEvents");
+										}
+									});
+								}
+
+							}
+						}
+					}
+					$.prompt(state);
+				};
+
+				calendar.fullCalendar('unselect');
+			},
+			/* Specifies the urls for retrieving the event source
+			 * 
+			 */
+			eventSources : [{
+				url : url + "/manager/eventSource",
+				data : {
+					busy : busy
+				},
+				error : function(msg, textStatus, errorThrown) {
+					alert(errorThrown);
+				}
+			}, {
+				url : url + "/manager/scheduledEventSource",
+				error : function(msg, textStatus, errorThrown) {
+					alert(errorThrown);
+				}
+			}]
+		});
+	}
+	// Renders the calendar
+	renderCalendar(30, 'month', url);
+	/*	Function called when the event is moved or resized in any way. 
+	 * 	event = Calendar Event
+	 * 	dayDelta = Difference in days on a moved event
+	 * 	minuteDelta = Difference in minutes on a moved event
+	 * 	revertFunc = Function that reverts the element back to its original position.
+	 * 
+	 */
+	function eventMove(event, dayDelta, minuteDelta, revertFunc) {
+		var title = event.title;
+		if (title == "Test Schedule") {
+			return true;
+		} else if (title.indexOf(":") == -1) {
+			revertFunc();
+		} else {
+			var id = title.split(":")[1];
+			var day = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate() - dayDelta);
+
+			var _day = event.start;
+			var start = event.start.toTimeString();
+			var end = event.end.toTimeString();
+
+			$.ajax({
+				type : "POST",
+				url : url + "/manager/deleteEvent",
+				data : {
+					employeeId : id,
+					day : day
+				},
+				success : function() {
+					$.ajax({
+						type : "POST",
+						url : url + "/manager/scheduleEmployee",
+						data : {
+							employeeId : id,
+							day : _day,
+							begin : start.split(" ")[0],
+							end : end.split(" ")[0]
+						},
+						success : function(msg) {
+
+						}
+					})
+				}
+			});
+		}
+	}
+
+	/*	Function called to toggle busy events on or off in the calendar
+	 * 
+	 */
+	$("#busyOption").click(function() {
+		$.ajax({
+			type : "GET",
+			url : url + "/manager/toggleOption",
+			data : {
+				option : "busy"
+			},
+			success : function(msg) {
+				$("#calendar").fullCalendar("refetchEvents");
+			}
+		});
+	});
+	/*
+	 * 	Function called to toggle on or off scheduled events.
+	 */
+	$("#scheduledOption").click(function() {
+		if (scheduled == "true") {
+			scheduled = "false";
+			$("#calendar").fullCalendar("removeEventSource", url + "/manager/scheduledEventSource");
+		} else {
+			scheduled = "true";
+			$("#calendar").fullCalendar("addEventSource", url + "/manager/scheduledEventSource");
+		}
+	});
+	/*
+	 * 	Function called to toggle on or off available events.
+	 */
+	$("#availableOption").click(function() {
+		if (available == "true") {
+			available = "false";
+			$("#calendar").fullCalendar("removeEventSource", url + "/manager/eventSource");
+		} else {
+			available = "true";
+			$("#calendar").fullCalendar("addEventSource", url + "/manager/eventSource");
+		}
+	});
+	/*	Function to toggle the visibility of all employees.
+	 * 
+	 */
+	$("#toggleAll").click(function() {
+		var disp = '';
+		if (employees == 'false') {
+			disp = '1';
+			employees = 'true';
+			$("#employees").children("button").each(function() {
+				document.getElementById($(this).attr("id")).style.color = 'Green';
+			});
+		} else {
+			disp = '0';
+			employees = 'false';
+			$("#employees").children("button").each(function() {
+				document.getElementById($(this).attr("id")).style.color = 'Black';
+			});
+		}
+		$.ajax({
+			type : "POST",
+			data : {
+				display : disp
+			},
+			url : url + "/manager/toggleAll",
+			success : function(msg) {
+				$("#calendar").fullCalendar('refetchEvents');
+			},
+			error : function(msg, textStatus, errorThrown) {
+				alert(errorThrown);
+			}
+		});
+	});
+	/*
+	 * Option to click to delete is decided here.
+	 */
+	$("#deleteOption").click(function() {
+		if (deleteOption == 'false') {
+			deleteOption = 'true';
+		} else {
+			deleteOption = 'false';
+		}
+	});
+
+	});
+	
+	function setTutorial(bool) {
+		tutorial = bool;
+	}
+	/*	Toggles the css of a given employees name to indicate whether they are currently 
+	 * 	turned on or off. Green represents on and black represents off.
+	 */
+	function toggleEvents(id) {
+		if (document.getElementById(id).style.color == 'Black') {
+			document.getElementById(id).style.color = 'Green';
+		} else {
+			document.getElementById(id).style.color = 'Black';
+		}
+
+		$.ajax({
+			type : "POST",
+			data : {
+				employeeId : id
+			},
+			url : url + "/manager/toggleDisplay",
+			success : function(msg) {
+				$("#calendar").fullCalendar('refetchEvents');
+			},
+			error : function(msg) {
+				alert(msg);
+			}
+		});
+	}
+
+	/*
+	 * Sets up jquery buttons
+	 */
+	$("#finalize").button();
+	$("#home").button();
+	$("#about").button();
+	$("#tutorial").button();
+	$("#logOut").button();
+	/*	Finalizes the schedule for the current month. This causes the availability to no longer be editable 
+	 * 	by employees, and makes their scheduled events visible.
+	 */
+	$("#finalize").click(function() {
+		var date = $("#calendar").fullCalendar('getDate');
+		var startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+		var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+		document.getElementById("finalizeConfirmation").innerHTML = "Are you sure you would like to finalize the schedule from " + startDate.toDateString() + " until " + endDate.toDateString();
+		$("#finalizeConfirmation").dialog({
+			autoOpen : false,
+			show : 'fold',
+			hide : 'fold',
+			buttons : {
+				Yes : function() {
+					$(this).dialog('close');
+					$.ajax({
+						type : "POST",
+						url : url + "/manager/finalize",
+						data : {
+							start : startDate,
+							end : endDate
+						},
+						success : function(msg) {
+							$("#calendar").fullCalendar("refetchEvents");
+						},
+						error : function(msg, textStatus, errorThrown) {
+							alert(errorThrown);
+						}
+					});
+				},
+				Cancel : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+		$("#finalizeConfirmation").dialog('open');
+	});
+	/*	These buttons are not available in the demo mode. Instead they redirect to my 
+	 * 	home page. 
+	 */
+	$("#logOut").click(function() {
+		window.location = "http://localhost/~giancarloanemone/home";
+	});
+	$("#about").click(function() {
+		window.location = "http://localhost/~giancarloanemone/home"
+	});
+	$("#home").click(function() {
+		window.location = "http://localhost/~giancarloanemone/home"
+	});
+	/*	Function called when an impromtu box is submited.
+	 * 
+	 */
+	var tutorialSubmit = function(e, v, m, f) {
+		if (v === -1) {
+			$.prompt.prevState();
+			return false;
+		} else if (v === 1) {
+			$.prompt.nextState();
+			return false;
+		}
+	}
+	/* The tutorialStates object is used to create a dynamic tutorial of the page. The tutorial will
+	 * run through the given states, displaying the html to the user.
+	 */
+	var tutorialStates = [{
+		title : "Welcome",
+		html : "Would you like to take a tutorial of the scheduling software?",
+		buttons : {
+			Sure : 1
+		},
+		focus : 1,
+		position : {
+			container : '#container',
+			x : 0,
+			y : 0,
+			width : 300
+		},
+		submit : function(e, v, m, f) {
+			if (v === -1) {
+				$.prompt.prevState();
+				return false;
+			} else if (v === 1) {
+				$("#top").removeClass('top');
+				$("#top").addClass("temp");
+				$("#menu").removeClass('menu');
+				$("#menu").addClass('menuTemp');
+				$.prompt.nextState();
+				return false;
+			}
+		}
+	}, {
+		title : "Time Slot",
+		html : "This drop down list will update the time slots shown in the week and day views",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#selectTimeSlot',
+			x : 170,
+			y : -10,
+			width : 300,
+			arrow : 'lt'
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "Employees",
+		html : "This box contains a list of your employees. Clicking on their name will toggle the visibility of their availability and scheduled days",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#employees',
+			x : 150,
+			y : 0,
+			width : 300,
+			arrow : 'lt'
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "Options",
+		html : "This area shows the options that can be changed at any point to display various information. Click to delete allows for deleting of scheduled events by clicking.",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#options',
+			x : 170,
+			y : 0,
+			width : 300,
+			arrow : 'lt'
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "Availability",
+		html : "Availability is color coded. Black indicates that the employee is busy and cannot work that day. Green indicates the employee is free all day, and Blue indicates a custom availability.",
+		position : {
+			container : '#container',
+			x : 0,
+			y : 0,
+			width : 300
+		},
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		submit : tutorialSubmit
+	}, {
+		title : "Menu",
+		html : "Here is your main menu! Pay attention to the Finalize Schedule button. Clicking this button will finalize the schedule for the current month, and make it visible to employees.",
+		position : {
+			container : '#container',
+			x : -170,
+			y : 10,
+			width : 300,
+			arrow : 'rt'
+		},
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		submit : tutorialSubmit
+	}, {
+		title : "Scheduling",
+		html : "When in the month view, clicking on a day will switch to view that week. You can also manually switch between views using these buttons.",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#headerButtons',
+			x : -10,
+			y : -10,
+			width : 300,
+			arrow : 'rm'
+		},
+		submit : function(e, v, m, f) {
+			if (v === -1) {
+				$.prompt.prevState();
+				return false;
+			} else if (v === 1) {
+				$("#calendar").fullCalendar('changeView', 'agendaWeek');
+				$("#calendar").fullCalendar("addEventSource", url + "/manager/tutorialEvents");
+				$("#calendar").fullCalendar('gotoDate', new Date('2012', '0', '1'));
+				$.prompt.nextState();
+				return false;
+			}
+
+		}
+	}, {
+		title : "Scheduling Continued",
+		html : "When in the week or day view, employees can be scheduled by simply dragging from the desired start time to the end time. A pop up window will allow for the selection of one or multiple employees for the selected shift.",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#headerButtons',
+			x : 150,
+			y : 100,
+			width : 300
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "Shift Editing",
+		html : "Scheduled events can be shifted and resized by clicking and dragging (Try it!)",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#headerButtons',
+			x : 150,
+			y : 200,
+			width : 300
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "Employee Information",
+		html : "Clicking on an employees scheduled shift will show a window with information about their weekly desired hours, current week scheduled hours, and special notes (Try it!)",
+		buttons : {
+			Prev : -1,
+			Next : 1
+		},
+		focus : 1,
+		position : {
+			container : '#headerButtons',
+			x : 150,
+			y : 200,
+			width : 300
+		},
+		submit : tutorialSubmit
+	}, {
+		title : "The End!",
+		html : "Now you are ready to use the Scheduling Software! If you have any questions, feel free to contact Giancarlo Anemone at ganemone@gmail.com",
+		buttons : {
+			Done : 2
+		},
+		focus : 1,
+		position : {
+			container : '#container',
+			x : 0,
+			y : 0,
+			width : 300
+		},
+		submit : function(e, v, m, f) {
+			$("#calendar").fullCalendar('removeEventSource', url + "/manager/tutorialEvents");
+			setTutorial(false);
+			$("#menu").removeClass('temp');
+			$("#top").removeClass('temp');
+			$("#menu").addClass("menu");
+			$("#top").addClass("top");
+		}
+	}];
+	/* When the tutorial button is clicked, various changes to the css are made in order to provide a 
+	 * better experience for the user.  Also the variable tutorial is set to true. This disables some 
+	 * interaction with the rest of the site while the tutorial is running.
+	 */
+	$("#tutorial").click(function() {
+		setTutorial(true);
+		$.prompt(tutorialStates, {
+			close : function(e, v, m, f) {
+				tutorial = false;
+				$("#menu").removeClass('menuTemp');
+				$("#top").removeClass('temp');
+				$("#menu").addClass("menu");
+				$("#top").addClass("top");
+			}
+		});
+	}); 
+</script>
+

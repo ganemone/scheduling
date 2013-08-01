@@ -2,8 +2,9 @@
 	<div id='menu' class='menu'>
 		<ul id='list'>
 			<li><button id='home'>Home</button></li>
-			<li><button id='about'>About</button></li>
+			<li><button id='template'>Make Template</button></li>
 			<li><button id='tutorial'>Tutorial</button></li>
+			<li><button id='addCOEvent'>Add Event</button></li>
 			<li><button id='finalize'>Finalize Schedule</button></li>
 			<li><button id='logOut'>Log Out</button></li>
 			

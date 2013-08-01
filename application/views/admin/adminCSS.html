@@ -1,0 +1,277 @@
+<html>
+	<style type='text/css'>
+		body {
+			margin-top: 5px;
+			text-align: center;
+			font-size: 16px;
+         font-family: 'Helvetica', sans-serif;			
+         background-color: snow;
+			opacity: 0.8;
+			z-index: -2;
+			overflow:visible;
+		}
+
+		#calendar {
+			position: absolute;
+			left: 13.5em;
+			top: 5em;
+			margin: 0 auto;
+			white-space: nowrap;
+			z-index: -1;
+		}
+		#employeeWrapper {
+		   position: absolute; 
+		   top: 7.5em;
+		   width: 12em;
+		   height: 26em;
+		   background:#268A16;
+		   z-index:-1;
+		}
+		#employees {
+		   position:relative; top:0.5em; left:0.5em;
+			width: 11em;
+			text-align: left;
+			background: lightGrey;
+			height: 25em;
+			overflow: auto;
+			overflow-x: hidden;
+		}
+		#deleteConfirmation, #finalizeConfirmation, #hiddenRadio, #customTimes, #weekInformation {
+			display: none;
+		}
+		.employeeName {
+			width: 10em;
+		}
+		#options {
+			position: absolute;
+			top: 34em;
+			width: 150px;
+			padding: 0 10px;
+			padding-bottom: 10px;
+			border: 1px solid #ccc;
+			background: #eee;
+			text-align: left;
+		}
+		.employeeInfo {
+			display: none;
+			text-align: left;
+		}
+		.loading {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			text-align: center;
+			z-index: 9999;
+			overflow: auto;
+		}
+		.table {
+			font: inherit;
+			font-size: inherit;
+			margin: 0px;
+		}
+		li {
+			display: inline;
+			list-style-type: none;
+		}
+		.menu {
+			position: absolute;
+			right: 0;
+			top: 0;
+			z-index: 1;
+		}
+		.menuTemp {
+			position: absolute;
+			right: 0;
+			top: 0;
+			z-index: 1;
+		}
+		.temp {
+			position: absolute;
+			top: 0;
+			left: 0;
+			/*z-index: -1;*/
+			width: 100%;
+			height: 4.5em;
+			background-color: lightgrey;
+			text-align: left;
+			z-index: 0;
+		}
+		.top {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 4.5em;
+			background-color: rgb(100,100,100);
+			background-color: rgba(100,100,100,0.5);
+			text-align: left;
+			z-index: 0;
+		}
+		#h2 {
+
+			background-color: Black;
+			z-index: 1;
+		}
+		#middleContainer {
+			position: fixed;
+			top: 25%;
+			left: 50%;
+		}
+		#headerButtons {
+		}
+		#title {
+			margin-left: 20px;
+		}
+		#external-events {
+			position: absolute;
+			top: 50em;
+			width: 150px;
+			padding: 0 10px;
+			border: 1px solid #ccc;
+			background: #eee;
+			text-align: left;
+		}
+		
+		h4 {
+			font-size: 16px;
+			margin-top: 0;
+			padding-top: 0.4em;
+			border-bottom: 1px solid darkgrey;
+			margin-bottom:0px;
+			padding-bottom:0px;
+		}
+
+		.external-event {/* try to mimick the look of a real event */
+			margin: 10px 0;
+			padding: 2px 4px;
+			color: #fff;
+			font-size: .85em;
+			cursor: pointer;
+			background: #FFA500;
+		}
+		#external-events p {
+			margin: 1.5em 0;
+			font-size: 11px;
+			color: #666;
+		}
+
+		#external-events p input {
+			margin: 0;
+			vertical-align: middle;
+		}
+
+		.templateDescription {
+			display: none;
+			width: 20%;
+			height: 20%;
+		}
+		.styled-select {
+			overflow-x: hidden;
+			display: inline;
+		}
+		.styled-select select {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			border: 2px solid lightblue;
+		}
+		select {
+			max-width: 100px;
+		}
+		input {
+			max-width: 100px;
+		}
+		
+		html {
+			height: 150%;
+		}
+		#selectTimeSlot {
+			display:inline;
+			margin-left:1px;
+		}
+		table tr td {
+			padding: 0px;
+			margin: 0px;	
+		}
+		#viewInfo {
+			position:absolute; left:0.5em; top:5em;
+			width:10em;
+			z-index:-1;
+		}
+		table th {
+		   text-align: left;
+		}
+		.ui-icon {
+		   text-align:right;
+		}
+		.ui-dialog-titlebar-close {
+		   float:right;
+		}
+		span.ui-icon.ui-icon-closethick {
+		   display:none;
+		}
+		#editEventPopup {
+		   display:none;
+		   position:absolute;
+		}
+		#overrideAvailability {
+		   display:none;
+		   position:absolute;
+		}
+		.contextMenu {
+		   background-color: rgb(100,100,100);
+         background-color: rgba(100,100,100,0.5);
+		   font:white;
+		   margin:5px;
+		   padding:5px;
+		   text-align:left;
+		}
+		
+		#editEventPopup table tr:hover {
+		   background:#2E629D;
+		}
+		#editEventPopup table tr {
+		   width:100%;
+		}
+		#list li button {
+		   height:2.5em;
+		}
+		#colors {
+		   position: absolute;
+		   left:.5em;
+		   top:60em;
+		   width: 150px;
+		   padding: 0 10px;
+         border: 1px solid #ccc;
+         background: #eee;
+         text-align: left;
+		}
+		#colors div {
+         margin: 10px 0;
+         padding: 2px 4px;
+         color: #fff;
+         font-size: .85em;
+         cursor: pointer;
+         background: #FFA500;
+		}
+		#addCoEvent input,
+		#addCoEvent label,
+		#addCoEvent select {
+		   float:left;
+		   margin:5px;
+		}
+		#employeeRightClickDiv 
+		{
+		   display:none;
+		   background:rbg(0,0,0);
+		   background:rgba(0,0,0,0.5);
+		   width:150px;
+		   color:white;
+		   margin:5px;
+		}
+		.highlighted {
+		   border: 2px dotted #F1D031;
+		}
+	</style>
+</html>
