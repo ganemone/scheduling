@@ -113,7 +113,7 @@ $("#showAllStaff").click(function()
 
 $("#toggleAvailability").click(function()
 {
-   if (availability === true)
+   if (availability == true)
    {
       $("#calendar").fullCalendar("removeEventSource", url + "index.php/user/availabilityEventSource");
       availability = false;

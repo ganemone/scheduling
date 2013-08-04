@@ -403,7 +403,7 @@ function copyWeek()
 {
    var date = $("#calendar").fullCalendar("getDate");
    var date_obj = getStartAndEndDates("agendaWeek", date);
-   if(availability === true)
+   if(availability == true)
    {
       var events = $("#calendar").fullCalendar("clientEvents", function(event)
       {
@@ -412,6 +412,15 @@ function copyWeek()
          return true;
       });
       clipboard = events;
+      if(clipboard.length > 0)
+         successMessage("Copied Week");
+      else {
+         errorMessage("There are no events here to copy");
+         clipboard = null;
+      }
+   }
+   else {
+      errorMessage("Availability events must be on to copy the week");
    }
 }
 function pasteWeek()
@@ -421,10 +430,47 @@ function pasteWeek()
    var day, start, end, title;
    if(clipboard === null)
    {
-      alert("You must copy a week first! In the week view, click the 'Copy Week' button in the vertical menu on the left side of the screen");
+      errorMessage("You must copy a week first! In the week view, click the 'Copy Week' button in the vertical menu on the left side of the screen");
       return false;
    }
-   $.each(clipboard, function(key, val) {
+   var event_obj_arr = new Array();
+   $.each(clipboard, function(key, val)
+   {
+      var end = (val.end === null) ? null : val.end.toTimeString().split(" ")[0];
+      var title = (val.allDay === true) ? val.title : "Custom";
+
+      var event_obj = {
+         day: val.start.getDay(),
+         start: val.start.toTimeString().split(" ")[0],
+         end: end,
+         available: title,
+         employeeId: employeeId
+      };
+
+      event_obj_arr.push(event_obj);
+
+   });
+   $.ajax({
+      type: "POST",
+      url: url + "index.php/user/pasteWeek",
+      data: {
+         week_start: date_obj.startDate,
+         week_end: date_obj.endDate,
+         week: JSON.stringify(event_obj_arr)
+      },
+      success: function(msg)
+      {
+         console.log(msg);
+         successMessage("Pasted Week");
+         $("#calendar").fullCalendar("refetchEvents");
+      },
+      error: function(msg, textStatus, errorThrown)
+      {
+         console.log(msg);
+         errorMessage("An error occurred");
+      }
+   });
+   /*$.each(clipboard, function(key, val) {
       day = val.start.getDay();
       start = new Date(date.getFullYear(), date.getMonth(), date_obj.startDate.getDate() + day, val.start.getHours(), val.start.getMinutes());
       end = start;
@@ -432,7 +478,7 @@ function pasteWeek()
       if(val.allDay === false)
          end = new Date(date.getFullYear(), date.getMonth(), date_obj.startDate.getDate() + day, val.end.getHours(), val.end.getMinutes());
       updateEvent(title, start, val.allDay, start.toTimeString().split(" ")[0], end.toTimeString().split(" ")[0]);
-   });
+   });*/
 }
 
 function validateDownloadForm(f)

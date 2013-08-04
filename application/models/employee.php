@@ -595,4 +595,26 @@ class employee extends CI_Model
       return FALSE;
    }
 
+   function pasteWeek($week_start, $week_end, $week_obj)
+   {
+      $del_query = "DELETE FROM hours WHERE day >= '$week_start' && day <= '$week_end'";
+      $this->db->query($del_query);
+
+      $add_query = "INSERT INTO hours (employeeId, available, day, begin, end) VALUES ";
+      $add_val_arr = array();
+      foreach($week_obj as $event_obj)
+      {
+         $employeeId = $event_obj->employeeId;
+         $available = $event_obj->available;
+         $day = Date("Y-m-d", strtotime($week_start) + ($event_obj->day)*24*60*60);
+         $start = Date("H:i:s", strtotime($event_obj->start));
+         $end = ($available == "Custom") ? Date("H:i:s", strtotime($event_obj->end)) : "00:00:00";
+         $add_val_arr[] = "(" . $employeeId . ", '" . $available . "', '" . $day . "', '" . $start . "', '" . $end . "')";
+      }
+      $add_query.= implode(", ", $add_val_arr);
+      
+      return $this->db->query($add_query);
+      
+   }
+
 }

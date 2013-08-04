@@ -72,6 +72,7 @@
          var staff = !<? echo $staff ?>;
          var availability = <? echo $availability ?>;
          var resize = <? echo $resize ?>;
+         var clipboard = null;
          if(resize == true)
          {
             $("#calendar").css("width", $(document).width() - 340);

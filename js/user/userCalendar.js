@@ -199,6 +199,7 @@ $('#calendar').fullCalendar(
    },
    eventClick : function(event, jsEvent, view)
    {
+      console.log(event);
       var start, end, states;
       if (event.category == 'scheduled-cover' || event.category == 'scheduled-pickup' && coverRequest === false || event.category == 'emptyShifts')
       {
@@ -226,7 +227,8 @@ $('#calendar').fullCalendar(
          {
             "label" : "Cancel",
             "class" : "btn-danger"
-         }  ]);
+         }  
+         ]);
          /*
          states = [
          {
@@ -309,10 +311,7 @@ $('#calendar').fullCalendar(
             },
             {
                "label": "Cancel",
-               "class": "btn-danger",
-               "callback": function() {
-                  return false;
-               }
+               "class": "btn-danger"
             }
          ]);
          /*
@@ -396,6 +395,13 @@ $('#calendar').fullCalendar(
    [
    {
       url : url + "index.php/user/scheduledEventSource",
+      error : function(msg, textStatus, errorThrown)
+      {
+         alert(errorThrown);
+      }
+   },
+   {
+      url : url + "index.php/user/availabilityEventSource",
       error : function(msg, textStatus, errorThrown)
       {
          alert(errorThrown);

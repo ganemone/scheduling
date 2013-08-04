@@ -284,6 +284,13 @@ class User extends CI_Controller
       $this->employeeInfo['newsfeed'] = $this->load->view("newsfeed.php", $this->data, true);
    }
 
+   function pasteWeek()
+   {
+      $week_start = Date("Y-m-d", strtotime($this->input->post('week_start')));
+      $week_end = Date("Y-m-d", strtotime($this->input->post('week_end')));
+
+      echo $this->employee->pasteWeek($week_start, $week_end, json_decode($this->input->post("week")));
+   }
    function error_handler()
    {
       echo $this->emailer->emailError($this->input->post("message"));
