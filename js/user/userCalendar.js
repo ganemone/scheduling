@@ -95,8 +95,8 @@ $('#calendar').fullCalendar(
       }
       else
       {
-         $("#copyWeek").addClass("disabled");
-         $("#pasteWeek").addClass("disabled");
+         $("#copyWeek").addClass("disabled", "disabled");
+         $("#pasteWeek").addClass("disabled", "disabled");
       }
       var _month = view.start.getFullYear() + "-" + (view.start.getMonth() + 1);
       $.ajax(
@@ -111,10 +111,9 @@ $('#calendar').fullCalendar(
          success : function(msg)
          {
             var json = JSON.parse(msg);
-
-            monthInfo.minHours = json["minHours"];
-            monthInfo.maxHours = json["maxHours"];
-            monthInfo.notes = json["notes"];
+            monthInfo.minHours = (typeof json["minHours"] !== "undefined") ? json["minHours"] : "";
+            monthInfo.maxHours = (typeof json["maxHours"] !== "undefined") ? json["maxHours"] : "";
+            monthInfo.notes = (typeof json["notes"] !== "undefined") ? json["notes"] : "";
          },
          error : function()
          {
@@ -394,3 +393,7 @@ $('#calendar').fullCalendar(
    }
    ]
 });
+$(window).load(function()
+{
+   $(".leftNav").css("height", $(window).height() - 40);
+})

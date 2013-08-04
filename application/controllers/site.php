@@ -25,7 +25,7 @@ class Site extends CI_Controller
       $this->load->helper('form');
       // Navigation
       $this->data['brand'] = "Gazelle Sports Scheduling";
-      $this->data['menu_items'] = array("id='test'" => "test");
+      $this->data['menu_items'] = array();
       $this->load->view("includes.php");
       $this->load->view('header.php', $this->data);
       // Loads the view of the home page

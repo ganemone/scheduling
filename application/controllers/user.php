@@ -56,10 +56,12 @@ class User extends CI_Controller
    }
    function userCalendar()
    {
+      $this->getNewsfeed();
+
       $this->employeeInfo['menu_items'] = array(
          "Calendar Actions" => array(
-            "id='copyWeek' onclick='copyWeek();'" => "Copy Week",
-            "id='pasteWeek' onclick='pasteWeek();'" => "Paste Week",
+            "id='copyWeek' class='disabled' onclick='copyWeek();'" => "Copy Week",
+            "id='pasteWeek' class='disabled' onclick='pasteWeek();'" => "Paste Week",
             "id='coverRequest'" => "Shift Cover",
             "id='showMonthInfoForm'" => "Update Info",
             "id='printableSchedule'" => "Printable Schedule", 
@@ -70,12 +72,7 @@ class User extends CI_Controller
             "id='showAllStaff'" => "All Staff",
             "id='toggleAvailability'" => "Availability",
          ),
-         "Sidebar Options" => array(
-            "id='showNewsFeed'" => "Newsfeed",
-            "id='showDraggable'" => "Drag Events",
-            "id='showColorCode'" => "Color Code"
-         ),
-         base_url() . "href='index.php/user'" => "Home",
+         "href='" . base_url() . "index.php/user'" => "Home",
          "href='logout'" => "Log Out");
 
       $this->load->view("includes.php");
@@ -92,7 +89,7 @@ class User extends CI_Controller
          $this->load->view("/user/availabilityCalCSS.html");
          $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);
       }
-      $this->getNewsfeed();
+      
    }
 
    function printable()
@@ -166,9 +163,9 @@ class User extends CI_Controller
       $_date_ = $_date . "-1";
       $min = $_POST['min'];
       $max = $_POST['max'];
-      $notes = mysql_escape_string($_POST['notes']);
+      $notes = mysql_real_escape_string($_POST['notes']);
       $result = $this->employee->insertMonthInfo($employeeId, $_date_, $min, $max, $notes);
-      echo $min;
+      echo $result;
    }
 
    function populateMonthInfoForm()
@@ -284,6 +281,11 @@ class User extends CI_Controller
    {
       $this->data['mobile'] = $this->agent->is_mobile();
       $this->data['posts'] = $this->newsfeed->getPosts();
-      $this->load->view("newsfeed.php", $this->data);
+      $this->employeeInfo['newsfeed'] = $this->load->view("newsfeed.php", $this->data, true);
+   }
+
+   function error_handler()
+   {
+      $this->emailer->email_error($this->input->post("message"));
    }
 }

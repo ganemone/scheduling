@@ -255,7 +255,7 @@ function pickUpEmptyShift(event, start, end)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert(errorThrown + " pickUpEmptyShift");
+         error_handler(msg, textStatus, errorThrown, "pickUpEmptyShift");
       }
    });
 }
@@ -475,36 +475,47 @@ function isLockedOut(date)
 
 function updateInfo()
 {
-   var test = "<div id='monthInfo'>" +
-   "<table id='monthTable'>" +
-      "<tr>" +
-          "<td>Min Weekly Hours</td><td>" +
-          "<input type='text' name='min' id='minHours' value='" + monthInfo.minHours + "'>" +
-          "</input></td>" +
-      "</tr>" +
-      "<tr>" +
-          "<td>Max Weekly Hours</td><td>" +
-          "<input type='text' name='max' id='maxHours' value='" + monthInfo.maxHours + "'>" +
-          "</input></td>" +
-      "</tr>" +
-   "</table>" +
-   "<textarea cols='20' rows='13' name='notes' id='notes' placeholder='Enter Notes for this month here...'>" + monthInfo.notes + "</textarea></td>" +
-      "<br>" +
-      "<button id='submitMonthForm'>" +
-          "SUBMIT" +
-      "</button>" +
-      "<button id='cancelMonthForm'>" +
-          "CANCEL" +
-      "</button>" +
+   var monthInfoForm = "<div id='monthInfo'>" +
+      "<form class='form-inline'>" + 
+         "<fieldset>" + 
+         "<div class='form-group text-left'>" + 
+            "<label for='minHours'>Min Weekly Hours: </label>" + 
+            "<input type='text' name='min' class='form-control' id='minHours' value='" + monthInfo.minHours + "'>" +
+         "</div>" +
+         "<div class='form-group text-left'>" +
+            "<label for='maxHours'>Max Weekly Hours: </label>" + 
+            "<input type='text' name='max' class='form-control' id='maxHours' value='" + monthInfo.maxHours + "'>" +
+         "</div>" +
+         "<div class='form-group text-left'>" +
+            "<textarea cols='40' rows='5' name='notes' id='notes' placeholder='Enter Notes for this month here...'>" + monthInfo.notes + "</textarea>" +
+         "</div>" +
+         "</fieldset>" + 
+      "</form>" + 
    "</div>";
 
-   bootbox.confirm(test, function(result)
+   bootbox.confirm(monthInfoForm, function(result)
    {
       if (result === true)
       {
-         alert($("#minHours"));
-         alert($("#maxHours"));
-         alert($("#notes"));
+         $.ajax({
+            type: "POST",
+            url: url + "index.php/user/updateMonthInfo",
+            data: {
+               date: $("#calendar").fullCalendar("getDate"),
+               employeeId: employeeId,
+               min: $("#minHours").val(),
+               max: $("#maxHours").val(),
+               notes: $("#notes").val()
+            },
+            success: function(msg)
+            {
+               successMessage("Your information has been updated");
+            },
+            error: function(msg, textStatus, errorThrown)
+            {
+               error_handler(msg, textStatus, errorThrown, "pickUpEmptyShift");
+            }
+         });
       }
    });
 
@@ -589,3 +600,53 @@ function shiftCoverRequest(event)
 
 }
 
+function showLeftMenuItem(show_element_id, nav_element)
+{
+   $(".leftMenu").each(function()
+   {
+      if ($(this).attr("id") != show_element_id)
+         $(this).hide();
+   });
+   $("#" + show_element_id).toggle();
+   $(".nav-pills").children("li").each(function()
+   {
+      $(this).removeClass("active");
+   });
+   $(nav_element).addClass("active");
+
+   if (show_element_id == "newsfeed")
+      $('.leftNav').css("overflow", "scroll");
+   else
+      $('.leftNav').css("overflow", "visible");
+}
+
+function error_handler(error_part, error_part2, error_part3, origin)
+{
+   $(".bottom-right").notify({
+      type: "error",
+      message: { text: "Oops, something went wrong... Quick go get G! (ps, he is sorry in advance)" },
+   }).show();
+
+   $.ajax({
+      type: "POST",
+      url: url + "index.php/user/error_handler",
+      data: {
+         message: error_part + " " + error_part2 + " " + error_part3 + " " + origin + " " + employeeId
+      },
+      success: function(msg)
+      {
+         alert(msg);
+      },
+      error: function() 
+      {}
+   });
+}
+
+function successMessage(msg)
+{
+   $('.bottom-right').notify({
+      type: "success",
+      message: { text: msg },
+      fadeOut: { enabled: true, delay: 3000 }
+   }).show();
+}

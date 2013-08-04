@@ -1,7 +1,7 @@
 <div class='jumbotron'>
    <div class='container'>
 		<div class='row'>
-         <div id='employeeLoginForm' class='loginForm col-lg-12'>
+         <div id='employeeLoginForm'> <!--class='loginForm col col-lg-12'>-->
             <? echo form_open('/site/login', array("class" => "form-inline")); ?>
             <div class='text-warning'>
                <? echo $loginErrors ?>

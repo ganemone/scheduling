@@ -113,5 +113,14 @@ class emailer extends CI_Model
       $this->email->send();
       return $this->email->print_debugger();
    }
+   function emailError($message)
+   {
+      $this->email->from("admin@gazellescheduling.nfshost.com", "Gazelle Sports Scheduling");
+      $this->email->to("ganemone@gmail.com");
+      $this->email->subject("Error Report");
+      $this->email->message($message);
+      $this->email->send();
+      return $this->email->print_debugger();
+   }
 }
 ?>

@@ -1,4 +1,4 @@
-$('#external-events div.external-event').each(function()
+$('.leftNav #external-events div.external-event').each(function()
 {
    var eventObject =
    {
@@ -83,15 +83,7 @@ $("#cancelMonthForm").click(function()
    showClass(".mainButton");*/
 });
 
-$("#showDraggable").click(function()
-{
-   $(".leftMenu").each(function()
-   {
-      if ($(this).attr("id") != 'external-events')
-         $(this).hide();
-   });
-   $("#external-events").slideToggle();
-});
+
 
 $("#tutorial").click(function()
 {
@@ -154,26 +146,6 @@ $(window).load(function()
       $("#calendar").fullCalendar("addEventSource", url + "index.php/user/coEventSource");
 });
 
-$("#showColorCode").click(function()
-{
-   $(".leftMenu").each(function()
-   {
-      if ($(this).attr("id") != 'colorCode')
-         $(this).hide();
-   });
-   $("#colorCode").slideToggle();
-});
-$("#showNewsfeed").click(function()
-{
-   $(".leftMenu").each(function()
-   {
-      if ($(this).attr("id") != 'newsfeed')
-         $(this).hide();
-   });
-   coverRequest = false;
-   $("#newsfeed").toggle();
-});
-
 $("#downloadCalendar").click(function()
 {
    $.prompt($("#downloadForm").html(),
@@ -208,3 +180,10 @@ $("#downloadCalendar").click(function()
       }
    });
 });
+
+/*
+$(".leftNav").hover(function() {
+   $("body").css("overflow", "hidden");
+}, function() {
+   $("body").css("overflow", "auto");
+}); */

@@ -11,10 +11,10 @@
 	<div class='container'>
 		<div class='row'>
 			<div class='col-lg-6 text-center'>
-	   		<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-large'>User Calendar</a>
+	   		<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-primary btn-large'>User Calendar</a>
 	   		</div>
 	   		<div class='col-lg-6 text-center'>
-	   		<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-large'>SFL Calendar</a>
+	   		<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-primary btn-large'>SFL Calendar</a>
 	   		</div>
 	   	</div>
 	</div>
@@ -22,13 +22,13 @@
 	<div class='container'>
 		<div class='row'>
 			<div class='col-lg-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-large'>User Calendar</a>
+	   		<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-primary btn-large'>User Calendar</a>
 	   		</div>
 	   		<div class='col-lg-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-large'>SFL Calendar</a>
+	   		<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-primary btn-large'>SFL Calendar</a>
 	   		</div>
 	   		<div class='col-lg-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/manager" ?>' class='btn btn-large'>Manager Calendar</a>
+	   		<a href='<? echo base_url() . "index.php/manager" ?>' class='btn btn-primary btn-large'>Manager Calendar</a>
 	   		</div>	
 	   	</div>
 	</div>

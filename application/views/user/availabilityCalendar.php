@@ -1,52 +1,62 @@
 <html>
    <head></head>
    <body>
-
+      <div class='notifications bottom-right'></div>
+      <div class="alert alert-danger" style='display:none; position: fixed; top: 70px; width: 100%;'>
+         <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+      <div class="alert alert-success" style='display:none; position: fixed; top: 70px; width: 100%;'>
+         <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+      
       <div id='calendar'></div>
-      
-      <div id='external-events' class='leftMenu'>
-         <h4>Draggable Events</h4>
-         <div class='external-event fc-view' id='available'>
-            Available
+      <div class='leftNav'>
+         <br>
+         <div class="nav nav-pills">
+            <li class='active' onclick="showLeftMenuItem('newsfeed', this);"><a><small>Newsfeed</small></a></li>
+            <li onclick="showLeftMenuItem('external-events', this);"><a><small>Drag Menu</small></a></li>   
+            <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
          </div>
-         <div class='external-event fc-view' id='busy'>
-            Busy
-         </div>
-         <div class='external-event fc-view' id='custom'>
-            Custom
-         </div>
-      </div>
-      
-      <br class='clearLeft'>
-      
-      <div id='colorCode' class='leftMenu'>
-         <h4>Color Code</h4>
-         <div class='external-event fc-view' id='availableCode'>
-            Available All Day (A)
-         </div>
-         <div class='external-event fc-view' id='busyCode'>
-            Busy All Day (B)
-         </div>
-         <div class='external-event fc-view' id='customCode'>
-            Available for a custom time (C)
-         </div>
-         <div class='external-event fc-view' id='scheduledCode'>
-            Scheduled to work
-         </div>
-         <div class='external-event fc-view' id='eventCode'>
-            Event
-         </div>
-         <div class='external-event fc-view' id='pickUpCode'>
-            Shift available to pick up
-         </div>
-         <div class='external-event fc-view' id='coverCode'>
-            Your shift up for cover
+         <hr style='margin: 10px;'>
+         <? echo $newsfeed ?>
+         <div id='external-events' class='leftMenu'>
+            <h4>Draggable Events</h4>
+            <div class='external-event fc-view' id='available'>
+               Available
+            </div>
+            <div class='external-event fc-view' id='busy'>
+               Busy
+            </div>
+            <div class='external-event fc-view' id='custom'>
+               Custom
+            </div>
          </div>
 
+         <div id='colorCode' class='leftMenu'>
+            <h4>Color Code</h4>
+            <div class='external-event fc-view' id='availableCode'>
+               Available All Day (A)
+            </div>
+            <div class='external-event fc-view' id='busyCode'>
+               Busy All Day (B)
+            </div>
+            <div class='external-event fc-view' id='customCode'>
+               Available for a custom time (C)
+            </div>
+            <div class='external-event fc-view' id='scheduledCode'>
+               Scheduled to work
+            </div>
+            <div class='external-event fc-view' id='eventCode'>
+               Event
+            </div>
+            <div class='external-event fc-view' id='pickUpCode'>
+               Shift available to pick up
+            </div>
+            <div class='external-event fc-view' id='coverCode'>
+               Your shift up for cover
+            </div>
+         </div>
       </div>
-
-      <br class='clearLeft'>
-      <div id='errors'></div>
 
       <img src='/images/ajax-loader.gif' id='loading' class='loading'/>
       <br class='clearLeft clearRight'>
