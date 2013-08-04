@@ -286,6 +286,6 @@ class User extends CI_Controller
 
    function error_handler()
    {
-      $this->emailer->email_error($this->input->post("message"));
+      echo $this->emailer->emailError($this->input->post("message"));
    }
 }

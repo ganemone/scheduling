@@ -12,7 +12,7 @@ var bootbox = window.bootbox || (function(document, $) {
         _backdrop      = 'static',
         _defaultHref   = 'javascript:;',
         _classes       = '',
-        _btnClasses    = {},
+        _btnClasses    = { "CANCEL" : "btn btn-danger" },
         _icons         = {},
         /* last var should always be the public object we'll return */
         that           = {};

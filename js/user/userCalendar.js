@@ -67,7 +67,7 @@ $('#calendar').fullCalendar(
    },
    eventRender : function(event, element, view)
    {
-      element.qtip(
+      /*element.qtip(
       {
          content : event.tip,
          position :
@@ -80,6 +80,11 @@ $('#calendar').fullCalendar(
             tip : "bottomMiddle",
             classes : "qtip-dark"
          }
+      });*/
+      element.tooltip({
+         animation: false,
+         title: event.tip,
+         container: 'body'      
       });
       if (event.category == 'scheduled')
       {
@@ -203,10 +208,6 @@ $('#calendar').fullCalendar(
 
          bootbox.dialog(event.description, [
          {
-            "label" : "Cancel",
-            "class" : "btn-danger"
-         },
-         {
             "label" : "Partial Shift",
             "class" : "btn-primary",
             "callback" : function()
@@ -221,7 +222,11 @@ $('#calendar').fullCalendar(
             {
                pickUpShift(null, null, employeeId, event.employeeId, event.id);
             }
-         }]);
+         },   
+         {
+            "label" : "Cancel",
+            "class" : "btn-danger"
+         }  ]);
          /*
          states = [
          {
@@ -283,9 +288,34 @@ $('#calendar').fullCalendar(
 
          var _start = event.start.toTimeString().split(" ")[0];
          var _end = event.end.toTimeString().split(" ")[0];
-         initializeForm(_start, _end);
+         //initializeForm(_start, _end);
 
-         $("#shiftCoverRequest").dialog('close');
+         cancelCoverRequest();
+
+         bootbox.dialog("Are you sure you would like to request a cover for this shift? (Note: the shift will remain on your schedule, and you will still be responsible for it until someone claims it). ", [
+            {
+               "label": "Full Shift",
+               "class": "btn-primary",
+               "callback" : function() {
+                  fullShiftCoverRequest(event);
+               }
+            },
+            {
+               "label": "Partial Shift",
+               "class": "btn-primary",
+               "callback": function() {
+                  partialShiftCoverRequest(event);
+               }
+            },
+            {
+               "label": "Cancel",
+               "class": "btn-danger",
+               "callback": function() {
+                  return false;
+               }
+            }
+         ]);
+         /*
          states =
          {
             State0 :
@@ -302,29 +332,7 @@ $('#calendar').fullCalendar(
                {
                   if (v == 1)
                   {
-                     $.ajax(
-                     {
-                        type : "POST",
-                        url : url + "index.php/user/scheduleRequest",
-                        data :
-                        {
-                           shiftId : event.id
-                        },
-                        success : function(msg)
-                        {
-                           if (msg === 0)
-                              $.prompt.goToState('successState0');
-                           else
-                           {
-                              $("#calendar").fullCalendar('refetchEvents');
-                              $.prompt.goToState('successState1');
-                           }
-                        },
-                        error : function(msg, textStatus, errorThrown)
-                        {
-                           alert(errorThrown);
-                        }
-                     });
+                     
                      return false;
                   }
                   else if (v == 2)
@@ -379,7 +387,9 @@ $('#calendar').fullCalendar(
                }
             }
          };
+
          $.prompt(states);
+         */
       }
    },
    eventSources :

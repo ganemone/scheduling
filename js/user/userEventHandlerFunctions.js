@@ -46,28 +46,21 @@ $("#submitMonthForm").click(function()
 $("#coverRequest").click(function()
 {
    coverRequest = true;
-   $(".leftMenu").each(function()
-   {
-      $(this).hide();
-   });
-   $("#shiftCoverRequest").dialog(
-   {
-      autoOpen : false,
-      position : [5, 250],
-      zIndex : 1000,
-      width : 200,
-      height : 200,
-      buttons :
-      {
-         "Cancel" : function()
-         {
-            $(this).dialog('close');
-            coverRequest = false;
-         }
-      }
-   });
-   $("#shiftCoverRequest").dialog('open');
+   $(".bottom-right").notify({
+      type: "bangTidy",
+      message: { html: "Click on a shift to put it up for cover <button onclick='cancelCoverRequest()' class='btn btn-small btn-primary'>Cancel</button>" },
+      closable: false,
+      fadeOut: { enabled: false },
+      onClose: function() { coverRequest = false; }
+   }).show();
 });
+
+function cancelCoverRequest()
+{
+   coverRequest = false;
+   $(".bottom-right").remove();
+   $("body").append("<div class='notifications bottom-right'></div>");
+}
 
 $("#showMonthInfoForm").click(function()
 {

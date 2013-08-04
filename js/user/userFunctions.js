@@ -44,10 +44,21 @@ function customEvent(date, increment)
 
 function initializeForm(start, end)
 {
-   var form = "<form id='customTimes'>Start:<select id='start'>";
+   var form = "<form id='customTimes'>Start: <select id='start'>";
    var options = "";
-   var start_split;
    var time_arr = [];
+   time_arr['06:00:00'] = "6:00am";
+   time_arr['06:15:00'] = "6:15am";
+   time_arr['06:30:00'] = "6:30am";
+   time_arr['06:45:00'] = "6:45am";
+   time_arr['07:00:00'] = "7:00am";
+   time_arr['07:15:00'] = "7:15am";
+   time_arr['07:30:00'] = "7:30am";
+   time_arr['07:45:00'] = "7:45am";
+   time_arr['08:00:00'] = "8:00am";
+   time_arr['08:15:00'] = "8:15am";
+   time_arr['08:30:00'] = "8:30am";
+   time_arr['08:45:00'] = "8:45am";
    time_arr['09:00:00'] = "9:00am";
    time_arr['09:15:00'] = "9:15am";
    time_arr['09:30:00'] = "9:30am";
@@ -94,8 +105,21 @@ function initializeForm(start, end)
    time_arr['19:45:00'] = "7:45pm";
    time_arr['20:00:00'] = "8:00pm";
    time_arr['20:15:00'] = "8:15pm";
+   time_arr['20:30:00'] = "8:30pm";
+   time_arr['20:45:00'] = "8:45pm";
+   time_arr['21:00:00'] = "9:00pm";
 
-   while(start <= end)
+   var start_split = start.split(":");
+   var end_split = end.split(":");
+   
+   var start_hour = Number(start_split[0]);
+   var start_minute = (Number(start_split[1]) > 0) ? Number(start_split[1])/15 : 0;
+
+   var end_hour = Number(end_split[0]);
+   var end_minute =  (Number(end_split[1]) > 0) ? Number(end_split[1])/15 : 0;
+   var rep_number = (end_hour-start_hour)*4 - start_minute + end_minute;
+
+   for(var i = 0; i < rep_number; i++)
    {
       options += "<option value='" + start + "'>" + time_arr[start] + "</option>";
       start_split = start.split(":");
@@ -103,9 +127,10 @@ function initializeForm(start, end)
          start = (Number(start_split[0]) + 1) + ":00:00";
       else
          start = start_split[0] + ":" + (Number(start_split[1]) + 15) + ":" + start_split[2];
+      if (start.length < 8)
+         start = "0" + start;
    }
-
-   form += options + "</select>" + "End<select id='end'>" + options + "</select></form>";
+   form += options + "</select>" + "<br>End: <select id='end'>" + options + "</select></form>";
    return form;
 
 /*
@@ -153,35 +178,6 @@ function hideClass(className)
    });
 }
 
-function requestPartialShiftCover(start, end, employeeId, shiftId)
-{
-   if (start > end)
-   {
-      alert("The end time must come before the start");
-      return;
-   }
-   $.ajax(
-   {
-      type : "POST",
-      url : url + "index.php/user/requestPartialShiftCover",
-      data :
-      {
-         requestStart : start,
-         requestEnd : end,
-         employeeId : employeeId,
-         shiftId : shiftId
-      },
-      success : function(msg)
-      {
-         $('#calendar').fullCalendar('refetchEvents');
-      },
-      error : function(msg, textStatus, errorThrown)
-      {
-         alert(errorThrown);
-      }
-   });
-}
-
 function updateEvent(title, date, allDay, start, end)
 {
    if (start > end)
@@ -221,7 +217,7 @@ function updateEvent(title, date, allDay, start, end)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert(errorThrown);
+         error_handler(msg, textStatus, errorThrown, "updateHourAction");
          $("#calendar").fullCalendar('refetchEvents');
       }
    });
@@ -290,10 +286,11 @@ function deletePost(id)
                success : function(msg)
                {
                   $("#message" + id).hide();
+                  successMessage("Message Deleted");
                },
                error : function(msg, textStatus, errorThrown)
                {
-                  alert("deletePost errorThrown");
+                  error_handler(msg, textStatus, errorThrown, "deletePost errorThrown");
                }
             });
          }
@@ -318,13 +315,13 @@ function updatePost(id)
       success : function(msg)
       {
          if (msg == "false")
-            alert("Whoops, an error occured");
+            errorMessage("Whoops, an error Occurred... Please try again or go get G.");
          else
-            alert("You have successfully updated this post");
+            successMessage("Successfully updated this post.");
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert("updateNewsfeedPost " + errorThrown);
+         error_handler(msg, textStatus, errorthrown, "updateNewsfeedPost");
       }
    });
 }
@@ -347,7 +344,7 @@ function addNewPost()
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert("addNewsfeedPost " + errorThrown);
+         error_handler(msg, textStatus, errorThrown, "addNewsfeedPost");
       }
    });
 }
@@ -364,7 +361,7 @@ function reloadNewsfeed()
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert("reloadNewsfeed " + errorThrown);
+         error_handler(msg, textStatus, errorThrown, "reloadNewsfeed");
       }
    });
 }
@@ -555,13 +552,16 @@ function pickUpShift(start, end, employeeId, oldEmployeeId, shiftId)
          {
             msg = jQuery.parseJSON(msg);
             if(msg[0] == "false")
-               alert(msg[1]);
+               errorMessage(msg[1]);
             else
+            {
                $("#calendar").fullCalendar("refetchEvents");
+               successMessage("You successfully picked up this shift.");
+            }
          },
          error : function(msg, textStatus, errorThrown)
          {
-            alert(errorThrown);
+            error_handler(msg, textStatus, errorThrown, "shiftSwap");
          }
       });
    }
@@ -583,21 +583,90 @@ function pickUpShift(start, end, employeeId, oldEmployeeId, shiftId)
          {
             msg = jQuery.parseJSON(msg);
             if (msg[0] == "false")
-               alert(msg[1]);
-            else
+               errorMessage(msg[1]);
+            else {
+               successMessage("You successfully picked up part of this shift.");
                $("#calendar").fullCalendar("refetchEvents");
+            }
          },
          error : function(msg, textStatus, errorThrown)
          {
-            alert(errorThrown);
+            error_handler(msg, textStatus, errorThrown, "partialShiftSwap");
          }
       });
    }
 }
 
-function shiftCoverRequest(event)
+function fullShiftCoverRequest(event)
 {
+   $.ajax(
+   {
+      type : "POST",
+      url : url + "index.php/user/scheduleRequest",
+      data :
+      {
+         shiftId : event.id
+      },
+      success : function(msg)
+      {
+         if (msg === 0)
+            errorMessage("This shift is already up for cover");
+         else
+         {
+            $("#calendar").fullCalendar('refetchEvents');
+            successMessage("You have successfully put this shift up for cover");
+         }
+      },
+      error : function(msg, textStatus, errorThrown)
+      {
+         error_handler(msg, textStatus, errorThrown, "scheduleRequest");
+      }
+   });
+}
 
+function partialShiftCoverRequest(event) 
+{
+   var start, end, shiftId, form;
+   start = event.start.toTimeString().split(" ")[0];
+   end = event.end.toTimeString().split(" ")[0];
+   form = initializeForm(start, end);
+   
+   bootbox.confirm(form, function(result)
+   {
+      if (result === true)
+      {
+         start = $("#start").val();
+         end = $("#end").val();
+         shiftId = event.id;
+
+         if (start > end)
+         {
+            errorMessage("The start must come before the end");
+            return false;
+         }
+         $.ajax(
+         {
+            type : "POST",
+            url : url + "index.php/user/requestPartialShiftCover",
+            data :
+            {
+               requestStart : start,
+               requestEnd : end,
+               employeeId : employeeId,
+               shiftId : shiftId
+            },
+            success : function(msg)
+            {
+               successMessage("Your shift is up for cover.");
+               $('#calendar').fullCalendar('refetchEvents');
+            },
+            error : function(msg, textStatus, errorThrown)
+            {
+               error_handler(msg, textStatus, errorThrown, "requestPartialShiftCover");
+            }
+         });
+      }
+   })
 }
 
 function showLeftMenuItem(show_element_id, nav_element)
@@ -623,8 +692,8 @@ function showLeftMenuItem(show_element_id, nav_element)
 function error_handler(error_part, error_part2, error_part3, origin)
 {
    $(".bottom-right").notify({
-      type: "error",
-      message: { text: "Oops, something went wrong... Quick go get G! (ps, he is sorry in advance)" },
+      type: "danger",
+      message: { text: "Oops, something went wrong... Quick, go get G! (ps, he is sorry in advance)" },
    }).show();
 
    $.ajax({
@@ -635,7 +704,6 @@ function error_handler(error_part, error_part2, error_part3, origin)
       },
       success: function(msg)
       {
-         alert(msg);
       },
       error: function() 
       {}
@@ -646,6 +714,15 @@ function successMessage(msg)
 {
    $('.bottom-right').notify({
       type: "success",
+      message: { text: msg },
+      fadeOut: { enabled: true, delay: 3000 }
+   }).show();
+}
+
+function errorMessage(msg)
+{
+   $('.bottom-right').notify({
+      type: "danger",
       message: { text: msg },
       fadeOut: { enabled: true, delay: 3000 }
    }).show();
