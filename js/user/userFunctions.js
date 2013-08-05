@@ -508,6 +508,45 @@ function validateDownloadForm(f)
    return new Array(true);
 }
 
+function validateEmpty(variable)
+{
+   if(variable === null || variable === false || variable === "")
+      return false;
+   return true;
+}
+
+function validateDate(variable)
+{
+   var reg = new RegExp('[^0-9\-]');
+   var split = variable.split("-");
+   if (reg.test(variable)             || 
+      split.length != 3               || 
+      variable.length != 10           ||
+      split[0].length != 4            || 
+      split[1].length != 2            || 
+      split[2].length != 2            ||
+      (split[1] > 12 || split[1] < 1) ||
+      (split[2] > 31 || split[2] < 1))
+      return false;
+   return true;
+}
+
+function validateStartEndDates(start, end)
+{
+   var start_split, end_split;
+   if (validateDate(start) === false || validateDate(end) === false)
+   {
+      return new Array(false, "Please enter valid dates");
+   }
+   start_split = start.split("-");
+   end_split = end.split("-");
+   if(start_split[0] > end_split[0] ||
+      start_split[1] > end_split[1] ||
+      start_split[1] == end_split[1] && start_split[2] > end_split[2])
+      return new Array(false, "The start date must come after the end date");
+   return new Array(true);
+}
+
 function isLockedOut(date)
 {
    var editableDate = new Date();

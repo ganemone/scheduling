@@ -19,12 +19,12 @@
                  echo "<ul class='dropdown-menu'>\n";
                  foreach ($text as $action => $_text) 
                  {
-                   echo "<li><a $action>$_text</a></li>\n";
+                   echo "<li class='text-left'><a $action>$_text</a></li>\n";
                  }
                  echo "</ul>\n</li>\n";
                }
                else
-       	        echo "<li><a $action>$text</a></li>\n";
+       	        echo "<li class='text-left'><a $action>$text</a></li>\n";
              }
             ?>
           </ul>

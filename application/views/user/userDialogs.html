@@ -1,13 +1,6 @@
 <html>
 <head></head>
    <body>
-      <form name='downloadForm' id='downloadForm' action='<? echo base_url() ?>index.php/ics' method='get' style='display:none'>
-            Start Date: <input type='text' name='start' id='startDatePicker' placeholder='YYYY-MM-DD'/><br>
-            End Date:<input type='text' name='end' id='endDatePicker' placeholder="YYYY-MM-DD" />
-            <input type='hidden' value='<? echo $employeeId ?>' name='employeeId' /><br>
-            <label for='events'>Include Store Events</label><input type='checkbox' name='events' id='events' /><br>
-            <label for='google'>Google Calendar Format</label><input type='checkbox' name='google' id='google' />
-      </form>
       <div id='shiftCoverRequest' title='Cover Request'>
          Click on the shift you would like to put up for covering.
       </div>

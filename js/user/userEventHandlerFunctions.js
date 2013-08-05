@@ -141,7 +141,63 @@ $(window).load(function()
 
 $("#downloadCalendar").click(function()
 {
-   $.prompt($("#downloadForm").html(),
+   var downloadForm =  "<div style='width: 300px'>" +
+         "<form class='form-inline' action='<? echo base_url() ?>index.php/ics' method='get'>" +
+            "<fieldset>" +
+               "<div class='form-group text-left'>" +
+                  "<label for='startDatePicker'>Start Date: </label>" +
+                  "<input type='text' name='start' class='form-control' id='startDatePicker' placeholder='YYYY-MM-DD'/>" +
+               "</div>" +  
+               "<div class='form-group text-left'>" + 
+                  "<label for='endDatePicker'>End Date: </label>" + 
+                  "<input type='text' name='end' class='form-control' id='endDatePicker' placeholder='YYYY-MM-DD' />" +
+               "</div>" +
+               "<input type='hidden' value='<? echo $employeeId ?>' name='employeeId' />" +
+               "<div class='form-group text-left'>" + 
+                  "<div class='checkbox'>" +
+                     "<label for='events'>" +
+                     "<input type='checkbox' name='events' id='events' />Include Store Events" +
+                     "</label>" + 
+                  "</div>" +
+               "</div>" +
+               "<div class='form-group text-left'>" +   
+                  "<div class='checkbox'>" +
+                     "<label for='google'>" +
+                     "<input type='checkbox' name='google' id='google' />Google Calendar Format" +
+                     "</label>" +
+                  "</div>" +
+               "</div>"
+            "</fieldset>" +
+         "</form>" + 
+      "</div>";
+   bootbox.confirm(downloadForm, function(result)
+   {
+      if (result === true)
+      {
+         $empty_start_check = validateEmpty($("#startDatePicker").val());
+         $empty_end_check = validateEmpty($("#endDatePicker").val());
+         if($empty_start_check && $empty_end_check)
+         {
+            $valid_date_arr = validateStartEndDates($("#startDatePicker").val(), $("#endDatePicker").val());
+            if ($valid_date_arr[0] === true)
+            {
+               var start = $("#startDatePicker").val();
+               var end = $("#endDatePicker").val();
+               var google = ($("#events").is(":checked")) ? "on" : "off";
+               var events = ($("#google").is(":checked")) ? "on" : "off";
+               var temp_url = url + "index.php/ics?start=" + start + "&end=" + end + "&employeeId=" + employeeId + "&google=" + google + "&events=" + events + "";
+               window.location = temp_url;
+               return true;
+            }
+            else
+               alert($valid_date_arr[1]);
+         }
+         else
+            alert("Please enter start and end dates");
+         return false;
+      }
+   });
+   /*$.prompt($("#downloadForm").html(),
    {
       title: "Download Calendar",
       buttons: {
@@ -171,7 +227,7 @@ $("#downloadCalendar").click(function()
             $("#events").removeAttr("checked");
          document.forms.downloadForm.submit();
       }
-   });
+   });*/
 });
 
 /*

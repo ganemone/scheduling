@@ -81,6 +81,7 @@
                $("#calendar").css("width", $(document).width() - 340);
             })
          }
+         /*
          $("#startDatePicker").datepicker({
             showButtonPanel: true,
             prevText: "__",
@@ -92,7 +93,7 @@
             prevText: "__",
             nextText: "__",
             dateFormat: "yy-mm-dd"
-         });
+         });*/
 
          
    </script>
