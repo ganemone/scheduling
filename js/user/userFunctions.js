@@ -730,7 +730,7 @@ function showLeftMenuItem(show_element_id, nav_element)
    $(nav_element).addClass("active");
 
    if (show_element_id == "newsfeed")
-      $('.leftNav').css("overflow", "scroll");
+      $('.leftNav').css("overflow-y", "scroll");
    else
       $('.leftNav').css("overflow", "visible");
 }

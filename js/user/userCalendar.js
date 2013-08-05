@@ -55,14 +55,7 @@ $('#calendar').fullCalendar(
       {
          $("#calendar").fullCalendar('unselect');
          selectedDate = null;
-         $.prompt("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com",
-         {
-            title : "Oh No!",
-            buttons :
-            {
-               Ok : 1
-            }
-         });
+         bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
    },
    eventRender : function(event, element, view)
@@ -138,14 +131,7 @@ $('#calendar').fullCalendar(
       }
       else
       {
-         $.prompt("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com",
-         {
-            title : "Oh No!",
-            buttons :
-            {
-               Ok : 1
-            }
-         });
+         bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
    },
    eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view)
@@ -186,14 +172,7 @@ $('#calendar').fullCalendar(
       }
       else if(event.category == 'availability')
       {
-         $.prompt("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com",
-         {
-            title : "Oh No!",
-            buttons :
-            {
-               Ok : 1
-            }
-         });
+         bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
       revertFunc();
    },
@@ -229,68 +208,10 @@ $('#calendar').fullCalendar(
             "class" : "btn-danger"
          }  
          ]);
-         /*
-         states = [
-         {
-            title : "Pick Up Shift",
-            html : event.description,
-            buttons :
-            {
-               'Entire Shift' : 1,
-               'Partial Shift' : 2,
-               Cancel : 0
-            },
-            submit : function(e, v, m, f)
-            {
-               if (v == 1)
-               {
-                  if(event.category == 'emptyShifts')
-                     pickUpEmptyShift(event);
-                  else
-                     pickUpShift(null, null, employeeId, event.employeeId, event.id);
-                  return true;
-               }
-               else if (v == 2)
-               {
-                  $.prompt.nextState();
-                  return false;
-               }
-               return true;
-            }
-         },
-         {
-            title : "Custom Shift",
-            html : document.getElementById('customTimes').innerHTML,
-            buttons :
-            {
-               Submit : 1,
-               Cancel : 0
-            },
-            submit : function(e, v, m, f)
-            {
-               if (v == 1)
-               {
-                  if(event.category == "emptyShifts")
-                     pickUpEmptyShift(event, f.start, f.end);
-                  else
-                     pickUpShift(f.start, f.end, employeeId, event.employeeId, event.id);
-               }
-               return true;
-            }
-         }];
-         $.prompt(states);
-         */
       }
       if (coverRequest === true && event.category == 'scheduled')
       {
          coverRequest = false;
-         start = event.start;
-         end = event.end;
-         eId = employeeId;
-
-         var _start = event.start.toTimeString().split(" ")[0];
-         var _end = event.end.toTimeString().split(" ")[0];
-         //initializeForm(_start, _end);
 
          cancelCoverRequest();
 
@@ -314,81 +235,6 @@ $('#calendar').fullCalendar(
                "class": "btn-danger"
             }
          ]);
-         /*
-         states =
-         {
-            State0 :
-            {
-               title : "Confirmation",
-               html : "Are you sure you would like to request a cover for this shift? (Note: the shift will remain on your schedule, and you will still be responsible for it until someone claims it).",
-               buttons :
-               {
-                  "Full Shift" : 1,
-                  "Partial Shift" : 2,
-                  "Cancel" : 0
-               },
-               submit : function(e, v, m, f)
-               {
-                  if (v == 1)
-                  {
-                     
-                     return false;
-                  }
-                  else if (v == 2)
-                  {
-                     $.prompt.goToState('customState');
-                     return false;
-                  }
-                  return true;
-               }
-            },
-            successState0 :
-            {
-               title : "Oops!",
-               html : "This shift is already out for cover!",
-               buttons :
-               {
-                  Ok : 0
-               },
-               submit : function(e, v, m, f)
-               {
-                  return true;
-               }
-            },
-            successState1 :
-            {
-               title : "Success",
-               html : "You have successfully put this shift up for cover",
-               buttons :
-               {
-                  OK : 0
-               },
-               submit : function(e, v, m, f)
-               {
-                  return true;
-               }
-            },
-            customState :
-            {
-               title : "Custom Shift",
-               html : document.getElementById("customTimes").innerHTML,
-               buttons :
-               {
-                  Submit : 1,
-                  Cancel : 0
-               },
-               submit : function(e, v, m, f)
-               {
-                  if (v == 1)
-                  {
-                     requestPartialShiftCover(f.start, f.end, employeeId, event.id);
-                  }
-               }
-            }
-         };
-
-         $.prompt(states);
-         */
       }
    },
    eventSources :
