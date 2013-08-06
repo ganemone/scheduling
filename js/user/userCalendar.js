@@ -239,23 +239,19 @@ $('#calendar').fullCalendar(
    },
    eventSources :
    [
-   {
-      url : url + "index.php/user/scheduledEventSource",
-      error : function(msg, textStatus, errorThrown)
       {
-         alert(errorThrown);
-      }
-   },
-   {
-      url : url + "index.php/user/availabilityEventSource",
-      error : function(msg, textStatus, errorThrown)
+         url : url + "index.php/user/scheduledEventSource",
+         error : function(msg, textStatus, errorThrown)
+         {
+            alert(errorThrown);
+         }
+      },
       {
-         alert(errorThrown);
+         url : url + "index.php/user/availabilityEventSource",
+         error : function(msg, textStatus, errorThrown)
+         {
+            alert(errorThrown);
+         }
       }
-   }
    ]
 });
-$(window).load(function()
-{
-   $(".leftNav").css("height", $(window).height() - 40);
-})

@@ -137,7 +137,10 @@ $(window).load(function()
       $("#calendar").fullCalendar("addEventSource", url + "index.php/user/allStaffSource");
    if (events === true)
       $("#calendar").fullCalendar("addEventSource", url + "index.php/user/coEventSource");
-   $(".leftNav").css("height", $(window).height() - 40);
+   if(String(window.location).indexOf("printable") == -1)
+      $(".leftNav").css("height", $(window).height() - 40);
+   else
+      $(".leftNav").hide();
 });
 
 $("#downloadCalendar").click(function()

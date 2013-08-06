@@ -18,7 +18,9 @@
             <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
          </div>
          <hr style='margin: 10px;'>
+         <? if (isset($newsfeed)): ?>
          <? echo $newsfeed ?>
+         <? endif; ?>
          <div id='external-events' class='leftMenu'>
             <h4>Draggable Events</h4>
             <div class='external-event fc-view' id='available'>
@@ -81,8 +83,11 @@
             {
                //clearTimeout(timeout_id);
                //timeout_id = window.setTimeout(function(){
+               
                $("#calendar").css("width", $(document).width() - 340);
-               $(".leftNav").css("height", $(window).height() - 40);   
+               if(String(window.location).indexOf("printable") == -1);
+                  $(".leftNav").css("height", $(window).height() - 40);   
+
                //}, 200);
             });
          }

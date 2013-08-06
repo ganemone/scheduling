@@ -65,7 +65,10 @@ footer #bottomSpan {
    color: #fff;
    font-size: .85em;
    cursor: pointer;
-   width: 250px;
+   width: 150px !important;
+   -webkit-border-radius: 6px;
+   -moz-border-radius: 6px;
+   border-radius: 6px;
 }
 #colorCode {
    width: 260px;
@@ -75,6 +78,9 @@ footer #bottomSpan {
    text-align: left;
    margin: 10px;
    display: none;
+}
+#colorCode .external-event {
+   width: 220px !important;
 }
 #colorCode h4 {
    font-size: 16px;

@@ -1,4 +1,4 @@
-<div id='newsfeed' class='leftMenu'>
+<div id='newsfeed' class='leftMenu hiddenPrint'>
    <ul id='newsfeedList'>
       <li id='newPost'>
          <span>Add New Post Here</span>
