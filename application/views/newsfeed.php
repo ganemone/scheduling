@@ -1,14 +1,14 @@
 <div id='newsfeed' class='leftMenu'>
    <ul id='newsfeedList'>
       <li id='newPost'>
-      <div>Add New Post Here</div>
-      <? if($mobile === true): ?>
-      <textarea rows='6' cols='36' id='newPostTextArea'></textarea>
-      <? else: ?>
-      <textarea rows='5' cols='31' id='newPostTextArea'></textarea>
-      <? endif; ?>
-      <br>
-      <a id='addNewPost' class='btn btn-small btn-default' onclick='addNewPost();'>Submit</a>
+         <span>Add New Post Here</span>
+         <? if($mobile === true): ?>
+         <textarea rows='6' cols='36' id='newPostTextArea'></textarea>
+         <? else: ?>
+         <textarea rows='5' cols='31' id='newPostTextArea'></textarea>
+         <? endif; ?>
+         <br style='clear:left;'>
+         <a id='addNewPost' class='btn btn-small btn-default' onclick='addNewPost();'>Submit</a>
       </li>
       <? foreach ($posts as $key => $value): ?>
       <li id='message<? echo $value['messageId']?>' >
@@ -22,10 +22,10 @@
          <textarea rows="5" cols="31"><? echo $value['message']?>
          <? endif; ?>
          </textarea>
-         <br style='clear:left'>
+         <br style='clear:left;'>
          <a id='submit<? echo $value['messageId']?>' class='btn btn-small btn-default' onclick='updatePost(<? echo $value['messageId']?>);'>Update</a>
          <a id='delete<? echo $value['messageId']?>' class='btn btn-small btn-danger' onclick='deletePost(<? echo $value['messageId'] ?>);'>Delete</a>
-         <br style='clear:left'>     
+         <br style='clear:left;'>     
       </li>
       <? endforeach; ?>
    </ul>

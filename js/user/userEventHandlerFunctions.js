@@ -137,6 +137,7 @@ $(window).load(function()
       $("#calendar").fullCalendar("addEventSource", url + "index.php/user/allStaffSource");
    if (events === true)
       $("#calendar").fullCalendar("addEventSource", url + "index.php/user/coEventSource");
+   $(".leftNav").css("height", $(window).height() - 40);
 });
 
 $("#downloadCalendar").click(function()
@@ -197,42 +198,4 @@ $("#downloadCalendar").click(function()
          return false;
       }
    });
-   /*$.prompt($("#downloadForm").html(),
-   {
-      title: "Download Calendar",
-      buttons: {
-         "Submit": 1,
-         "Cancel": 0
-      },
-      submit: function(e,v,m,f)
-      {
-         if(v === 0)
-            return true;
-         var ret = validateDownloadForm(f);
-
-         if(ret[0] === false)
-         {
-            alert(ret[1]);
-            return false;
-         }
-         $("#startDatePicker").val(f.start);
-         $("#endDatePicker").val(f.end);
-         if(f.google)
-            $("#google").attr("checked", "checked");
-         else
-            $("#google").removeAttr('checked');
-         if(f.events)
-            $("#events").attr("checked", "checked");
-         else
-            $("#events").removeAttr("checked");
-         document.forms.downloadForm.submit();
-      }
-   });*/
 });
-
-/*
-$(".leftNav").hover(function() {
-   $("body").css("overflow", "hidden");
-}, function() {
-   $("body").css("overflow", "auto");
-}); */

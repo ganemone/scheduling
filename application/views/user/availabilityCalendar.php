@@ -73,13 +73,18 @@
          var availability = <? echo $availability ?>;
          var resize = <? echo $resize ?>;
          var clipboard = null;
+         //var timeout_id;
          if(resize == true)
          {
             $("#calendar").css("width", $(document).width() - 340);
             $(window).resize(function()
             {
+               //clearTimeout(timeout_id);
+               //timeout_id = window.setTimeout(function(){
                $("#calendar").css("width", $(document).width() - 340);
-            })
+               $(".leftNav").css("height", $(window).height() - 40);   
+               //}, 200);
+            });
          }
          /*
          $("#startDatePicker").datepicker({
