@@ -13,6 +13,9 @@ class sfl extends CI_Controller
       $this->load->library('email');
       $this->load->library('user_agent');
       $this->info['mobile'] = $this->agent->is_mobile();
+      $this->info['brand'] = "SFL";
+      $this->info['browser'] = $this->agent->browser();
+      $this->info['version'] = $this->agent->version();
    }
 
    function index()
@@ -22,12 +25,29 @@ class sfl extends CI_Controller
          header("location: " . base_url() . "index.php/site");
       else
       {
-         $this->info['events'] = TRUE;
-         $this->info['support'] = TRUE;
+         $this->info['events'] = "FALSE";
+         $this->info['support'] = "FALSE";
+         
+         $this->info['menu_items'] = array(
+         "Calendar Actions" => array(
+            "id='missedSale' onclick='addMissedSale()'" => "Missed Sale",
+            "id='story' onclick='addStory()'" => "Employee Actions",
+            "id='nightlyEmail' onclick='getEmailTemplate()'" => "Nightly Email",
+            "id='printSchedule'" => "Printable Schedule"
+         ),
+         "Calendar Options" => array(
+            "id='toggleSupportStaff'" => "Support Staff",
+            "id='toggleStoreEvents'" => "Store Events"
+         ),
+         "href='" . base_url() . "index.php/user'" => "Home",
+         "href='logout'" => "Log Out");
+
          $this->load->view("includes");
+         $this->load->view("header.php", $this->info);
          $this->load->view("/sfl/sflCSS.html");
-         $this->load->view("/sfl/sflCalendar", $this->info);
+
          $this->getNewsfeed();
+         $this->load->view("/sfl/sflCalendar", $this->info);
       }
    }
 
@@ -83,7 +103,7 @@ class sfl extends CI_Controller
    function getNewsfeed()
    {
       $this->info['posts'] = $this->newsfeed->getPosts();
-      $this->load->view("newsfeed.php", $this->info);
+      $this->info['newsfeed'] = $this->load->view("newsfeed.php", $this->info, true);
    }
 
    function addMissedSale()

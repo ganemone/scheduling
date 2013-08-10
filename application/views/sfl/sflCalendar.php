@@ -1,33 +1,60 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-   <head>
-      <span id='top'>
-         <div id='toolbar'>
-            <button id='home'>Home</button>
-            <button id='logOut'>Log Out</button>
-         </div>
-         <h1>Gazelle Schedule</h1>
-      </span>
-   </head>
-   <br style="clear:left;">
+   <head></head>
    <body>
-      <div id='calendar'></div>
-      <div id='buttons'>
-         <button class='mainButton' id='toggleSupportStaff'>Toggle Support Staff</button><br>
-         <button class='mainButton' id='toggleStoreEvents'>Toggle Store Events</button><br>
-         <button class='mainButton' id='printSchedule'>Printable Schedule</button><br>
-         <button class='mainButton' id='missedSale' onclick='addMissedSale()'>Missed Sale</button><br>
-         <button class='mainButton' id='story' onclick='addStory()'>Employee Actions</button><br>
-         <button class='mainButton' id='nightlyEmail' onclick='getEmailTemplate()'>Nightly Email</button><br>
+		<div id='overlay' class='overlay'>  
+		</div> 
+      	<div class='overlay-container'><h4>Loading... Please Wait</h4>  
+     		<div class='progress progress-striped active'>  
+        		<div class='progress-bar progress-bar-info' style='width: 100%;'></div>  
+     		</div>  
+  		</div>
+		<div class='notifications top-right'></div>
+		<div class='leftNav'>
+         <br>
+         <div class="nav nav-pills">
+            <li class='active' onclick="showLeftMenuItem('newsfeed', this);"><a><small>Newsfeed</small></a></li>
+            <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
+         </div>
+         <hr style='margin: 10px;'>
+         <? if (isset($newsfeed)): ?>
+         <? echo $newsfeed ?>
+         <? endif; ?>
+         <div id='colorCode' class='leftMenu'>
+            <h4>Color Code</h4>
+            <div class='external-event fc-view' id='availableCode'>
+               Available All Day (A)
+            </div>
+            <div class='external-event fc-view' id='busyCode'>
+               Busy All Day (B)
+            </div>
+            <div class='external-event fc-view' id='customCode'>
+               Available for a custom time (C)
+            </div>
+            <div class='external-event fc-view' id='scheduledCode'>
+               Scheduled to work
+            </div>
+            <div class='external-event fc-view' id='eventCode'>
+               Event
+            </div>
+            <div class='external-event fc-view' id='pickUpCode'>
+               Shift available to pick up
+            </div>
+            <div class='external-event fc-view' id='coverCode'>
+               Your shift up for cover
+            </div>
+         </div>
       </div>
-      <br style="clear:left">
-   </body>
-   
+		<div id='calendar'></div>
+	</body>
 </html>
 <script type="text/javascript">
 var url = "<? echo base_url() ?>";
-var support = <? echo $support ?>;
-var events = <? echo $events ?>;
+var support = "<? echo $support ?>";
+var events = "<? echo $events ?>";
+var agent = {
+   browser : "<? echo $browser ?>",
+   version : "<? echo $version ?>"
+}
 $("#logOut").button()
 .click(function()
 {
@@ -47,4 +74,5 @@ $(window).resize(function()
    $("#calendar").css("width", $(document).width() - 335);
 });
 </script>
+<script src="<? echo base_url() ?>/js/utility.js"></script>
 <script src="<? echo base_url() ?>/js/sfl/sflCalendar.js"></script>

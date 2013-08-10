@@ -59,7 +59,12 @@ class emailer extends CI_Model
       $end = Date("g:i a", strtotime($end));
       $date = $this->getDate($shiftId);
       $subject = "Shift Cover Update";
-      $message = "$newName has picked up a shift for $oldName on $date from $start until $end.  Please check your page calendar for updates.";
+      $message = "";
+      if ($employeeId == $originalEmployeeId)
+         $message = "$oldName has removed their shift on $date from $start until $end from cover. ";
+      else
+         $message = "$newName has picked up a shift for $oldName on $date from $start until $end. ";
+      $message.= "Please check your calendar for updates.";
       
       return $this->emailManagersAndLeaders($subject, $message, $cc);
    }

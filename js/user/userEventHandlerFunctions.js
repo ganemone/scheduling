@@ -46,7 +46,7 @@ $("#submitMonthForm").click(function()
 $("#coverRequest").click(function()
 {
    coverRequest = true;
-   $(".bottom-right").notify({
+   $(".top-right").notify({
       type: "bangTidy",
       message: { html: "Click on a shift to put it up for cover <button onclick='cancelCoverRequest()' class='btn btn-small btn-primary'>Cancel</button>" },
       closable: false,
@@ -58,8 +58,8 @@ $("#coverRequest").click(function()
 function cancelCoverRequest()
 {
    coverRequest = false;
-   $(".bottom-right").remove();
-   $("body").append("<div class='notifications bottom-right'></div>");
+   $(".top-right").remove();
+   $("body").append("<div class='notifications top-right'></div>");
 }
 
 $("#showMonthInfoForm").click(function()

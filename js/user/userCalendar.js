@@ -60,24 +60,18 @@ $('#calendar').fullCalendar(
    },
    eventRender : function(event, element, view)
    {
-      /*element.qtip(
+      var position;
+      switch(event.start.getDay())
       {
-         content : event.tip,
-         position :
-         {
-            at : "top center",
-            my : "bottom center"
-         },
-         style :
-         {
-            tip : "bottomMiddle",
-            classes : "qtip-dark"
-         }
-      });*/
+         case 6 : position = "left"; break;
+         case 0 : position = "right"; break;
+         default: position = "top"; break;
+      }
       element.tooltip({
          animation: false,
          title: event.tip,
-         container: 'body'      
+         container: 'body',
+         placement: position      
       });
       if (event.category == 'scheduled')
       {

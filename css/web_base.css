@@ -87,6 +87,46 @@ footer #bottomSpan {
    margin-top: 0;
    padding-top: 1em;
 }
+#busy, #busyCode
+{
+   background: #000000;
+}
+#available, #availableCode
+{
+   background: #32CD32;
+}
+#custom, #customCode
+{
+   background: #3366CC;
+}
+#scheduledCode
+{
+   background: ORANGE;
+}
+#coverCode
+{
+   background: PURPLE;
+}
+#pickUpCode
+{
+   background: RED;
+}
+#eventCode
+{
+   background: #480091;
+}
+#external-events p
+{
+   margin: 1.5em 0;
+   font-size: 11px;
+   color: #666;
+}
+
+#external-events p input
+{
+   margin: 0;
+   vertical-align: middle;
+}
 #copy_brand  {
    color: #000;
    font-weight: bold;
@@ -118,9 +158,36 @@ footer #bottomSpan {
    overflow-y: scroll;
    overflow-x: hidden;
 }
-   /* ---------------- */
-   /* Newsfeed */
-   /* ---------------- */
+.overlay {
+   display:none;
+   background-color: white;
+   filter:alpha(opacity=50); /* IE */
+   opacity: 0.5; /* Safari, Opera */
+   -moz-opacity:0.50; /* FireFox */
+   z-index: 2000;
+   height: 100%;
+   width: 100%;
+   background-repeat:no-repeat;
+   background-position:center;
+   position:fixed;
+   top: 0px;
+   left: 0px;
+}
+.overlay-container {
+   display:none;
+   z-index: 2001;
+   width: 25%;
+   position: fixed;
+   left: 40%;
+   top: 30%;
+}
+.progress-bar {
+   z-index: 3000;
+   background: black;
+}
+/* ---------------- */
+/* Newsfeed */
+/* ---------------- */
 #newsfeed ul {
    list-style-type: none;
    margin-left: 0px;

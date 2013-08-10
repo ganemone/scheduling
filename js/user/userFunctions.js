@@ -197,6 +197,21 @@ function updateEvent(title, date, allDay, start, end)
    {
       $(this).removeAttr('disabled');
    });
+   sendRequest("POST", url + "index.php/user/updateHourAction", 
+   {
+      employeeId : employeeId,
+      day : formattedDate,
+      available : title,
+      begin : start,
+      end : end   
+   },
+   function(msg)
+   {
+      $("#calendar").fullCalendar("removeEvents", msg);
+      $("#calendar").fullCalendar("refetchEvents");
+   },
+   true);
+   /*
    $.ajax(
    {
 
@@ -217,16 +232,37 @@ function updateEvent(title, date, allDay, start, end)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorThrown, "updateHourAction");
+         error_handler(textStatus, errorThrown, "updateHourAction");
          $("#calendar").fullCalendar('refetchEvents');
       }
-   });
+   });*/
 }
 
 function pickUpEmptyShift(event, start, end)
 {
    start = ( typeof start == "undefined") ? event.start.toTimeString().split(" ")[0] : start;
    end = ( typeof end == "undefined") ? event.end.toTimeString().split(" ")[0] : end;
+   
+   sendRequest("GET", url + "index.php/user/pickUpEmptyShift", 
+   {
+      employeeId : employeeId,
+      start : start,
+      end : end,
+      date : event.start.toDateString(),
+      position : event.position,
+      sfl : event.sfl,
+      shiftId : event.shiftId
+   },
+   function(msg)
+   {
+      msg = jQuery.parseJSON(msg);
+      if (msg[0] == "false")
+         alert(msg[1]);
+      else
+         $("#calendar").fullCalendar("refetchEvents");
+   },
+   true);
+   /*
    $.ajax(
    {
       type : "GET",
@@ -251,9 +287,10 @@ function pickUpEmptyShift(event, start, end)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorThrown, "pickUpEmptyShift");
+         error_handler(textStatus, errorThrown, "pickUpEmptyShift");
       }
    });
+   */
 }
 
 function deletePost(id)
@@ -290,7 +327,7 @@ function deletePost(id)
                },
                error : function(msg, textStatus, errorThrown)
                {
-                  error_handler(msg, textStatus, errorThrown, "deletePost errorThrown");
+                  error_handler(textStatus, errorThrown, "deletePost errorThrown");
                }
             });
          }
@@ -321,7 +358,7 @@ function updatePost(id)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorthrown, "updateNewsfeedPost");
+         error_handler(textStatus, errorthrown, "updateNewsfeedPost");
       }
    });
 }
@@ -344,7 +381,7 @@ function addNewPost()
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorThrown, "addNewsfeedPost");
+         error_handler(textStatus, errorThrown, "addNewsfeedPost");
       }
    });
 }
@@ -361,7 +398,7 @@ function reloadNewsfeed()
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorThrown, "reloadNewsfeed");
+         error_handler(textStatus, errorThrown, "reloadNewsfeed");
       }
    });
 }
@@ -595,7 +632,7 @@ function updateInfo()
             },
             error: function(msg, textStatus, errorThrown)
             {
-               error_handler(msg, textStatus, errorThrown, "pickUpEmptyShift");
+               error_handler(textStatus, errorThrown, "pickUpEmptyShift");
             }
          });
       }
@@ -646,7 +683,7 @@ function pickUpShift(start, end, employeeId, oldEmployeeId, shiftId)
          },
          error : function(msg, textStatus, errorThrown)
          {
-            error_handler(msg, textStatus, errorThrown, "shiftSwap");
+            error_handler(textStatus, errorThrown, "shiftSwap");
          }
       });
    }
@@ -676,7 +713,7 @@ function pickUpShift(start, end, employeeId, oldEmployeeId, shiftId)
          },
          error : function(msg, textStatus, errorThrown)
          {
-            error_handler(msg, textStatus, errorThrown, "partialShiftSwap");
+            error_handler(textStatus, errorThrown, "partialShiftSwap");
          }
       });
    }
@@ -704,7 +741,7 @@ function fullShiftCoverRequest(event)
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(msg, textStatus, errorThrown, "scheduleRequest");
+         error_handler(textStatus, errorThrown, "scheduleRequest");
       }
    });
 }
@@ -747,68 +784,9 @@ function partialShiftCoverRequest(event)
             },
             error : function(msg, textStatus, errorThrown)
             {
-               error_handler(msg, textStatus, errorThrown, "requestPartialShiftCover");
+               error_handler(textStatus, errorThrown, "requestPartialShiftCover");
             }
          });
       }
    })
-}
-
-function showLeftMenuItem(show_element_id, nav_element)
-{
-   $(".leftMenu").each(function()
-   {
-      if ($(this).attr("id") != show_element_id)
-         $(this).hide();
-   });
-   $("#" + show_element_id).toggle();
-   $(".nav-pills").children("li").each(function()
-   {
-      $(this).removeClass("active");
-   });
-   $(nav_element).addClass("active");
-
-   if (show_element_id == "newsfeed")
-      $('.leftNav').css("overflow-y", "scroll");
-   else
-      $('.leftNav').css("overflow", "visible");
-}
-
-function error_handler(error_part, error_part2, error_part3, origin)
-{
-   $(".bottom-right").notify({
-      type: "danger",
-      message: { text: "Oops, something went wrong... Quick, go get G! (ps, he is sorry in advance)" },
-   }).show();
-
-   $.ajax({
-      type: "POST",
-      url: url + "index.php/user/error_handler",
-      data: {
-         message: error_part + " " + error_part2 + " " + error_part3 + " " + origin + " " + employeeId
-      },
-      success: function(msg)
-      {
-      },
-      error: function() 
-      {}
-   });
-}
-
-function successMessage(msg)
-{
-   $('.bottom-right').notify({
-      type: "success",
-      message: { text: msg },
-      fadeOut: { enabled: true, delay: 3000 }
-   }).show();
-}
-
-function errorMessage(msg)
-{
-   $('.bottom-right').notify({
-      type: "danger",
-      message: { text: msg },
-      fadeOut: { enabled: true, delay: 3000 }
-   }).show();
 }

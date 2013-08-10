@@ -1,7 +1,7 @@
 <html>
    <head></head>
    <body>
-      <div class='notifications bottom-right'></div>
+      <div class='notifications top-right'></div>
       <div class="alert alert-danger" style='display:none; position: fixed; top: 70px; width: 100%;'>
          <button type="button" class="close" data-dismiss="alert">&times;</button>
       </div>

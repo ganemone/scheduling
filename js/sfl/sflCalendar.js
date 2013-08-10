@@ -1,5 +1,6 @@
 var global_goal_arr;
 initializeGoals();
+bootbox.animate(false);
 $("#calendar").fullCalendar(
 {
    header :
@@ -48,18 +49,36 @@ $("#calendar").fullCalendar(
    eventSources : [
    {
       url : url + "index.php/sfl/floorEventSource",
+      beforeSend: function()
+      {
+         global_ajax_requests++;
+      },
       error : function(msg, textStatus, errorThrown)
       {
          alert(textStatus + "/manager/floorEventSource");
+      },
+      complete: function()
+      {
+         global_ajax_requests--;
+         hideLoading();
       }
    }]
 });
 function initializeGoals()
 {
+   
+   sendRequest("GET", url + "index.php/manager/initializeGoals", {}, function(msg) {
+      global_goal_arr = jQuery.parseJSON(msg);
+      return showGoals($("#calendar").fullCalendar("getView"));
+   }, true);
+   /*
    $.ajax(
    {
       type : "GET",
       url : url + "index.php/manager/initializeGoals",
+      beforeSend: function(jqXHR, settings) {
+         showLoading();
+      },
       success : function(msg)
       {
          global_goal_arr = jQuery.parseJSON(msg);
@@ -68,8 +87,12 @@ function initializeGoals()
       error : function(textStatus, msg, error)
       {
          alert(error + " initializeGoals");
+      },
+      complete: function()
+      {
+         hideLoading();
       }
-   });
+   });*/
 }
 
 function showGoals(view)
@@ -158,19 +181,29 @@ function getStartAndEndDates(view, selectedDate)
 
 $("#toggleSupportStaff").click(function()
 {
-   if (support === true)
+   if (support == true)
+   {
       $("#calendar").fullCalendar("removeEventSource", url + "index.php/sfl/supportEventSource");
+      support = false;
+   }
    else
+   {
       $("#calendar").fullCalendar("addEventSource", url + "index.php/sfl/supportEventSource");
-   support = !support;
+      support = true;
+   }
 });
 $("#toggleStoreEvents").click(function()
 {
-   if (events === true)
+   if (events == true)
+   {
       $("#calendar").fullCalendar("removeEventSource", url + "index.php/manager/coEventSource");
+      events = false
+   }
    else
+   {
       $("#calendar").fullCalendar("addEventSource", url + "index.php/manager/coEventSource");
-   events = !events;
+      events = true;
+   }
 });
 $("#printSchedule").click(function()
 {
@@ -184,44 +217,48 @@ $(document).ready(function()
       $("#calendar").fullCalendar("addEventSource", url + "index.php/manager/coEventSource");
 });
 
+$(window).load(function()
+{
+   if(String(window.location).indexOf("printable") == -1)
+      $(".leftNav").css("height", $(window).height() - 40);
+   else
+      $(".leftNav").hide();
+});
+
 function deletePost(id)
 {
-   setTimeout(function()
+
+   bootbox.confirm("Are you sure you would like to delete this post?", function(result) 
    {
-      $(".jqibox").css("height", $(document).height());
-      $(".jqifade").css("height", $(document).height());
-   }, 20);
-   $.prompt("Are you sure you would like to delete this post?",
-   {
-      title : "Confirmation",
-      buttons :
+      if (result === true)
       {
-         "Yes" : 1,
-         "Cancel" : 2
-      },
-      submit : function(e, v, m, f)
-      {
-         if (v == 1)
+         sendRequest("GET", url + "index.php/news/deletePost",
+         { 
+            messageId: id 
+         },
+         function(msg) 
          {
-            $.ajax(
+            $("#message" + id).hide();
+         },
+         true);
+         /*
+         $.ajax(
+         {
+            type : "GET",
+            url : url + "index.php/news/deletePost",
+            data :
             {
-               type : "GET",
-               url : url + "index.php/news/deletePost",
-               data :
-               {
-                  messageId : id
-               },
-               success : function(msg)
-               {
-                  $("#message" + id).hide();
-               },
-               error : function(msg, textStatus, errorThrown)
-               {
-                  alert("deletePost errorThrown");
-               }
-            });
-         }
-         return true;
+               messageId : id
+            },
+            success : function(msg)
+            {
+               $("#message" + id).hide();
+            },
+            error : function(msg, textStatus, errorThrown)
+            {
+               error_handler(msg, textStatus, errorThrown, "SFL Calendar deletePost");
+            }
+         });*/
       }
    });
 }
@@ -229,98 +266,114 @@ function deletePost(id)
 function updatePost(id)
 {
    var text = $("#message" + id + " textarea").val();
-   $.prompt("Please Enter your Employee Id: <input type='text' name='employeeId' id='impromptu_employeeId' />",
+   bootbox.prompt("Employee ID", function(results)
    {
-      title : "Employee ID",
-      buttons :
+      if (results === null)
+         return true;
+      sendRequest("GET", url + "index.php/news/updateNewsfeedPost",
       {
-         "Submit" : 1,
-         "Cancel" : 0
+         employeeId : results,
+         messageId : id,
+         message : text
       },
-      loaded : function()
+      function(msg)
       {
-         $("#impromptu_employeeId").focus();
-      },
-      submit : function(e, v, m, f)
-      {
-         if (v == 1)
+         if (msg == "false")
          {
-            $.ajax(
-            {
-               type : "GET",
-               url : url + "index.php/news/updateNewsfeedPost",
-               data :
-               {
-                  employeeId : f.employeeId,
-                  messageId : id,
-                  message : text
-               },
-               success : function(msg)
-               {
-                  if (msg == "false")
-                     alert("Whoops, an error occured");
-                  else
-                     alert("You have successfully updated this post");
-               },
-               error : function(msg, textStatus, errorThrown)
-               {
-                  alert("updateNewsfeedPost " + errorThrown);
-               }
-            });
+            alert("Please enter a correct Employee ID");
+            return updatePost(id);
          }
-      }
+         successMessage("Updated post successfully");
+         return true;
+      }, 
+      true);
+      /*
+      $.ajax(
+      {
+         type : "GET",
+         url : url + "index.php/news/updateNewsfeedPost",
+         data :
+         {
+            employeeId : f.employeeId,
+            messageId : id,
+            message : text
+         },
+         success : function(msg)
+         {
+            if (msg == "false")
+               alert("Whoops, an error occured");
+            else
+               alert("You have successfully updated this post");
+         },
+         error : function(msg, textStatus, errorThrown)
+         {
+            error_handler(msg, textStatus, errorThrown, "SFL Calendar updateNewsfeedPost");
+         }
+      }); */
    });
 }
 
 function addNewPost()
 {
    var value = $("#newPostTextArea").val();
-   $.prompt("Please Enter your Employee Id: <input type='text' name='employeeId' id='impromptu_employeeId' />",
+   bootbox.prompt("Employee ID", function(results)
    {
-      title : "Employee ID",
-      buttons :
-      {
-         "Submit" : 1,
-         "Cancel" : 0
-      },
-      loaded : function()
-      {
-         $("#impromptu_employeeId").focus();
-      },
-      submit : function(e, v, m, f)
-      {
-         if (v == 1)
-         {
-            $.ajax(
-            {
-               type : "GET",
-               url : url + "index.php/news/addNewsfeedPost",
-               data :
-               {
-                  employeeId : f.employeeId,
-                  message : value
-               },
-               success : function(msg)
-               {
-                  if (msg == "false")
-                     alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
-                  else
-                     reloadNewsfeed();
-               },
-               error : function(msg, textStatus, errorThrown)
-               {
-                  alert("addNewsfeedPost " + errorThrown);
-               }
-            });
-         }
+      if (results === null)
          return true;
-      }
+
+      sendRequest("GET", url + "index.php/news/addNewsfeedPost",
+      {
+         employeeId : results,
+         message : value
+      },
+      function(msg)
+      {
+         if(msg == "false")
+         {
+            alert("Please enter a valid Employee ID");
+            return addNewPost();
+         }
+         successMessage("Successfully added new post");
+         reloadNewsfeed();
+      },
+      true);
+      return true;   
+
+      /*
+      $.ajax(
+      {
+         type : "GET",
+         url : url + "index.php/news/addNewsfeedPost",
+         data :
+         {
+            employeeId : f.employeeId,
+            message : value
+         },
+         success : function(msg)
+         {
+            if (msg == "false")
+               alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
+            else
+               reloadNewsfeed();
+         },
+         error : function(msg, textStatus, errorThrown)
+         {
+            error_handler(msg, textStatus, errorThrown, "SFL Calendar addNewsfeedPost");
+         }
+      });*/
+        
    });
 
 }
 
 function reloadNewsfeed()
 {
+   sendRequest("GET", url + "index.php/news/reloadNewsfeed", {}, 
+   function(msg)
+   {
+      $("#newsfeed").replaceWith(msg);
+   }, true);
+   /*
    $.ajax(
    {
       type : "GET",
@@ -333,68 +386,58 @@ function reloadNewsfeed()
       {
          alert("reloadNewsfeed " + errorThrown);
       }
-   });
+   });*/
 }
 
 function addMissedSale()
 {
-   var form = "<input type='text' placeholder='Description' name='description'><br>" + "<input type='text' placeholder='Style Number' name='style' id='style_num' ><br>" + "<input type='text' placeholder='Color Code' name='color'><br>" + "<input type='text' placeholder='Size' name='size'><br>" + "<input type='text' placeholder='Price ex: 0.00' name='price'><br>";
+   var form = "<form class='form-horizontal' id='missedSaleForm' style='width: 500px;'>" +
+      "<div class='form-group'>" +
+         "<label for='miss_description' class='col-2 control-label'>Description</label>" +
+         "<div class='col-10'>" +
+            "<input type='text' class='form-control' placeholder='Enter description here'    name='description' id='miss_description'>" +
+         "</div>" +
+      "</div>" + 
+      "<div class='form-group'>" +
+         "<label for='miss_style'>Style Number" +
+             "<input type='text' class='form-control' placeholder='Enter style number here'    name='style' id='miss_style'>" +
+         "</label>" +
+      "</div>" +
+      "<div class='form-group'>" +
+         "<label for='miss_color'>Color Code" +
+            "<input type='text' class='form-control' placeholder='Enter color code here'      name='color' id='miss_color'>" +
+         "</label>" +
+      "</div>" +
+      "<div class='form-group'>" +
+         "<label for='miss_size' >Size" +
+            "<input type='text' class='form-control' placeholder='Enter size here'            name='size'  id='miss_size'>" +
+         "</label>" +
+      "</div>" +
+      "<div class='form-group'>" +
+         "<label for='miss_price'>Price" + 
+            "<input type='text' class='form-control' placeholder='Enter price here, ex: 0.00' name='price' id='miss_price'>" +
+         "</label>" + 
+      "</div>" + 
+"</form>";
 
-   $.prompt(form,
+  bootbox.confirm(form, function(results)
    {
-      title : "Missed Sale",
-      buttons :
+      if (results === true)
       {
-         "Submit" : 1,
-         "Cancel" : 0
-      },
-      loaded : function()
-      {
-         $("#style_num").focus();
-      },
-      submit : function(e, v, m, f)
-      {
-         if (v == 1)
-         {
-            var validate = validateMissedSaleForm(f);
-            if (validate[0] === true)
-               ajaxMissedSale(f);
-            else
-               alert(validate[1]);
-
-            return validate[0];
-         }
-         else if (v === 0)
-            return true;
-         return false;
+         var form = $("#missedSaleForm");
+         var data = {
+            description : form.description,
+            style       : form.style,
+            color       : form.color,
+            size        : form.size,
+            price       : form.price
+         };
+         sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
+         function(msg) {
+            // HANDLE MISSED SALE CONFIRMATION HERE;
+         }, true);    
       }
-   });
-}
-
-function ajaxMissedSale(form)
-{
-   var size = (form.size === "") ? "NA" : form.size;
-   var date = new Date();
-   $.ajax(
-   {
-      type : "POST",
-      url : url + "index.php/sfl/addMissedSale",
-      data :
-      {
-         style : form.style,
-         color : form.color,
-         description : form.description,
-         size : size,
-         price : form.price,
-         date: date.toDateString()
-      },
-      success : function(msg)
-      {
-      },
-      error : function(msg, textStatus, errorThrown)
-      {
-         alert("addMissedSale " + errorThrown);
-      }
+      return true;
    });
 }
 
@@ -425,8 +468,25 @@ function validateMissedSaleForm(form)
 
 function addStory()
 {
-   var form = "<input id='impromptu_employeeId' placeholder='Employee ID' name='employeeId'><br>" + "<textarea name='story' rows=10 cols=35 placeholder='Tell us what awesome thing you did today!'></textarea>";
-   $.prompt(form,
+   var form = "<form class='form-inline'>" + 
+         "<fieldset>" + 
+            "<div class='form-group text-left'>" + 
+               "<label for='story_employeeId'>Employee ID </label>" +
+               "<input id='story_employeeId' class='placeholder='Enter Employee ID Here...' name='employeeId'>" +
+            "</div>" +
+            "<div class='form-group text-left'>" +
+               "<textarea name='story' rows=10 cols=35 placeholder='Tell us what awesome thing you did today!'></textarea>" + 
+            "</div>" + 
+         "</fieldset>" +
+      "</form>";
+   bootbox.confirm(form, function(result)
+   {
+      if (result === true)
+      {
+         ajaxAddStory($("#story_employeeId").val(), $("#story").val());
+      }
+   })
+   /*$.prompt(form,
    {
       title : "Employee ID",
       buttons :
@@ -446,7 +506,7 @@ function addStory()
          }
          return true;
       }
-   });
+   });*/
 }
 
 function ajaxAddStory(form)
@@ -466,6 +526,18 @@ function ajaxAddStory(form)
       alert("You forgot to tell us why you're so awesome!");
       return false;
    }
+   sendRequest("POST", url + "index.php/sfl/addStory", 
+   {
+      date: date.toDateString(),
+      employeeId : employeeId,
+      story : story
+   },
+   function(msg)
+   {
+      if (msg == "false")
+         alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
+   }, true);
+   /*
    $.ajax(
    {
       type : "POST",
@@ -485,12 +557,23 @@ function ajaxAddStory(form)
       {
          alert("ajaxAddStory " + errorThrown);
       }
-   });
+   }); */
 }
 
 function getEmailTemplate()
 {
    var date = new Date();
+   sendRequest("GET", url + "index.php/sfl/getEmailTemplate", 
+   {
+      date: date.toDateString()
+   },
+   function(msg)
+   {
+      message = "<h3>Nightly Email for " + new Date().toDateString() + "</h3><br>";
+      bootbox.alert(message + msg);
+      selectElementText($("emailTemplate"));
+   }, true);
+   /*
    $.ajax(
    {
       type : "GET",
@@ -522,7 +605,7 @@ function getEmailTemplate()
       {
          alert("getEmailTemplate" + errorThrown);
       }
-   });
+   }); */
 }
 
 function selectElementText(element)
@@ -534,13 +617,13 @@ jQuery.fn.selText = function()
 {
    var obj = this[0];
    var selection, range;
-   if ($.browser.msie)
+   if (agent.browser == "Internet Explorer")
    {
       range = obj.offsetParent.createTextRange();
       range.moveToElementText(obj);
       range.select();
    }
-   else if ($.browser.mozilla || $.browser.opera)
+   else if (agent.browser == "Firefox" || agent.browser == "Opera")
    {
       selection = obj.ownerDocument.defaultView.getSelection();
       range = obj.ownerDocument.createRange();
@@ -548,7 +631,7 @@ jQuery.fn.selText = function()
       selection.removeAllRanges();
       selection.addRange(range);
    }
-   else if ($.browser.safari)
+   else if (agent.browser == "Safari")
    {
       selection = obj.ownerDocument.defaultView.getSelection();
       selection.setBaseAndExtent(obj, 0, obj, 1);
@@ -582,7 +665,7 @@ $("span.fc-button.fc-button-next.fc-state-default.fc-corner-right").click(functi
 {
    showGoals($("#calendar").fullCalendar("getView"));
 });
-$("span.fc-button.fc-button-month.fc-state-default.fc-corner-left.fc-state-active").click(function()
+$("span.fc-button.fc-button-month.fc-state-default.fc-corner-left").click(function()
 {
    showGoals($("#calendar").fullCalendar("getView"));
 });

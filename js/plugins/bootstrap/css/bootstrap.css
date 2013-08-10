@@ -3536,9 +3536,10 @@ button.close {
 .modal {
   position: fixed;
   top: 10%;
-  left: 60%;
+  left: 50%;
   z-index: 1050;
   max-width: 560px;
+  min-width: 200px;
   margin-left: -280px;
   background-color: #ffffff;
   border: 1px solid #999;
