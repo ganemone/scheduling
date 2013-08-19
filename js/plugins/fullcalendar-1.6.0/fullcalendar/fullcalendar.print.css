@@ -1,6 +1,5 @@
-
-    /*!
- * FullCalendar v1.6.0 Print Stylesheet
+/*!
+ * FullCalendar v1.6.3 Print Stylesheet
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw
  */
@@ -29,46 +28,5 @@
 .fc-event .ui-resizable-handle {
 	display: none !important;
 	}
-#calendar {
-    width:540px;
-}
-#top {
-    display:none;
-}
-
-#top #toolbar {
-  display:none;
-}
-#alter {
-    display: none;
-}
-#external-events {
-    display: none;
-}
-#external-events h4 {
-    display: none;
-}
-
-#colorCode {
-    display: none;
-}
-#customTimes, #shiftCoverRequest, #coverRequestConfirmation, #pickUpShift {
-    display: none;
-}
-#monthInfo {
-    display: none;
-}
-.ui-dialog-titlebar-close {
-    display: none;
-}
-#ui-datepicker-div.ui-helper-clearfix.ui-corner-all {
-    display: none;
-}
-#span, #menu {
-    display:none;
-}
-.hiddenPrint
-{
-    display:none;
-}
-
+	
+	

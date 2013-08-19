@@ -29,7 +29,8 @@ var defaults = {
 		right: 'today prev,next'
 	},
 	weekends: true,
-	
+	// sorting
+	sorting: "firstName",
 	// editing
 	//editable: false,
 	//disableDragging: false,
