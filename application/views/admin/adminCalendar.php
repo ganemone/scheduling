@@ -1,122 +1,135 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
    <head></head>
    <body>
-      <div id='errors'></div>
+      <div id='overlay' class='overlay'>  
+      </div> 
+         <div class='overlay-container'><h4>Loading... Please Wait</h4>  
+         <div class='progress progress-striped active'>  
+            <div class='progress-bar progress-bar-info' style='width: 100%;'></div>  
+         </div>  
+      </div>
+      <div class='notifications top-right'></div>
       <div id='calendar'></div>
-      <div id='employeeWrapper'>
-         <div id='employees'>
-            <?php // This prints out a list of employees
-            for ($j = 0; $j < count($names); ++$j)
-            {
-               $split = explode(":", $names[$j]);
-               $name = $split[0];
-               $id = $split[1];
-               $color = $split[2];
-               echo <<<END
-   		<button class='employeeName' id='$id' onclick="toggleEvents('$id');">$name</button>
-   		<br>
-   		<script>$("#$id").button();
-   		document.getElementById($id).style.color = 'Black';
-   		document.getElementById($id).style.border = "1px solid $color";
-   		</script>
-END;
-            }
-            ?>
+      <div class='leftNav adminNav'>
+         <div class="nav nav-pills">
+            <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
+            <li onclick="showLeftMenuItem('options', this);"><a><small>Options</small></a></li>
+            <li onclick="showLeftMenuItem('colors', this);"><a><small>Color Code</small></a></li>
+            <li onclick="showLeftMenuItem('templates', this);"><a><small>Templates</small></a></li>
          </div>
-      </div>
-      <div id='colors'>
-         <h4>Color Code</h4>
-         <div style="background: #32CD32">
-            Available
+         <div id='employees' class='leftMenu'>
+         <? foreach(json_decode($names) as $employee): ?>
+            <!-- Split button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->id ?>')"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <input type="checkbox" name="employee_<? echo $employee->id ?>" id="employee_<? echo $employee->id ?>">
+              
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="toggleAvailability('<? echo $employee->id ?>');">Available <input type="checkbox" name="available" id="available_<? echo $employee->id ?>"  onclick="toggleAvailability('<? echo $employee->id ?>');" /></a></li> 
+                <li><a href="#" onclick="toggleBusy('<? echo $employee->id ?>');"        >Busy      <input type="checkbox" name="busy"      id="busy_<? echo $employee->id ?>"       onclick="toggleBusy('<? echo $employee->id ?>');"         /></a></li> 
+                <li><a href="#" onclick="toggleScheduled('<? echo $employee->id ?>');"   >Schedule  <input type="checkbox" name="scheduled"  id="scheduled_<? echo $employee->id ?>" onclick="toggleScheduled('<? echo $employee->id ?>');"  /></a></li> 
+              </ul>
+            </div>
+         <? endforeach; ?>
          </div>
-         <div style="background: #000000">
-            Busy
+         <div id='colors' class='leftMenu'>
+            <h4>Color Code</h4>
+            <div style="background: #32CD32">
+               Available
+            </div>
+            <div style="background: #000000">
+               Busy
+            </div>
+            <div style="background: #3366CC">
+               Floor Staff Scheduled
+            </div>
+            <div style="background: #B81900">
+               SFL Staff Scheduled
+            </div>
+            <div style="background: #EB8F00">
+               Support Staff Scheduled
+            </div>
+            <div style="background: #480091">
+               Event
+            </div>
+            <div style="background: #790ead">
+               Scheduled for Event
+            </div>
          </div>
-         <div style="background: #3366CC">
-            Floor Staff Scheduled
+         <div id='templates' class='templates left-bar leftMenu'>
+            <h4>Templates</h4>
          </div>
-         <div style="background: #B81900">
-            SFL Staff Scheduled
-         </div>
-         <div style="background: #EB8F00">
-            Support Staff Scheduled
-         </div>
-         <div style="background: #480091">
-            Event
-         </div>
-         <div style="background: #790ead">
-            Scheduled for Event
-         </div>
-      </div>
-      <div id='external-events' class='templates left-bar'>
-         <h4>Templates</h4>
-      </div>
-      <div id='deleteConfirmation' title='Confirmation'>
+
+      <!--<div id='deleteConfirmation' title='Confirmation'>
          Would You like to delete this event?
       </div>
       <div id='finalizeConfirmation' title='Confirmation'>
          Are you sure you would like to finalize the schedule for
       </div>
-
-      <div id='options' class='left-bar'>
-         <h4>Options</h4>
-         <table class='table'>
-            <tr>
-               <td><label>All <b>E</b>mployees:</td><td>
-               <input type='checkbox' name='toggleAll' id='toggleAll' checked='checked'>
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label>S<b>F</b>L Employees:</td><td>
-               <input type="checkbox" name="sflOption" id="sflOption">
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label><b>B</b>usy:</td><td>
-               <input type="checkbox" name='busyOption' id='busyOption' checked='checked'>
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label><b>S</b>cheduled:</td><td>
-               <input type="checkbox" name="scheduledOption" id="scheduledOption" checked="checked">
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label><b>A</b>vailable:</td><td>
-               <input type="checkbox" name="availableOption" id="availableOption" checked="checked">
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label>Events:</td><td>
-               <input type="checkbox" name="eventOption" id="eventOption" checked="checked">
-               </input></label></td>
-            </tr>
-            <tr>
-               <td><label>Click to Delete:</td><td>
-               <input type="checkbox" name="deleteOption" id="deleteOption">
-               </input></label></td>
-            </tr>
-         </table>
-         <div id='selectTimeSlot' class='styled-select'>
-            Slot:
-            <select id='selectTime' class='styled-select'>
-               <option value='60'>Hour</option>
-               <option value='30' selected='selected'>Half Hour</option>
-               <option value='15'>15 Minute</option>
-            </select>
-         </div>
-         <div>
-            Sorting:
-            <select id='sorting' class='slyled-select' onchange="updateSort();">
-               <option value='firstName' selected='selected'>First Name</option>
-               <option value='employeeId'>Employee Id</option>
-               <option value='standard'>Calendar Default</option>
-            </select>
+      -->
+         <div id='options' class='left-bar leftMenu'>
+            <h4>Options</h4>
+            <table class='table'>
+               <tr>
+                  <td><label>All <b>E</b>mployees:</td><td>
+                  <input type='checkbox' name='toggleAll' id='toggleAll' checked='checked'>
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label>S<b>F</b>L Employees:</td><td>
+                  <input type="checkbox" name="sflOption" id="sflOption">
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label><b>B</b>usy:</td><td>
+                  <input type="checkbox" name='busyOption' id='busyOption' checked='checked'>
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label><b>S</b>cheduled:</td><td>
+                  <input type="checkbox" name="scheduledOption" id="scheduledOption" checked="checked">
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label><b>A</b>vailable:</td><td>
+                  <input type="checkbox" name="availableOption" id="availableOption" checked="checked">
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label>Events:</td><td>
+                  <input type="checkbox" name="eventOption" id="eventOption" checked="checked">
+                  </input></label></td>
+               </tr>
+               <tr>
+                  <td><label>Click to Delete:</td><td>
+                  <input type="checkbox" name="deleteOption" id="deleteOption">
+                  </input></label></td>
+               </tr>
+            </table>
+            <div id='selectTimeSlot' class='styled-select'>
+               Slot:
+               <select id='selectTime' class='styled-select'>
+                  <option value='60'>Hour</option>
+                  <option value='30' selected='selected'>Half Hour</option>
+                  <option value='15'>15 Minute</option>
+               </select>
+            </div>
+            <div>
+               Sorting:
+               <select id='sorting' class='slyled-select' onchange="updateSort();">
+                  <option value='firstName' selected='selected'>First Name</option>
+                  <option value='employeeId'>Employee Id</option>
+                  <option value='standard'>Calendar Default</option>
+               </select>
+            </div>
          </div>
       </div>
       <input type='radio' name='group' id='hiddenRadio'>
       </input>
+
       <div id='employeeInfo' class='employeeInfo' title=''>
          <div id='desired'></div>
          <div id='current'></div>
@@ -126,12 +139,6 @@ END;
       <div id='headerButtons'></div>
 
       <img src="/images/ajax-loader.gif" id='loading' class='loading'/>
-      <span id='top' class='top'>
-         <div id='title'>
-            <h2><?php echo $company
-            ?>
-            Scheduling Page</h2>
-         </div></span>
 
       <div id='customTimes' class='styled-select' title='Custom Shift'>
          <table>
@@ -463,20 +470,35 @@ END;
 <script type='text/javascript'>
    var peoplePerHour = <? echo $peoplePerHour ?>;
    var tutorial = false;
-   var url =    "<? echo base_url() ?>";
+   var url = "<? echo base_url(); ?>";
    var employees = false;
    var busy = false;
-   var names =  <?php echo json_encode($names) ?>;
+   var names =  <? echo $names ?>;
    var unstoredEvents = [];
-   var selectList = "<div class='styled-select'><select class='selectedEmployee' name='group' id='employeeSelectList' onclick='selectHidden();'><option value='NA' id='firstOption'>--------------</option>";
    var removedEmployees = [-1];
+   var global_employee_obj = new Array(); 
+   var global_options_obj = {
+      "availability" : false,
+      "busy"         : false,
+      "scheduled"    : false,
+      "events"       : false
+   };
+
    for (var j = 0; j < names.length; j++)
    {
-      var input = names[j].split(":");
-      selectList += '<option value=' + input[1] + ' >' + input[0] + '</option>';
+      global_employee_obj[names[j]['id']] = {
+         "firstName"    : names[j]['firstName'],
+         "lastName"     : names[j]['lastName'],
+         "employeeId"   : names[j]['employeeId'],
+         "availability" : false,
+         "busy"         : false,
+         "scheduled"    : false
+      };
    }
-   selectList += "</select></div>"; 
+   console.log(global_employee_obj);
 </script>
+
+<script src="<? echo base_url() ?>js/utility.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>

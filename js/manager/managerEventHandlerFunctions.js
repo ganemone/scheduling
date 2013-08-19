@@ -1,12 +1,3 @@
-$("#external-events").draggable();
-$("#options").draggable();
-$("#employeeWrapper").resizable(
-{
-   alsoResize : "#employees",
-   handles : "se"
-});
-$("#colors").draggable();
-
 $(document).click(function(e)
 {
    if ($("#editEventPopup").is(":visible"))

@@ -391,50 +391,58 @@ function reloadNewsfeed()
 
 function addMissedSale()
 {
-   var form = "<form class='form-horizontal' id='missedSaleForm' style='width: 500px;'>" +
-      "<div class='form-group'>" +
-         "<label for='miss_description' class='col-2 control-label'>Description</label>" +
-         "<div class='col-10'>" +
-            "<input type='text' class='form-control' placeholder='Enter description here'    name='description' id='miss_description'>" +
-         "</div>" +
-      "</div>" + 
-      "<div class='form-group'>" +
-         "<label for='miss_style'>Style Number" +
-             "<input type='text' class='form-control' placeholder='Enter style number here'    name='style' id='miss_style'>" +
-         "</label>" +
-      "</div>" +
-      "<div class='form-group'>" +
-         "<label for='miss_color'>Color Code" +
-            "<input type='text' class='form-control' placeholder='Enter color code here'      name='color' id='miss_color'>" +
-         "</label>" +
-      "</div>" +
-      "<div class='form-group'>" +
-         "<label for='miss_size' >Size" +
-            "<input type='text' class='form-control' placeholder='Enter size here'            name='size'  id='miss_size'>" +
-         "</label>" +
-      "</div>" +
-      "<div class='form-group'>" +
-         "<label for='miss_price'>Price" + 
-            "<input type='text' class='form-control' placeholder='Enter price here, ex: 0.00' name='price' id='miss_price'>" +
-         "</label>" + 
-      "</div>" + 
-"</form>";
+   var form_obj = {
+      name     : "missedSaleForm",
+      id       : "missedSaleForm",
+      style    : "width: 500px;",
+      elements : [{
+         id          : "miss_description",
+         name        : "description",
+         label       : "Description: ",
+         type        : "text",
+         placeholder : "Enter description here"
+      },
+      {
+         id          : "miss_style",
+         name        : "style",  
+         label       : "Style",
+         type        : "text",
+         placeholder : "Enter size here"
+      },
+      {
+         id          : "miss_color",
+         name        : "color",
+         label       : "Color Code: ",
+         type        : "text",
+         placeholder : "Enter color code here"
+      },
+      {
+         id          : "miss_price",
+         name        : "price",
+         label       : "Price: ",
+         type        : "text",
+         placeholder : "Enter price here, ex: 0.00"
+      }]
+   };
 
-  bootbox.confirm(form, function(results)
+   var form = buildForm(form_obj);
+
+   bootbox.confirm(form, function(results)
    {
       if (results === true)
       {
          var form = $("#missedSaleForm");
          var data = {
-            description : form.description,
-            style       : form.style,
-            color       : form.color,
-            size        : form.size,
-            price       : form.price
+            description : $("#miss_description").val(),
+            style       : $("#miss_style").val(),
+            color       : $("#miss_color").val(),
+            size        : $("#miss_size").val(),
+            price       : $("#miss_price").val() 
          };
+              
          sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
          function(msg) {
-            // HANDLE MISSED SALE CONFIRMATION HERE;
+            successMessage("Missed sale added");
          }, true);    
       }
       return true;
@@ -468,23 +476,59 @@ function validateMissedSaleForm(form)
 
 function addStory()
 {
-   var form = "<form class='form-inline'>" + 
-         "<fieldset>" + 
-            "<div class='form-group text-left'>" + 
-               "<label for='story_employeeId'>Employee ID </label>" +
-               "<input id='story_employeeId' class='placeholder='Enter Employee ID Here...' name='employeeId'>" +
-            "</div>" +
-            "<div class='form-group text-left'>" +
-               "<textarea name='story' rows=10 cols=35 placeholder='Tell us what awesome thing you did today!'></textarea>" + 
-            "</div>" + 
-         "</fieldset>" +
-      "</form>";
+   var form_obj = {
+      name : "story_form",
+      id   : "story_form",
+      style : "width: 500px;",
+      elements : [
+      {
+         id          : "story_employeeId",
+         name        : "employeeId",
+         label       : "Employee ID",
+         type        : "text",
+         placeholder : "Enter employee ID here"
+      },
+      {
+         id          : "story_story",
+         name        : "story",
+         type        : "textarea",
+         placeholder : "Whats happening?"
+      }]
+   };
+
+   var form = buildForm(form_obj);
+
    bootbox.confirm(form, function(result)
    {
       if (result === true)
       {
-         ajaxAddStory($("#story_employeeId").val(), $("#story").val());
+         var reg = new RegExp("[^0123456789]");
+         var date = new Date();
+         var employeeId = $("#story_employeeId").val();
+         var story = $("#story_story").val();
+         if (reg.test(employeeId) === true)
+         {
+            alert("Please enter a valid employeeId");
+            return false;
+         }
+         if (story === '')
+         {
+            alert("Please enter something in the textbox");
+            return false;
+         }
+         sendRequest("POST", url + "index.php/sfl/addStory", 
+         {
+            date: date.toDateString(),
+            employeeId : employeeId,
+            story : story
+         },
+         function(msg)
+         {
+            if (msg == "false")
+               alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
+         }, true);
       }
+      return true;
    })
    /*$.prompt(form,
    {
@@ -509,34 +553,10 @@ function addStory()
    });*/
 }
 
-function ajaxAddStory(form)
+function ajaxAddStory(employeeId, story)
 {
-   var employeeId = form.employeeId;
-   var story = form.story;
-   var reg = new RegExp("[^0123456789]");
-   var date = new Date();
-
-   if (reg.test(employeeId) === true)
-   {
-      alert("Please enter a valid employeeId");
-      return false;
-   }
-   if (story === '')
-   {
-      alert("You forgot to tell us why you're so awesome!");
-      return false;
-   }
-   sendRequest("POST", url + "index.php/sfl/addStory", 
-   {
-      date: date.toDateString(),
-      employeeId : employeeId,
-      story : story
-   },
-   function(msg)
-   {
-      if (msg == "false")
-         alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
-   }, true);
+   
+   
    /*
    $.ajax(
    {
@@ -571,7 +591,9 @@ function getEmailTemplate()
    {
       message = "<h3>Nightly Email for " + new Date().toDateString() + "</h3><br>";
       bootbox.alert(message + msg);
-      selectElementText($("emailTemplate"));
+      
+      selectText("emailTemplate");
+
    }, true);
    /*
    $.ajax(
@@ -608,36 +630,22 @@ function getEmailTemplate()
    }); */
 }
 
-function selectElementText(element)
-{
-   element.selText().addClass('highlighted');
-}
+function selectText(element) {
+    var doc = document;
+    var text = doc.getElementById(element);    
 
-jQuery.fn.selText = function()
-{
-   var obj = this[0];
-   var selection, range;
-   if (agent.browser == "Internet Explorer")
-   {
-      range = obj.offsetParent.createTextRange();
-      range.moveToElementText(obj);
-      range.select();
-   }
-   else if (agent.browser == "Firefox" || agent.browser == "Opera")
-   {
-      selection = obj.ownerDocument.defaultView.getSelection();
-      range = obj.ownerDocument.createRange();
-      range.selectNodeContents(obj);
-      selection.removeAllRanges();
-      selection.addRange(range);
-   }
-   else if (agent.browser == "Safari")
-   {
-      selection = obj.ownerDocument.defaultView.getSelection();
-      selection.setBaseAndExtent(obj, 0, obj, 1);
-   }
-   return this;
-};
+    if (doc.body.createTextRange) { // ms
+        var range = doc.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if (window.getSelection) { // moz, opera, webkit
+        var selection = window.getSelection();            
+        var range = doc.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}  
 
 function makeGoalKey(date)
 {

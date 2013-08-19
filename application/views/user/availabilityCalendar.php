@@ -79,6 +79,7 @@
          if(resize == true)
          {
             $("#calendar").css("width", $(document).width() - 340);
+            $("#calendar").css("height", $(document).height() - 50);
             $(window).resize(function()
             {
                //clearTimeout(timeout_id);
@@ -108,6 +109,7 @@
          
    </script>
    <link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
+   <script src="<? echo base_url() ?>js/utility.js"></script>
    <script src="<? echo base_url() ?>js/user/userTutorial.js"></script>
    <script src="<? echo base_url() ?>js/user/userKeyPress.js"></script>
    <script src="<? echo base_url() ?>js/user/userCalendar.js"></script>

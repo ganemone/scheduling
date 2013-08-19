@@ -9,23 +9,23 @@
          <? endif; ?>
          <br style='clear:left;'>
          <a id='addNewPost' class='btn btn-small btn-default' onclick='addNewPost();'>Submit</a>
+         <hr>
       </li>
       <? foreach ($posts as $key => $value): ?>
       <li id='message<? echo $value['messageId']?>' >
          <div>
-            <? echo $value['employee'] ?>,
+            <span class='label'><? echo $value['employee'] ?>,
             <small><? echo $value['datePosted'] ?></small>
+            </span>
          </div>
+         <br>
          <? if($mobile === true): ?>
-         <textarea rows="10" cols="36"><? echo $value['message'] ?>
+         <textarea rows="10" cols="36"><? echo $value['message'] ?></textarea>
          <? else: ?>
-         <textarea rows="5" cols="31"><? echo $value['message']?>
+         <div class='well'><? echo $value['message']?></div>
          <? endif; ?>
-         </textarea>
-         <br style='clear:left;'>
-         <a id='submit<? echo $value['messageId']?>' class='btn btn-small btn-default' onclick='updatePost(<? echo $value['messageId']?>);'>Update</a>
          <a id='delete<? echo $value['messageId']?>' class='btn btn-small btn-danger' onclick='deletePost(<? echo $value['messageId'] ?>);'>Delete</a>
-         <br style='clear:left;'>     
+         <hr>  
       </li>
       <? endforeach; ?>
    </ul>

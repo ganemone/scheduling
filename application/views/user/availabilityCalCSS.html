@@ -7,6 +7,7 @@
          margin-right: 0px;
          text-align: center;
          font-size: 14px;
+         overflow:hidden;
       }
       #wrap
       {
@@ -18,52 +19,15 @@
          display: none;
       }
    
-      #busy, #busyCode
-      {
-         background: #000000;
-      }
-      #available, #availableCode
-      {
-         background: #32CD32;
-      }
-      #custom, #customCode
-      {
-         background: #3366CC;
-      }
-      #scheduledCode
-      {
-         background: ORANGE;
-      }
-      #coverCode
-      {
-         background: PURPLE;
-      }
-      #pickUpCode
-      {
-         background: RED;
-      }
-      #eventCode
-      {
-         background: #480091;
-      }
-      #external-events p
-      {
-         margin: 1.5em 0;
-         font-size: 11px;
-         color: #666;
-      }
-
-      #external-events p input
-      {
-         margin: 0;
-         vertical-align: middle;
-      }
       #calendar
       {
          position: absolute;
          right: 5px;
          top: 10%;
          margin: 10px;
+         padding-bottom: 20px;
+         overflow-x: hidden;
+         overflow-y: scroll;
       }
       #shiftCoverRequest, #coverRequestConfirmation, #pickUpShift
       {

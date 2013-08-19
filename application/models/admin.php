@@ -38,20 +38,18 @@ class admin extends CI_Model
    function getEmployeeList()
    {
       $query = $this->db->query("SELECT firstName, lastName, id, position FROM employees ORDER BY position, firstName");
-      $array = array();
+      $employees = array();
       foreach ($query->result() as $row)
       {
+         $employees[] = $row;        
+         $class = "btn-info";
          if ($row->position == "SA")
-            $color = "Blue";
+            $class = "btn-default";
          else if ($row->position == "SFL")
-            $color = "Red";
-         else
-            $color = "Orange";
-         array_push($array, "$row->firstName " . $row->lastName[0] . ":$row->id" . ":$color");
+            $class = "btn-danger";
       }
-      return $array;
+      return $employees;
    }
-
    /*
     * 	Gets the scheduled events for the manager calendar
     */
@@ -114,80 +112,74 @@ class admin extends CI_Model
    /*
     * Returns the the total event feed for all visible employees.
     */
-   function getEventFeed($removedEmployees)
+   function getEventFeed($employee_obj)
    {
       $query = $this->db->query("SELECT id, firstName, lastName, position FROM employees");
       $json = $this->getEmptyShifts();
       $busy = $this->input->cookie('busy');
       foreach ($query->result() as $row)
       {
-         if ((($this->input->cookie("display") == "true") && !($this->input->cookie($row->id) == 'false')) || ($this->input->cookie($row->id) == "true"))
+         $name = "$row->firstName " . $row->lastName[0];
+         $_query = $this->db->query("SELECT * FROM hours WHERE employeeId = '$row->id'");
+         // Create json stuff and add it here...
+         foreach ($_query->result() as $_row)
          {
-            if (in_array($row->id, $removedEmployees) != TRUE)
-            {
-               $name = "$row->firstName " . $row->lastName[0];
-               $_query = $this->db->query("SELECT * FROM hours WHERE employeeId = '$row->id'");
-               // Create json stuff and add it here...
-               foreach ($_query->result() as $_row)
-               {
-                  $date = $_row->day;
-                  $begin = $_row->begin;
-                  $end = $_row->end;
-                  $availability = $_row->available;
+            $date = $_row->day;
+            $begin = $_row->begin;
+            $end = $_row->end;
+            $availability = $_row->available;
 
-                  $title = $name;
-                  if ($availability == 'Available')
-                  {
-                     $color = "#32CD32";
-                     array_push($json, json_encode(array(
-                        "title" => $title,
-                        "start" => $date . " 01:00:01",
-                        "allDay" => true,
-                        'color' => $color,
-                        'employeeId' => $row->id,
-                        'category' => $availability,
-                        'id' => md5($availability . $row->id),
-                        'rowId' => $_row->id,
-                        "position" => $row->position,
-                     )));
-                  }
-                  else if ($availability == 'Busy')
-                  {
-                     if ($busy == 'true')
-                     {
-                        $color = "BLACK";
-                        array_push($json, json_encode(array(
-                           "title" => $title,
-                           "start" => $date . " 01:00:00",
-                           "allDay" => true,
-                           'color' => $color,
-                           'employeeId' => $row->id,
-                           'category' => $availability,
-                           'id' => md5($availability . $row->id),
-                           'rowId' => $_row->id,
-                           "position" => $row->position
-                        )));
-                     }
-                  }
-                  else
-                  {
-                     $color = '#32CD32';
-                     $startTime = Date("g:i a", strtotime($begin));
-                     $endTime = Date("g:i a", strtotime($end));
-                     array_push($json, json_encode(array(
-                        "title" => $title . " " . $startTime . ' - ' . $endTime,
-                        "start" => $date . ' ' . $begin,
-                        "end" => $date . ' ' . $end,
-                        "allDay" => true,
-                        'color' => $color,
-                        'employeeId' => $row->id,
-                        'category' => $availability,
-                        'id' => md5($availability . $row->id),
-                        'rowId' => $_row->id,
-                        "position" => $row->position
-                     )));
-                  }
+            $title = $name;
+            if ($availability == 'Available')
+            {
+               $color = "#32CD32";
+               array_push($json, json_encode(array(
+                  "title" => $title,
+                  "start" => $date . " 01:00:01",
+                  "allDay" => true,
+                  'color' => $color,
+                  'employeeId' => $row->id,
+                  'category' => $availability,
+                  'id' => md5($availability . $row->id),
+                  'rowId' => $_row->id,
+                  "position" => $row->position,
+               )));
+            }
+            else if ($availability == 'Busy')
+            {
+               if ($busy == 'true')
+               {
+                  $color = "BLACK";
+                  array_push($json, json_encode(array(
+                     "title" => $title,
+                     "start" => $date . " 01:00:00",
+                     "allDay" => true,
+                     'color' => $color,
+                     'employeeId' => $row->id,
+                     'category' => $availability,
+                     'id' => md5($availability . $row->id),
+                     'rowId' => $_row->id,
+                     "position" => $row->position
+                  )));
                }
+            }
+            else
+            {
+               $color = '#32CD32';
+               $startTime = Date("g:i a", strtotime($begin));
+               $endTime = Date("g:i a", strtotime($end));
+               array_push($json, json_encode(array(
+                  "title" => $title . " " . $startTime . ' - ' . $endTime,
+                  "start" => $date . ' ' . $begin,
+                  "end" => $date . ' ' . $end,
+                  "allDay" => true,
+                  'color' => $color,
+                  'employeeId' => $row->id,
+                  'category' => $availability,
+                  'id' => md5($availability . $row->id),
+                  'rowId' => $_row->id,
+                  "position" => $row->position
+               )));
             }
          }
       }

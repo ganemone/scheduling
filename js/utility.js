@@ -49,7 +49,7 @@ function error_handler(textStatus, errorThrown, origin)
       type: "POST",
       url: url + "index.php/user/error_handler",
       data: {
-         message: textStatus + " " + errorThrown + " " + origin + " " + employeeId
+         message: textStatus + " " + errorThrown + " " + origin
       },
    });
 }
@@ -91,6 +91,27 @@ function showLeftMenuItem(show_element_id, nav_element)
    else
       $('.leftNav').css("overflow", "visible");
 }
-function buildForm(elements)
+function buildForm(form_obj)
 {
+   var form = "<form class='form-horizontal' id='" + form_obj.id + "' name='" + form_obj.name + "' style='" + form_obj.style + ";'>";
+   for (var i = 0; i < form_obj.elements.length; i++) {
+      if (form_obj.elements[i].type == "textarea")
+      {
+         form += "<div class='form-group'>";
+         form += "   <div class='col-12'>";
+         form += "      <textarea style='width:100%; height: 200px;' id='" + form_obj.elements[i].id + "' name = '" + form_obj.elements[i].name + "' placeholder='" + form_obj.elements[i].placeholder + "'></textarea>";
+         form += "   </div>";
+         form += "</div>"; 
+      }
+      else {
+         form += "<div class='form-group'>";
+         form += "   <label for='" + form_obj.elements[i].id + "' class='col-3 control-label'>" + form_obj.elements[i].label + "</label>";
+         form += "   <div class='col-9'>";
+         form += "      <input type='" + form_obj.elements[i].type + "' + class='form-control' placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'>";
+         form += "   </div>";
+         form += "</div>";
+      }
+    };
+   form += "</form>";
+   return form;
 }

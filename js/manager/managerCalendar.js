@@ -49,7 +49,7 @@ function renderCalendar(slotMinutes, view, date)
        */
       drop : function(date, allDay)
       {
-         $(".fc-event").qtip('hide');
+         //$(".fc-event").qtip('hide');
          var draggedEvent = $(this).data('eventObject');
          var days = draggedEvent.days;
          var starts = draggedEvent.starts;
@@ -187,7 +187,20 @@ function renderCalendar(slotMinutes, view, date)
          {
             content = event.title + " " + event.category;
          }
-         element.qtip(
+         var position;
+         switch(event.start.getDay())
+         {
+            case 6 : position = "left"; break;
+            case 0 : position = "right"; break;
+            default: position = "top"; break;
+         }
+         element.tooltip({
+            animation: false,
+            title: content,
+            container: 'body',
+            placement: position      
+         });
+         /*element.qtip(
          {
             content : content,
             position :
@@ -211,7 +224,7 @@ function renderCalendar(slotMinutes, view, date)
                   api.elements.tooltip.click(api.hide);
                }
             }
-         });
+         });*/
       },
       /* Function called when an event is clicked on.
        *    calEvent = calendar event object clicked on.
@@ -281,18 +294,18 @@ function renderCalendar(slotMinutes, view, date)
       },
       eventDragStart : function(event, jsEvent, ui, view)
       {
-         $('.fc-event').qtip('hide');
+         //$('.fc-event').qtip('hide');
       },
       eventDragStop : function(event, jsEvent, ui, view)
       {
-         $('.fc-event').qtip('hide');
+         //$('.fc-event').qtip('hide');
       },
       /* Function called when an event is droped onto the calendar. Simply calls the eventMove function.
        *
        */
       eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc)
       {
-         $('.fc-event').qtip('hide');
+         //$('.fc-event').qtip('hide');
          eventMove(event, dayDelta, minuteDelta, revertFunc, "dragged");
 
       },
@@ -361,10 +374,11 @@ function renderCalendar(slotMinutes, view, date)
       eventSources : [
       {
          url : url + "index.php/manager/eventSource",
-         data :
-         {
-            busy : busy,
-            removedEmployees : removedEmployees,
+         data : function() {
+            return {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+            }
          },
          error : function(msg, textStatus, errorThrown)
          {
@@ -373,6 +387,11 @@ function renderCalendar(slotMinutes, view, date)
       },
       {
          url : url + "index.php/manager/scheduledEventSource",
+         data :
+         {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+         },
          error : function(msg, textStatus, errorThrown)
          {
             alert(textStatus + "/manager/scheduledEventSource");
@@ -380,6 +399,11 @@ function renderCalendar(slotMinutes, view, date)
       },
       {
          url : url + "index.php/manager/coEventSource",
+         data :
+         {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+         },
          error : function(msg, textStatus, errorThrown)
          {
             alert(textStatus + "coEventSource");

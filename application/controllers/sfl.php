@@ -40,7 +40,7 @@ class sfl extends CI_Controller
             "id='toggleStoreEvents'" => "Store Events"
          ),
          "href='" . base_url() . "index.php/user'" => "Home",
-         "href='logout'" => "Log Out");
+         "href='" . base_url() . "index.php/user/logout'" => "Log Out");
 
          $this->load->view("includes");
          $this->load->view("header.php", $this->info);
@@ -112,7 +112,7 @@ class sfl extends CI_Controller
       $color = mysql_real_escape_string($this->input->post("color"));
       $desc = mysql_real_escape_string($this->input->post('description'));
       $size = mysql_real_escape_string($this->input->post('size'));
-      $date = Date("Y-m-d", strtotime($this->input->post('date')));
+      $date = Date("Y-m-d");
       $price = $this->input->post('price');
       echo $this->leader->addMissedSale($style, $color, $desc, $size, $price, $date);
    }

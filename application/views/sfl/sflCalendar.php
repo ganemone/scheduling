@@ -69,6 +69,7 @@ $(".mainButton").each(function() {
    $(this).button();
 });
 $("#calendar").css("width", $(document).width() - 335);
+$("#calendar").css("height", $(document).height() - 50);
 $(window).resize(function()
 {
    $("#calendar").css("width", $(document).width() - 335);
