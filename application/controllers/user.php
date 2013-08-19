@@ -27,7 +27,7 @@ class User extends CI_Controller
    function index()
    {
       $this->load->view("includes.php");
-      $this->employeeInfo['menu_items'] = array();
+      $this->employeeInfo['menu_items'] = array("href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->load->view("header.php", $this->employeeInfo);
       $this->load->view("home.php", $this->employeeInfo);
       //$this->load->view('footer.php');

@@ -1,5 +1,4 @@
 <?php
-
 class employee extends CI_Model
 {
 

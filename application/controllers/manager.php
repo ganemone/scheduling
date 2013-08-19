@@ -17,22 +17,21 @@ class Manager extends CI_Controller
    {
       $this->companyInfo['firstLoad'] = "firstLoad";
       $this->companyInfo['company'] = $this->input->cookie("Company");
-      $companyInfo['peoplePerHour'] = json_encode($this->admin->getShiftsPerHour());
-      $result = $this->admin->getEmployeeList();
-      $companyInfo['company'] = "Gazelle Sports";
-      $companyInfo['names'] = $result;
+      
+      $this->companyInfo['peoplePerHour'] = json_encode($this->admin->getShiftsPerHour());
+      
+      $this->companyInfo['names'] = json_encode($this->admin->getEmployeeList());
       $this->initialize();
       $this->load->view("includes.php");
       $this->load->view("/admin/adminCSS.html");
-      $this->load->view("/admin/adminMenu.php", $companyInfo);
-      $this->load->view("/admin/adminCalendar.php", $companyInfo);
+      $this->load->view("header.php", $this->companyInfo);
+      $this->load->view("/admin/adminCalendar.php", $this->companyInfo);
       $cookie = array(
          'name' => "firstLoad",
          'value' => "true",
          'expire' => '86500'
       );
       $this->input->set_cookie($cookie);
-
    }
 
    function toggleOption()
@@ -59,8 +58,9 @@ class Manager extends CI_Controller
 
    function eventSource()
    {
-      $removedEmployees = (array)$this->input->get("removedEmployees");
-      $json = $this->admin->getEventFeed($removedEmployees);
+      $employee_obj = json_decode($this->input->get("employee_obj"));
+      $json = $this->admin->getEventFeed($employee_obj);
+      error_log(var_export($employee_obj, true));
       echo "[";
       while (count($json) > 0)
       {
@@ -75,12 +75,29 @@ class Manager extends CI_Controller
 
    function scheduledEventSource()
    {
+      $employee_obj = json_decode($this->input->get("employee_obj"));
       $_json = $this->admin->getScheduledEventFeed();
       echo "[";
       while (count($_json) > 0)
       {
          echo array_pop($_json);
          if (count($_json) > 0)
+         {
+            echo ",";
+         }
+      }
+      echo "]";
+   }
+
+   function coEventSource()
+   {
+      $employee_obj = json_decode($this->input->get("employee_obj"));
+      $json = $this->admin->coEventSource();
+      echo "[";
+      while (count($json) > 0)
+      {
+         echo array_pop($json);
+         if (count($json) > 0)
          {
             echo ",";
          }
@@ -115,6 +132,14 @@ class Manager extends CI_Controller
       );
       $this->input->set_cookie($cookie);
       $this->input->set_cookie($cookie2);
+
+      $this->companyInfo['menu_items'] = array("id='home'" => "Home", 
+         "id='template'"   => "Make Template",
+         "id='tutorial'"   => "Tutorial",
+         "id='addCOEvent'" => "Add Event",
+         "id='finalize'"   => "Finalize Schedule",
+         "id='logOut'"     => "Log Out");
+      $this->companyInfo['brand'] = "Admin Home";
    }
 
    function deleteEvent()
@@ -322,21 +347,6 @@ class Manager extends CI_Controller
       $end = $this->input->post("end");
       $endRepeat = $this->input->post("endRepeat");
       echo json_encode($this->admin->addCOEvent($title, $date, $start, $end, $location, $repeating, $endRepeat));
-   }
-
-   function coEventSource()
-   {
-      $json = $this->admin->coEventSource();
-      echo "[";
-      while (count($json) > 0)
-      {
-         echo array_pop($json);
-         if (count($json) > 0)
-         {
-            echo ",";
-         }
-      }
-      echo "]";
    }
 
    function addEmptyShift()

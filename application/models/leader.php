@@ -83,20 +83,27 @@ class Leader extends CI_Model
 
    function addMissedSale($style, $color, $desc, $size, $price, $date)
    {
-      $style = ($style == "") ? "NA": $style;
-      $color = ($color == "") ? "NA": $color;
-      $desc = ($desc == "") ? "NA": $desc;
-      $price = ($price == "") ? "NA": $price;
-
-      $query = $this->db->query("SELECT id FROM missedSales WHERE style = '$style' && color = '$color' && size = '$size' && date = '$date'");
-      if ($query->num_rows() > 0)
+      $style = ($style == "") ? "NA" : $style;
+      $color = ($color == "") ? "NA" : $color;
+      $desc  = ($desc == "")  ? "NA" : $desc;
+      $price = ($price == "") ? "NA" : $price;
+      $size  = ($size == "")  ? "NA" : $size;
+      
+      $query = $this->db->query("SELECT *, COUNT(*) as count FROM missedSales WHERE style = '$style' && color = '$color' && size = '$size' && date = '$date' && description = '$desc'" );
+      $row = $query->row();
+      if($row->count > 0)
       {
-         $row = $query->row();
          $result = $this->db->query("UPDATE missedSales SET quantity = quantity + 1 WHERE id='$row->id'");
+         $result = "Updated Record";   
       }
       else
       {
-         $result = $this->db->query("INSERT INTO missedSales (style, date, color, description, size, price) values ('$style', '$date', '$color', '$desc', '$size', '$price')");         
+         $result = $this->db->insert("missedSales", array('style' => $style, 
+            'date' => $date,
+            'color' => $color,
+            'description' => $desc,
+            'size' => $size,
+            'price' => $price));        
       }
       return $result;
    }
