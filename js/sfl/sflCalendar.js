@@ -31,7 +31,7 @@ $("#calendar").fullCalendar(
       $("#calendar").fullCalendar("changeView", "agendaDay");
       showGoals($("#calendar").fullCalendar("getView"));
    },
-   viewDisplay : function(view)
+   viewRender : function(view)
    {
       if (view.name == 'month')
       {

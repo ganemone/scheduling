@@ -94,7 +94,8 @@ function showLeftMenuItem(show_element_id, nav_element)
 function buildForm(form_obj)
 {
    var form = "<form class='form-horizontal' id='" + form_obj.id + "' name='" + form_obj.name + "' style='" + form_obj.style + ";'>";
-   for (var i = 0; i < form_obj.elements.length; i++) {
+   for (var i = 0; i < form_obj.elements.length; i++) 
+   {
       if (form_obj.elements[i].type == "textarea")
       {
          form += "<div class='form-group'>";
@@ -103,15 +104,40 @@ function buildForm(form_obj)
          form += "   </div>";
          form += "</div>"; 
       }
-      else {
+      else if(form_obj.elements[i].type == "checkbox" || form_obj.elements.type == "radio")
+      {
+         form += "<div class='form-group'>";
+         form += "   <label for='" + form_obj.elements[i].id + "' class='col-4 control-label'>" + form_obj.elements[i].label;
+         form += "   <input type='" + form_obj.elements[i].type + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'";
+         if(typeof form_obj.elements[i].value != "undefined") 
+         {
+            form+= "value='" + form_obj.elements[i].value + "'";
+         } 
+         form += "   ></label>";
+
+         if(i + 1 < form_obj.elements.length)
+         {
+            i++;
+            form += "   <label for='" + form_obj.elements[i].id + "' class='col-4 control-label'>" + form_obj.elements[i].label;
+            form += "   <input type='" + form_obj.elements[i].type + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'";
+            if(typeof form_obj.elements[i].value != "undefined") 
+            {
+               form+= "value='" + form_obj.elements[i].value + "'";
+            } 
+            form += "   ></label>";
+         }
+         form += "</div>";
+      }
+      else 
+      {
          form += "<div class='form-group'>";
          form += "   <label for='" + form_obj.elements[i].id + "' class='col-3 control-label'>" + form_obj.elements[i].label + "</label>";
          form += "   <div class='col-9'>";
-         form += "      <input type='" + form_obj.elements[i].type + "' + class='form-control' placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'>";
+         form += "      <input type='" + form_obj.elements[i].type + "' class='form-control' placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'>";
          form += "   </div>";
          form += "</div>";
       }
-    };
+   };
    form += "</form>";
    return form;
 }

@@ -19,7 +19,7 @@ class Manager extends CI_Controller
       $this->companyInfo['company'] = $this->input->cookie("Company");
       
       $this->companyInfo['peoplePerHour'] = json_encode($this->admin->getShiftsPerHour());
-      
+      $this->companyInfo["groups"] = json_encode($this->admin->getGroups());
       $this->companyInfo['names'] = json_encode($this->admin->getEmployeeList());
       $this->initialize();
       $this->load->view("includes.php");
@@ -59,8 +59,9 @@ class Manager extends CI_Controller
    function eventSource()
    {
       $employee_obj = json_decode($this->input->get("employee_obj"));
-      $json = $this->admin->getEventFeed($employee_obj);
-      error_log(var_export($employee_obj, true));
+      $start_date = date("Y-m-d", $this->input->get("start"));
+      $end_date = date("Y-m-d", $this->input->get("end"));
+      $json = $this->admin->getEventFeed($employee_obj, $start_date, $end_date);
       echo "[";
       while (count($json) > 0)
       {
@@ -76,7 +77,7 @@ class Manager extends CI_Controller
    function scheduledEventSource()
    {
       $employee_obj = json_decode($this->input->get("employee_obj"));
-      $_json = $this->admin->getScheduledEventFeed();
+      $_json = $this->admin->getScheduledEventFeed($employee_obj);
       echo "[";
       while (count($_json) > 0)
       {
@@ -91,7 +92,6 @@ class Manager extends CI_Controller
 
    function coEventSource()
    {
-      $employee_obj = json_decode($this->input->get("employee_obj"));
       $json = $this->admin->coEventSource();
       echo "[";
       while (count($json) > 0)
@@ -164,6 +164,16 @@ class Manager extends CI_Controller
          echo $this->admin->scheduleEmployeeFloor($employeeId, $date, $begin, $end, $category, $sfl);
       else
          echo $this->admin->scheduleEmployeeEvent($employeeId, $date, $begin, $end, $eventTitle);
+   }
+   function scheduleEmployeeTemplate()
+   {
+      $employeeId_arr = json_decode($this->input->post("employee_id_arr"));
+      $day_arr        = json_decode($this->input->post('day_arr'));
+      $begin_arr      = json_decode($this->input->post('begin_arr'));
+      $end_arr        = json_decode($this->input->post('end_arr'));
+      //$sfl_arr        = json_decode($this->input->post("sfl"));
+      $category_arr   = json_decode($this->input->post("category_arr"));
+      echo json_encode($this->admin->scheduleEmployeeTemplate($employeeId_arr, $day_arr, $begin_arr, $end_arr, $category_arr));
    }
 
    function getEmployeeWeekHours()

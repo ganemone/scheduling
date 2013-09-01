@@ -180,6 +180,7 @@ function hideClass(className)
 
 function updateEvent(title, date, allDay, start, end)
 {
+   $(".fc-event").tooltip("hide");
    if (start > end)
    {
       alert("The end time must come before the start");

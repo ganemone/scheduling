@@ -1,13 +1,15 @@
 <html>
 	<style type='text/css'>
-		#calendar {
-			position: absolute;
-			right: 10px;
-			top: 5em;
-			margin: 0 auto;
-			white-space: nowrap;
-			z-index: -1;
-		}
+	    #calendar {
+	    	height: 90%;
+	        margin: 10px;
+	        padding-bottom: 50px;
+	        position: absolute;
+	        right: 5px;
+	        top: 50px;
+	        overflow-x: hidden;
+	        overflow-y: scroll;
+	    }
 		#deleteConfirmation, #finalizeConfirmation, #hiddenRadio, #customTimes, #weekInformation {
 			display: none;
 		}
@@ -27,19 +29,21 @@
 		#employees {
 			display: block;
 		}
-		#employees .btn-group {
+		.leftMenu div {
 			margin: 5px;
+			width: 150px;
+			position: relative;
 		}
-		#employees .btn-group .btn-employee {
+		.leftMenu div .btn-employee {
 			width: 80%;
 			text-align: left;
 		}
-		#employees .btn-group input {
+		.leftMenu div input {
 			position: absolute;
 			right: -10px;
 			top: 6px;
 		}
-		#employees .btn-group .dropdown-menu input {
+		.leftMenu div .dropdown-menu input {
 			position: relative;
 			top: 0px;
 		}

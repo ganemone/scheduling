@@ -9,7 +9,6 @@
          </div>  
       </div>
       <div class='notifications top-right'></div>
-      <div id='calendar'></div>
       <div class='leftNav adminNav'>
          <div class="nav nav-pills">
             <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
@@ -20,17 +19,16 @@
          <div id='employees' class='leftMenu'>
          <? foreach(json_decode($names) as $employee): ?>
             <!-- Split button -->
-            <div class="btn-group">
-              <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->id ?>')"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
+            <div class="btn-group employee_list">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->id ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span class="caret"></span>
               </button>
-              <input type="checkbox" name="employee_<? echo $employee->id ?>" id="employee_<? echo $employee->id ?>">
-              
+              <input type="checkbox" class="all_employees<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_employees"; endforeach; ?>" name="employee_<? echo $employee->id ?>" id="employee_<? echo $employee->id ?>" onclick="toggleEmployee('<? echo $employee->id ?>', event);">
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#" onclick="toggleAvailability('<? echo $employee->id ?>');">Available <input type="checkbox" name="available" id="available_<? echo $employee->id ?>"  onclick="toggleAvailability('<? echo $employee->id ?>');" /></a></li> 
-                <li><a href="#" onclick="toggleBusy('<? echo $employee->id ?>');"        >Busy      <input type="checkbox" name="busy"      id="busy_<? echo $employee->id ?>"       onclick="toggleBusy('<? echo $employee->id ?>');"         /></a></li> 
-                <li><a href="#" onclick="toggleScheduled('<? echo $employee->id ?>');"   >Schedule  <input type="checkbox" name="scheduled"  id="scheduled_<? echo $employee->id ?>" onclick="toggleScheduled('<? echo $employee->id ?>');"  /></a></li> 
+                <li><a href="#" onclick="toggleAvailability('<? echo $employee->id ?>');">Available <input type="checkbox" name="available" class="all_available<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_available"; endforeach; ?>" id="available_<? echo $employee->id ?>"  onclick="toggleAvailability('<? echo $employee->id ?>');" /></a></li> 
+                <li><a href="#" onclick="toggleBusy('<? echo $employee->id ?>');"        >Busy      <input type="checkbox" name="busy"      class="all_busy<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_busy"; endforeach; ?>"      id="busy_<? echo $employee->id ?>"       onclick="toggleBusy('<? echo $employee->id ?>');"         /></a></li> 
+                <li><a href="#" onclick="toggleScheduled('<? echo $employee->id ?>');"   >Schedule  <input type="checkbox" name="scheduled" class="all_scheduled<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_scheduled"; endforeach; ?>" id="scheduled_<? echo $employee->id ?>"  onclick="toggleScheduled('<? echo $employee->id ?>');"  /></a></li> 
               </ul>
             </div>
          <? endforeach; ?>
@@ -71,8 +69,55 @@
       </div>
       -->
          <div id='options' class='left-bar leftMenu'>
-            <h4>Options</h4>
-            <table class='table'>
+            <!-- all employees -->            
+             <div class="btn-group all">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleAll();">All Employees</button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <input type="checkbox" name="all_employees" id="all_employees" onclick="toggleAll(event);">
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="toggleAllCategory('available');">Available <input type="checkbox" name="all_available"  id="all_available" onclick="toggleAllCategory('available');" /></a></li> 
+                <li><a href="#" onclick="toggleAllCategory('busy');">Busy           <input type="checkbox" name="all_busy"       id="all_busy"      onclick="toggleAllCategory('busy');"         /></a></li> 
+                <li><a href="#" onclick="toggleAllCategory('scheduled');">Schedule  <input type="checkbox" name="all_scheduled"  id="all_scheduled" onclick="toggleAllCategory('scheduled');"    /></a></li> 
+              </ul>
+            </div>
+            <!-- allow for employee groups and list them here... -->
+            <!-- sfl employees -->
+            <? foreach (json_decode($groups) as $group): ?> 
+            <? $safe_group = strtolower(str_replace(" ", "_", trim($group))); ?>
+             <div class="btn-group <? echo $safe_group ?>">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleGroup('<? echo $safe_group ?>', 'employees');"><? echo $group ?></button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <input type="checkbox" name="<? echo $safe_group ?>_employees" id="<? echo $safe_group ?>_employees" class="group <? echo $safe_group ?> group_all" onclick="toggleGroup('<? echo $safe_group ?>', 'employees', event);">
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="toggleGroup('<? echo $safe_group ?>', 'available');">Available <input type="checkbox" name="<? echo $safe_group ?>_available"  class="group <? echo $safe_group ?> available" id="<? echo $safe_group ?>_available" onclick="toggleGroup('<? echo $safe_group ?>', 'available');"    /></a></li> 
+                <li><a href="#" onclick="toggleGroup('<? echo $safe_group ?>', 'busy');">Busy           <input type="checkbox" name="<? echo $safe_group ?>_busy"       class="group <? echo $safe_group ?> busy"      id="<? echo $safe_group ?>_busy"      onclick="toggleGroup('<? echo $safe_group ?>', 'busy');"         /></a></li> 
+                <li><a href="#" onclick="toggleGroup('<? echo $safe_group ?>', 'scheduled');">Schedule  <input type="checkbox" name="<? echo $safe_group ?>_scheduled"  class="group <? echo $safe_group ?> scheduled" id="<? echo $safe_group ?>_scheduled" onclick="toggleGroup('<? echo $safe_group ?>', 'scheduled');"    /></a></li> 
+              </ul>
+            </div>
+         <? endforeach ?>
+            <!-- Create Event Types Here and list them -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleEvents('all');">Events</button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <input type="checkbox" name="event" id="event_all" class="event" onclick="toggleEvents('all', event);">
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="toggleEvents('group_one');">Group One    <input type="checkbox" name="event_group_one"   class="event" id="event_group_one"   onclick="toggleEvents('group_one');"   /></a></li> 
+                <li><a href="#" onclick="toggleEvents('group_two');">Group Two    <input type="checkbox" name="event_group_two"   class="event" id="event_group_two"   onclick="toggleEvents('group_two');"   /></a></li> 
+                <li><a href="#" onclick="toggleEvents('group_three');">Group Three<input type="checkbox" name="event_group_three" class="event" id="event_group_three" onclick="toggleEvents('group_three');" /></a></li> 
+              </ul>
+            </div>
+            <div>
+              <button type="button" class="btn btn-default" onclick='toggleDelete();'>Click to Delete</button>
+              <input type='checkbox' name="deleteOption" id='deleteOption' onclick='toggleDelete(e);'>
+            </div>
+
+<!--            <table class='table'>
                <tr>
                   <td><label>All <b>E</b>mployees:</td><td>
                   <input type='checkbox' name='toggleAll' id='toggleAll' checked='checked'>
@@ -108,7 +153,7 @@
                   <input type="checkbox" name="deleteOption" id="deleteOption">
                   </input></label></td>
                </tr>
-            </table>
+            </table>-->
             <div id='selectTimeSlot' class='styled-select'>
                Slot:
                <select id='selectTime' class='styled-select'>
@@ -465,6 +510,7 @@
          Custom<input type="radio" name='availability' value="Custom" class='overrideRightClick'><br>
          Busy<input type="radio" name="availability" value="Busy" class='overrideRightClick'>
       </div>
+      <div id='calendar'></div>
    </body>
 </html>
 <script type='text/javascript'>
@@ -476,47 +522,50 @@
    var names =  <? echo $names ?>;
    var unstoredEvents = [];
    var removedEmployees = [-1];
+   
+   var global_groups_obj = {}
+
+   var global_employee_id_arr = new Array();
+   
    var global_employee_obj = new Array(); 
+   
    var global_options_obj = {
-      "availability" : false,
-      "busy"         : false,
-      "scheduled"    : false,
-      "events"       : false
-   };
+      "events"  : true,
+      "delete"  : false
+   };       
 
    for (var j = 0; j < names.length; j++)
    {
+      global_employee_id_arr.push(names[j]['id']);
       global_employee_obj[names[j]['id']] = {
          "firstName"    : names[j]['firstName'],
          "lastName"     : names[j]['lastName'],
          "employeeId"   : names[j]['employeeId'],
-         "availability" : false,
+         "sfl"          : names[j]['sfl'],
+         "available"    : false,
          "busy"         : false,
          "scheduled"    : false
       };
+      for (var i = 0; i < names[j]["groups"].length; i++) 
+      {
+         var group = names[j]["groups"][i];
+         if(typeof group != "undefined" && group != "")
+         {
+            if(typeof global_groups_obj[group] == "undefined")
+            {
+               global_groups_obj[group] = {
+                  "available" : false,
+                  "busy"      : false,
+                  "scheduled" : false,
+                  "employees" : new Array()
+               }
+            }
+            global_groups_obj[group]["employees"].push(names[j]["id"]);
+         }  
+      };
    }
-   console.log(global_employee_obj);
-</script>
-
-<script src="<? echo base_url() ?>js/utility.js"></script>
-<script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
-<script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
-<script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>
-<script src="<? echo base_url() ?>js/manager/managerTutorial.js"></script>
-<script src="<? echo base_url() ?>js/manager/managerCalendar.js"></script>
-<!--<script src="<? echo base_url() ?>jsMin/manager/manager.min.js"></script>-->
-<script type="text/javascript">
    $(document).ready(function()
    {
-      // Initializes Variables
-      $("#finalize").button();
-      $("#home").button();
-      $("#template").button();
-      $("#addCOEvent").button();
-      $("#logOut").button();
-      $("#viewInfo").button();
-      $("#tutorial").button();
-
       $("#deleteOption").attr('checked', false);
       $("#toggleAll").attr('checked', false);
       $("#busyOption").attr('checked', true);
@@ -526,13 +575,7 @@
 
       // Sets the calendar size based on the page size
       $("#calendar").css("width", $(document).width() - $("#options").width() - 100);
-      var offsetLeft = $(document).width() - $("#options").width() - 350;
       $("#coEventRepeatEnd").attr("disabled", "disabled");
-      $("#headerButtons").offset(
-      {
-         top : 10,
-         left : offsetLeft
-      });
 
       var templates;
       loadTemplates();
@@ -545,3 +588,12 @@
       dateFormat : "yy-mm-dd"
    }); 
 </script>
+
+<script src="<? echo base_url() ?>js/utility.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerTutorial.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerCalendar.js"></script>
+<!--<script src="<? echo base_url() ?>jsMin/manager/manager.min.js"></script>-->
+

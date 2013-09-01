@@ -4,7 +4,7 @@
 <head>
 <script src="<? echo base_url() ?>js/plugins/jquery-ui-1.10.3.custom/js/jquery-1.9.1.js"></script>
 <script src="<? echo base_url() ?>js/plugins/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js"></script>
-<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+<!--<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>-->
 <script src="<? echo base_url() ?>js/plugins/fullcalendar-1.6.0/fullcalendar/fullcalendar.js"></script>
 <script src="<? echo base_url() ?>js/plugins/jQuery-Impromptu-master/jquery-Impromptu.js"></script>
 <script src="<? echo base_url() ?>js/plugins/bootstrap/js/bootstrap.js"></script>

@@ -37,150 +37,159 @@ class admin extends CI_Model
     */
    function getEmployeeList()
    {
-      $query = $this->db->query("SELECT firstName, lastName, id, position FROM employees ORDER BY position, firstName");
+      $sql = "SELECT * FROM employees ORDER BY permissions";
+
+      $query = $this->db->query($sql);
       $employees = array();
       foreach ($query->result() as $row)
       {
+         if($row->position == "SFL")
+            $row->sfl = true;
+         else
+            $row->sfl = false;
+
+         if($row->groups != "")
+            $row->groups = explode(" ", $row->groups);
+         else
+            $row->groups = array();
+
          $employees[] = $row;        
-         $class = "btn-info";
-         if ($row->position == "SA")
-            $class = "btn-default";
-         else if ($row->position == "SFL")
-            $class = "btn-danger";
       }
       return $employees;
+   }
+   function getGroups()
+   {
+      $query = $this->db->query("SELECT group_name FROM groups");
+      $ret = array();
+      foreach ($query->result() as $row)
+      {
+         $ret[] = $row->group_name;
+      }
+      return $ret;
    }
    /*
     * 	Gets the scheduled events for the manager calendar
     */
-   function getScheduledEventFeed()
+   function getScheduledEventFeed($employee_obj)
    {
-      $query = $this->db->query("SELECT id, firstName, lastName, position FROM employees ORDER BY firstName");
-      $_json = array();
-      $busy = $this->input->cookie("busy");
+      $json = array();
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.*
+      FROM scheduled 
+      LEFT JOIN employees ON scheduled.employeeId = employees.id");
+
       foreach ($query->result() as $row)
       {
-         if ((($this->input->cookie("display") == "true") && !($this->input->cookie($row->id) == 'false')) or ($this->input->cookie($row->id) == "true"))
+         if($employee_obj[$row->employeeId]->scheduled)
          {
-            $name = "$row->firstName " . $row->lastName[0];
-
-            $_query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$row->id'");
-            foreach ($_query->result() as $_row)
+            $name = $row->firstName . " " . $row->lastName[0];
+            $sfl = ($row->sfl == 1) ? "(SFL)" : "";
+            $border = ($row->sfl == 1) ? "BLACK" : "";
+            $begin = $row->begin;
+            $end = $row->end;
+            $start = Date('Y-m-d H:i:s', strtotime("$row->day $begin"));
+            $_end = Date('Y-m-d H:i:s', strtotime("$row->day $end"));
+            $cat = "($row->category)";
+            $event = "false";
+            if ($row->category == "SP")
+               $color = "#EB8F00";
+            else if ($row->sfl == 1)
+               $color = "#B81900";
+            else if ($row->category == "SF" || $row->category == "M" || $row->category == "W" || $row->category == "C" || $row->category == "G" || $row->category == "S" || $row->category == "SS")
+               $color = "#3366CC";
+            else
             {
-               $sfl = ($_row->sfl == 1) ? "(SFL)" : "";
-               $border = ($_row->sfl == 1) ? "BLACK" : "";
-               $begin = $_row->begin;
-               $end = $_row->end;
-               $start = Date('Y-m-d H:i:s', strtotime("$_row->day $begin"));
-               $_end = Date('Y-m-d H:i:s', strtotime("$_row->day $end"));
-               $cat = "($_row->category)";
-               $event = "false";
-               if ($_row->category == "SP")
-                  $color = "#EB8F00";
-               else if ($_row->sfl == 1)
-                  $color = "#B81900";
-               else if ($_row->category == "SF" || $_row->category == "M" || $_row->category == "W" || $_row->category == "C" || $_row->category == "G" || $_row->category == "S" || $_row->category == "SS")
-                  $color = "#3366CC";
-               else
-               {
-                  $color = "#790ead";
-                  $event = "true";
-               }
-
-               array_push($_json, json_encode(array(
-                  "title" => "$name $cat $sfl",
-                  "start" => $start,
-                  "end" => $_end,
-                  "allDay" => false,
-                  'color' => "$color",
-                  "employeeId" => $row->id,
-                  'category' => 'scheduled',
-                  'id' => md5("scheduled$_row->id"),
-                  'rowId' => $_row->id,
-                  'position' => $row->position,
-                  'area' => $_row->category,
-                  'borderColor' => $border,
-                  'event' => $event,
-                  'sfl' => $sfl
-               )));
+               $color = "#790ead";
+               $event = "true";
             }
+
+            array_push($json, json_encode(array(
+               "title" => "$name $cat $sfl",
+               "start" => $start,
+               "end" => $_end,
+               "allDay" => false,
+               'color' => "$color",
+               "employeeId" => $row->employeeId,
+               'category' => 'scheduled',
+               'id' => md5("scheduled$row->id"),
+               'rowId' => $row->id,
+               'position' => $row->position,
+               'area' => $row->category,
+               'borderColor' => $border,
+               'event' => $event,
+               'sfl' => $sfl
+            )));
          }
       }
-      return $_json;
+      return $json;
    }
 
    /*
     * Returns the the total event feed for all visible employees.
     */
-   function getEventFeed($employee_obj)
+   function getEventFeed($employee_obj, $start_date, $end_date)
    {
-      $query = $this->db->query("SELECT id, firstName, lastName, position FROM employees");
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, hours.* 
+         FROM hours 
+         LEFT JOIN employees 
+         ON employees.id = hours.employeeId
+         WHERE hours.day >= '$start_date'
+         AND hours.day <= '$end_date'");
       $json = $this->getEmptyShifts();
-      $busy = $this->input->cookie('busy');
       foreach ($query->result() as $row)
       {
-         $name = "$row->firstName " . $row->lastName[0];
-         $_query = $this->db->query("SELECT * FROM hours WHERE employeeId = '$row->id'");
-         // Create json stuff and add it here...
-         foreach ($_query->result() as $_row)
+         $name = $row->firstName . " " . $row->lastName[0];
+         $date = $row->day;
+         $begin = $row->begin;
+         $end = $row->end;
+         $availability = $row->available;
+         $title = $name;
+         if ($availability == 'Available' && $employee_obj[$row->employeeId]->available)
          {
-            $date = $_row->day;
-            $begin = $_row->begin;
-            $end = $_row->end;
-            $availability = $_row->available;
-
-            $title = $name;
-            if ($availability == 'Available')
-            {
-               $color = "#32CD32";
-               array_push($json, json_encode(array(
-                  "title" => $title,
-                  "start" => $date . " 01:00:01",
-                  "allDay" => true,
-                  'color' => $color,
-                  'employeeId' => $row->id,
-                  'category' => $availability,
-                  'id' => md5($availability . $row->id),
-                  'rowId' => $_row->id,
-                  "position" => $row->position,
-               )));
-            }
-            else if ($availability == 'Busy')
-            {
-               if ($busy == 'true')
-               {
-                  $color = "BLACK";
-                  array_push($json, json_encode(array(
-                     "title" => $title,
-                     "start" => $date . " 01:00:00",
-                     "allDay" => true,
-                     'color' => $color,
-                     'employeeId' => $row->id,
-                     'category' => $availability,
-                     'id' => md5($availability . $row->id),
-                     'rowId' => $_row->id,
-                     "position" => $row->position
-                  )));
-               }
-            }
-            else
-            {
-               $color = '#32CD32';
-               $startTime = Date("g:i a", strtotime($begin));
-               $endTime = Date("g:i a", strtotime($end));
-               array_push($json, json_encode(array(
-                  "title" => $title . " " . $startTime . ' - ' . $endTime,
-                  "start" => $date . ' ' . $begin,
-                  "end" => $date . ' ' . $end,
-                  "allDay" => true,
-                  'color' => $color,
-                  'employeeId' => $row->id,
-                  'category' => $availability,
-                  'id' => md5($availability . $row->id),
-                  'rowId' => $_row->id,
-                  "position" => $row->position
-               )));
-            }
+            $color = "#32CD32";
+            array_push($json, json_encode(array(
+               "title" => $title,
+               "start" => $date . " 01:00:01",
+               "allDay" => true,
+               'color' => $color,
+               'employeeId' => $row->employeeId,
+               'category' => $availability,
+               'id' => md5($availability . $row->id),
+               'rowId' => $row->id,
+               "position" => $row->position,
+            )));
+         }
+         else if ($availability == 'Busy' && $employee_obj[$row->employeeId]->busy)
+         {
+            $color = "BLACK";
+            array_push($json, json_encode(array(
+               "title" => $title,
+               "start" => $date . " 01:00:00",
+               "allDay" => true,
+               'color' => $color,
+               'employeeId' => $row->employeeId,
+               'category' => $availability,
+               'id' => md5($availability . $row->id),
+               'rowId' => $row->id,
+               "position" => $row->position
+            )));
+         }
+         else if ($employee_obj[$row->employeeId]->available)
+         {
+            $color = '#32CD32';
+            $startTime = Date("g:i a", strtotime($begin));
+            $endTime = Date("g:i a", strtotime($end));
+            array_push($json, json_encode(array(
+               "title" => $title . " " . $startTime . ' - ' . $endTime,
+               "start" => $date . ' ' . $begin,
+               "end" => $date . ' ' . $end,
+               "allDay" => true,
+               'color' => $color,
+               'employeeId' => $row->employeeId,
+               'category' => $availability,
+               'id' => md5($availability . $row->id),
+               'rowId' => $row->id,
+               "position" => $row->position
+            )));
          }
       }
       return $json;
@@ -479,7 +488,29 @@ class admin extends CI_Model
       }
       return $query;
    }
-
+   function scheduleEmployeeTemplate($employeeId_arr, $day_arr, $begin_arr, $end_arr, $category_arr)
+   {
+      $ret = array();
+      $refetch = false;
+      for ($i=0; $i < count($employeeId_arr); $i++) 
+      {
+         for ($j=0; $j < count($day_arr); $j++) 
+         { 
+            $result = json_decode($this->scheduleEmployeeFloor($employeeId_arr[$i], date("Y-m-d", strtotime($day_arr[$j])), date("H:i:s", strtotime($begin_arr[$j])), date("H:i:s", strtotime($end_arr[$j])), $category_arr[$j], 0));
+            if($result[1] == false && $refetch == false)
+            {
+               $refetch = false;
+            }
+            else
+            {
+               $refetch = true;
+            }
+            $ret[] = $result[0];
+         }
+      }
+      $ret[] = $refetch;
+      return $ret;
+   }
    function scheduleEmployeeFloor($employeeId, $day, $begin, $end, $category, $sfl)
    {
       $ids = $this->getOverlappingEvents($employeeId, $day, $begin, $end);

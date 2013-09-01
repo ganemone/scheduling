@@ -1,3 +1,7 @@
+$(window).resize(function()
+{
+   $("#calendar").css("width", $(window).width() - 290);
+})
 $(document).click(function(e)
 {
    if ($("#editEventPopup").is(":visible"))

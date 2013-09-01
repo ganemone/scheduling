@@ -78,7 +78,7 @@ $('#calendar').fullCalendar(
          event.editable = false;
       }
    },
-   viewDisplay : function(view)
+   viewRender : function(view)
    {
       if(view.name == "agendaWeek")
       {

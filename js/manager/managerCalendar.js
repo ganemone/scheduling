@@ -1,7 +1,39 @@
+bootbox.animate(false);
+var availabilityEventSource = {
+   url : url + "index.php/manager/eventSource",
+   data : function() {
+      return {
+      employee_obj : getEmployeeObj()
+      }
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(textStatus + "/manager/eventSource");
+   }
+}
+var scheduledEventSource = {
+   url : url + "index.php/manager/scheduledEventSource",
+   data : function() {
+      return {
+      employee_obj : getEmployeeObj()
+      }
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(textStatus + "/manager/scheduledEventSource");
+   }
+}
+var coEventSource = {
+   url : url + "index.php/manager/coEventSource",
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(textStatus + "coEventSource");
+   }
+}
 function renderCalendar(slotMinutes, view, date)
 {
    $("#calendar").fullCalendar('destroy');
-   $("#calendar").css("width", $(document).width() - 200);
+   $("#calendar").css("width", $(document).width() - 290);
    var options =
    {
       header :
@@ -26,7 +58,7 @@ function renderCalendar(slotMinutes, view, date)
        *  views. Takes the view changed to as the input.
        *
        */
-      viewDisplay : function(view)
+      viewRender : function(view)
       {
          initializeGoalTips(view);
          if (view.name == 'month')
@@ -57,56 +89,68 @@ function renderCalendar(slotMinutes, view, date)
          var categories = draggedEvent.categories;
          var startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
          var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 6);
-         var state =
+         
+         bootbox.confirm(makeTemplateForm(startDate, endDate, 'checkbox'), function(result)
          {
-            state0 :
+            if(result)
             {
-               title : "Schedule Using Template",
-               html : makeTemplateForm(startDate, endDate, 'checkbox') + "</table>",
-               submit : function(e, v, m, f)
+               var employee_id_arr = new Array();
+               var day_arr = new Array();
+               $("#templateForm > div > label > input").each(function()
                {
-                  var title = "";
-                  for (var key in f)
+                  if($(this).is(":checked"))
                   {
-                     for (var j = 0; j < f[key].length; j++)
+                     employee_id_arr.push($(this).val());
+                  }         
+
+               });
+               for (var i = 0; i < days.length; i++)
+               {
+                  var day = new Date();
+                  day.setFullYear(startDate.getFullYear());
+                  day.setMonth(startDate.getMonth());
+                  day.setDate(startDate.getDate() + Number(days[i][0]));
+                  day_arr.push(day.toDateString());
+               }
+               console.log(day_arr);
+               $.ajax(
+               {
+                  type : "POST",
+                  data :
+                  {
+                     employee_id_arr : JSON.stringify(employee_id_arr),
+                     day_arr         : JSON.stringify(day_arr),
+                     begin_arr       : JSON.stringify(starts),
+                     end_arr         : JSON.stringify(ends),
+                     category_arr    : JSON.stringify(categories)
+                  },
+                  url : url + "index.php/manager/scheduleEmployeeTemplate",
+                  success : function(msg)
+                  {
+                     var result_arr = jQuery.parseJSON(msg);
+                     if(result_arr.pop())
                      {
-                        var id = f[key];
-                        if (id == "NA")
-                           break;
-                        for (var i = 0; i < days.length; i++)
+                        $("#calendar").fullCalendar("removeEventSource", scheduledEventSource);
+                        $("#calendar").fullCalendar("addEventSource", scheduledEventSource);
+                     }
+                     else
+                     {
+                        var cal_event;
+                        for (var i = 0; i < result_arr.length; i++) 
                         {
-                           var day = new Date();
-                           day.setFullYear(startDate.getFullYear());
-                           day.setMonth(startDate.getMonth());
-                           day.setDate(startDate.getDate() + Number(days[i][0]));
-                           $.ajax(
-                           {
-                              type : "POST",
-                              data :
-                              {
-                                 employeeId : id,
-                                 day : day.toDateString(),
-                                 begin : starts[i],
-                                 end : ends[i],
-                                 category : categories[i]
-                              },
-                              url : url + "index.php/manager/scheduleEmployee",
-                              success : function(msg)
-                              {
-                                 $("#calendar").fullCalendar("refetchEvents");
-                              },
-                              error : function(textStatus)
-                              {
-                                 alert(textStatus + "/manager/scheduleEmployee");
-                              }
-                           });
+                           cal_event = jQuery.parseJSON(result_arr[i]);
+                           console.log(cal_event);
+                           $("#calendar").fullCalendar("renderEvent", cal_event, true);
                         }
                      }
+                  },
+                  error : function(textStatus)
+                  {
+                     alert(textStatus + "/manager/scheduleEmployeeTemplate");
                   }
-               }
+               });
             }
-         }
-         $.prompt(state);
+         });
       },
       loading : function(bool)
       {
@@ -233,13 +277,11 @@ function renderCalendar(slotMinutes, view, date)
        */
       eventClick : function(calEvent, jsEvent, view)
       {
+         console.log(calEvent);
          $("#editEventPopup").hide();
          $("#employeeRightClickDiv").hide();
          $("#overrideAvailability").hide();
          
-         var delOption = false;
-         if ($("#deleteOption").is(":checked"))
-            delOption = true;
          /*if (calEvent.title == 'Test Schedule')
          {
          $("#employeeInfo").title("Test");
@@ -268,27 +310,15 @@ function renderCalendar(slotMinutes, view, date)
             {
                promptEmployeeHPW(calEvent);
             }
-            else if (delOption == true && !jsEvent.shiftKey)
+            else if (global_options_obj["delete"] == true && !jsEvent.shiftKey)
             {
-               $("#deleteConfirmation").dialog(
+               bootbox.confirm("Are you sure you want to delete this event?", function(result)
                {
-                  autoOpen : false,
-                  modal : true,
-                  position : ['middle', 100],
-                  buttons :
+                  if(result)
                   {
-                     Delete : function()
-                     {
-                        deleteEvent(calEvent.category, calEvent.rowId, calEvent.id);
-                        $(this).dialog("close");
-                     },
-                     Cancel : function()
-                     {
-                        $(this).dialog('close');
-                     }
+                     deleteEvent(calEvent.category, calEvent.rowId, calEvent.id);
                   }
                });
-               $("#deleteConfirmation").dialog('open');
             }
          }
       },
@@ -371,44 +401,7 @@ function renderCalendar(slotMinutes, view, date)
       /* Specifies the urls for retrieving the event source
        *
        */
-      eventSources : [
-      {
-         url : url + "index.php/manager/eventSource",
-         data : function() {
-            return {
-            employee_obj : getEmployeeObj(),
-            options_obj  : getOptionsObj()
-            }
-         },
-         error : function(msg, textStatus, errorThrown)
-         {
-            alert(textStatus + "/manager/eventSource");
-         }
-      },
-      {
-         url : url + "index.php/manager/scheduledEventSource",
-         data :
-         {
-            employee_obj : getEmployeeObj(),
-            options_obj  : getOptionsObj()
-         },
-         error : function(msg, textStatus, errorThrown)
-         {
-            alert(textStatus + "/manager/scheduledEventSource");
-         }
-      },
-      {
-         url : url + "index.php/manager/coEventSource",
-         data :
-         {
-            employee_obj : getEmployeeObj(),
-            options_obj  : getOptionsObj()
-         },
-         error : function(msg, textStatus, errorThrown)
-         {
-            alert(textStatus + "coEventSource");
-         }
-      }]
+      eventSources : [availabilityEventSource, scheduledEventSource, coEventSource]
    };
    calendar = $('#calendar').fullCalendar(options);
    calendar.fullCalendar("gotoDate", date);
