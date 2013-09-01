@@ -37,6 +37,7 @@ class admin extends CI_Model
     */
    function getEmployeeList()
    {
+<<<<<<< HEAD
       $sql = "SELECT * FROM employees ORDER BY permissions";
 
       $query = $this->db->query($sql);
@@ -66,6 +67,20 @@ class admin extends CI_Model
          $ret[] = $row->group_name;
       }
       return $ret;
+=======
+      $query = $this->db->query("SELECT firstName, lastName, id, position FROM employees ORDER BY position, firstName");
+      $employees = array();
+      foreach ($query->result() as $row)
+      {
+         $employees[] = $row;        
+         $class = "btn-info";
+         if ($row->position == "SA")
+            $class = "btn-default";
+         else if ($row->position == "SFL")
+            $class = "btn-danger";
+      }
+      return $employees;
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    }
    /*
     * 	Gets the scheduled events for the manager calendar
@@ -126,7 +141,11 @@ class admin extends CI_Model
    /*
     * Returns the the total event feed for all visible employees.
     */
+<<<<<<< HEAD
    function getEventFeed($employee_obj, $start_date, $end_date)
+=======
+   function getEventFeed($employee_obj)
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    {
       $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, hours.* 
          FROM hours 
@@ -137,6 +156,7 @@ class admin extends CI_Model
       $json = $this->getEmptyShifts();
       foreach ($query->result() as $row)
       {
+<<<<<<< HEAD
          $name = $row->firstName . " " . $row->lastName[0];
          $date = $row->day;
          $begin = $row->begin;
@@ -190,6 +210,70 @@ class admin extends CI_Model
                'rowId' => $row->id,
                "position" => $row->position
             )));
+=======
+         $name = "$row->firstName " . $row->lastName[0];
+         $_query = $this->db->query("SELECT * FROM hours WHERE employeeId = '$row->id'");
+         // Create json stuff and add it here...
+         foreach ($_query->result() as $_row)
+         {
+            $date = $_row->day;
+            $begin = $_row->begin;
+            $end = $_row->end;
+            $availability = $_row->available;
+
+            $title = $name;
+            if ($availability == 'Available')
+            {
+               $color = "#32CD32";
+               array_push($json, json_encode(array(
+                  "title" => $title,
+                  "start" => $date . " 01:00:01",
+                  "allDay" => true,
+                  'color' => $color,
+                  'employeeId' => $row->id,
+                  'category' => $availability,
+                  'id' => md5($availability . $row->id),
+                  'rowId' => $_row->id,
+                  "position" => $row->position,
+               )));
+            }
+            else if ($availability == 'Busy')
+            {
+               if ($busy == 'true')
+               {
+                  $color = "BLACK";
+                  array_push($json, json_encode(array(
+                     "title" => $title,
+                     "start" => $date . " 01:00:00",
+                     "allDay" => true,
+                     'color' => $color,
+                     'employeeId' => $row->id,
+                     'category' => $availability,
+                     'id' => md5($availability . $row->id),
+                     'rowId' => $_row->id,
+                     "position" => $row->position
+                  )));
+               }
+            }
+            else
+            {
+               $color = '#32CD32';
+               $startTime = Date("g:i a", strtotime($begin));
+               $endTime = Date("g:i a", strtotime($end));
+               array_push($json, json_encode(array(
+                  "title" => $title . " " . $startTime . ' - ' . $endTime,
+                  "start" => $date . ' ' . $begin,
+                  "end" => $date . ' ' . $end,
+                  "allDay" => true,
+                  'color' => $color,
+                  'employeeId' => $row->id,
+                  'category' => $availability,
+                  'id' => md5($availability . $row->id),
+                  'rowId' => $_row->id,
+                  "position" => $row->position
+               )));
+            }
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
          }
       }
       return $json;

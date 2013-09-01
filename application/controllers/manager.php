@@ -19,7 +19,11 @@ class Manager extends CI_Controller
       $this->companyInfo['company'] = $this->input->cookie("Company");
       
       $this->companyInfo['peoplePerHour'] = json_encode($this->admin->getShiftsPerHour());
+<<<<<<< HEAD
       $this->companyInfo["groups"] = json_encode($this->admin->getGroups());
+=======
+      
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       $this->companyInfo['names'] = json_encode($this->admin->getEmployeeList());
       $this->initialize();
       $this->load->view("includes.php");
@@ -59,9 +63,14 @@ class Manager extends CI_Controller
    function eventSource()
    {
       $employee_obj = json_decode($this->input->get("employee_obj"));
+<<<<<<< HEAD
       $start_date = date("Y-m-d", $this->input->get("start"));
       $end_date = date("Y-m-d", $this->input->get("end"));
       $json = $this->admin->getEventFeed($employee_obj, $start_date, $end_date);
+=======
+      $json = $this->admin->getEventFeed($employee_obj);
+      error_log(var_export($employee_obj, true));
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       echo "[";
       while (count($json) > 0)
       {
@@ -77,7 +86,11 @@ class Manager extends CI_Controller
    function scheduledEventSource()
    {
       $employee_obj = json_decode($this->input->get("employee_obj"));
+<<<<<<< HEAD
       $_json = $this->admin->getScheduledEventFeed($employee_obj);
+=======
+      $_json = $this->admin->getScheduledEventFeed();
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       echo "[";
       while (count($_json) > 0)
       {
@@ -92,6 +105,10 @@ class Manager extends CI_Controller
 
    function coEventSource()
    {
+<<<<<<< HEAD
+=======
+      $employee_obj = json_decode($this->input->get("employee_obj"));
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       $json = $this->admin->coEventSource();
       echo "[";
       while (count($json) > 0)

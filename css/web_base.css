@@ -1,7 +1,11 @@
 body {
    margin-right: 10px !important;
    padding-right: 10px !important;
+<<<<<<< HEAD
    overflow: hidden;
+=======
+   overflow:hidden;
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 }
    /* ----------- */
    /* User Styles */

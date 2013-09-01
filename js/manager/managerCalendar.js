@@ -401,7 +401,48 @@ function renderCalendar(slotMinutes, view, date)
       /* Specifies the urls for retrieving the event source
        *
        */
+<<<<<<< HEAD
       eventSources : [availabilityEventSource, scheduledEventSource, coEventSource]
+=======
+      eventSources : [
+      {
+         url : url + "index.php/manager/eventSource",
+         data : function() {
+            return {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+            }
+         },
+         error : function(msg, textStatus, errorThrown)
+         {
+            alert(textStatus + "/manager/eventSource");
+         }
+      },
+      {
+         url : url + "index.php/manager/scheduledEventSource",
+         data :
+         {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+         },
+         error : function(msg, textStatus, errorThrown)
+         {
+            alert(textStatus + "/manager/scheduledEventSource");
+         }
+      },
+      {
+         url : url + "index.php/manager/coEventSource",
+         data :
+         {
+            employee_obj : getEmployeeObj(),
+            options_obj  : getOptionsObj()
+         },
+         error : function(msg, textStatus, errorThrown)
+         {
+            alert(textStatus + "coEventSource");
+         }
+      }]
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    };
    calendar = $('#calendar').fullCalendar(options);
    calendar.fullCalendar("gotoDate", date);

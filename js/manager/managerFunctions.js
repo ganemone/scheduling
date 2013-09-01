@@ -1129,6 +1129,7 @@ function updateSort()
 }
 
 /* Toggle Functions */
+<<<<<<< HEAD
 function toggleAll (e) 
 {
    $("#all_busy").prop("indeterminate", false);
@@ -1429,6 +1430,36 @@ function toggleEmployee (employeeId, e)
       $("#calendar").fullCalendar("addEventSource", scheduledEventSource);
    }
    setGroupCheckBoxes();
+=======
+function toggleEmployee (employeeId) 
+{
+   var element = $("#employee_" + employeeId);
+   document.getElementById("employee_" + employeeId).indeterminate = false;
+   if(element.is(":checked"))
+   {
+      element.removeAttr("checked");
+      global_employee_obj[employeeId]['availability'] = false;
+      global_employee_obj[employeeId]['busy']         = false;
+      global_employee_obj[employeeId]['scheduled']    = false;
+      $("#available_" + employeeId).removeAttr("checked");
+      $("#busy_" + employeeId).removeAttr("checked");
+      $("#scheduled_" + employeeId).removeAttr("checked");
+   }
+   else
+   {
+      element.attr("checked", "checked");
+      global_employee_obj[employeeId]['availability'] = true;
+      global_employee_obj[employeeId]['busy']         = true;
+      global_employee_obj[employeeId]['scheduled']    = true;
+      $("#available_" + employeeId).attr("checked", "checked");
+      $("#busy_" + employeeId).attr("checked", "checked");
+      $("#scheduled_" + employeeId).attr("checked", "checked");
+   }
+   global_employee_obj = new Array();
+   global_employee_obj[0] = "TEst";
+   global_employee_obj[1] = "ANOTHER TEST";
+   $("#calendar").fullCalendar("refetchEvents");
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 }
 
 function toggleAvailability (employeeId) 
@@ -1436,6 +1467,7 @@ function toggleAvailability (employeeId)
    var element = $("#available_" + employeeId);
    if(element.is(":checked"))
    {
+<<<<<<< HEAD
       element.prop("checked", false);
       global_employee_obj[employeeId]['available'] = false;
       $("#calendar").fullCalendar("removeEvents", function(event) {
@@ -1453,6 +1485,17 @@ function toggleAvailability (employeeId)
    }
    updateCheckbox(employeeId);
    setGroupCheckBoxes();
+=======
+      element.removeAttr("checked");
+      global_employee_obj[employeeId]['availability'] = false;
+   }
+   else
+   {
+      element.attr("checked", "checked");
+      global_employee_obj[employeeId]['availability'] = true;
+   }
+   updateCheckbox(employeeId);
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 }
 
 function toggleBusy (employeeId) 
@@ -1460,6 +1503,7 @@ function toggleBusy (employeeId)
    var element = $("#busy_" + employeeId);
    if(element.is(":checked"))
    {
+<<<<<<< HEAD
       element.prop("checked", false);
       element.prop("checked", false);
       global_employee_obj[employeeId]['busy'] = false;
@@ -1479,6 +1523,18 @@ function toggleBusy (employeeId)
    }
    updateCheckbox(employeeId);
    setGroupCheckBoxes();
+=======
+      element.removeAttr("checked");
+      element.removeAttr("checked");
+      global_employee_obj[employeeId]['busy'] = false;
+   }
+   else
+   {
+      element.attr("checked", "checked");
+      global_employee_obj[employeeId]['busy'] = true;
+   }
+   updateCheckbox(employeeId);
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 }
 
 function toggleScheduled (employeeId) 
@@ -1486,6 +1542,7 @@ function toggleScheduled (employeeId)
    var element = $("#scheduled_" + employeeId);
    if(element.is(":checked"))
    {
+<<<<<<< HEAD
       element.prop("checked", false);
       element.prop("checked", false);
       global_employee_obj[employeeId]['scheduled'] = false;
@@ -1504,10 +1561,23 @@ function toggleScheduled (employeeId)
    }
    updateCheckbox(employeeId);
    setGroupCheckBoxes();
+=======
+      element.removeAttr("checked");
+      element.removeAttr("checked");
+      global_employee_obj[employeeId]['scheduled'] = false;
+   }
+   else
+   {
+      element.attr("checked", "checked");
+      global_employee_obj[employeeId]['scheduled'] = true;
+   }
+   updateCheckbox(employeeId);
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 }
 
 function updateCheckbox (employeeId) 
 {
+<<<<<<< HEAD
    if (global_employee_obj[employeeId]['available'] && global_employee_obj[employeeId]['busy'] && global_employee_obj[employeeId]['scheduled'])
    {
       $("#employee_" + employeeId).prop("checked", true).prop("indeterminate", false);
@@ -1714,6 +1784,21 @@ function checkGroup (group)
    };
 }
 function getEmployeeObj () {
+=======
+   if (global_employee_obj[employeeId]['availability'] || global_employee_obj[employeeId]['busy'] || global_employee_obj[employeeId]['scheduled'])
+   {
+      document.getElementById("employee_" + employeeId).indeterminate = true;
+   }
+   else
+   {
+      $("#employee_" + employeeId).removeAttr("checked");
+      document.getElementById("employee_" + employeeId).indeterminate = false;
+   }
+   $("#calendar").fullCalendar("refetchEvents");
+}
+function getEmployeeObj () {
+   alert("getting");
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    return JSON.stringify(global_employee_obj);
 }
 function getOptionsObj () {

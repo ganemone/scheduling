@@ -9,6 +9,10 @@
          </div>  
       </div>
       <div class='notifications top-right'></div>
+<<<<<<< HEAD
+=======
+      <div id='calendar'></div>
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       <div class='leftNav adminNav'>
          <div class="nav nav-pills">
             <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
@@ -19,6 +23,7 @@
          <div id='employees' class='leftMenu'>
          <? foreach(json_decode($names) as $employee): ?>
             <!-- Split button -->
+<<<<<<< HEAD
             <div class="btn-group employee_list">
               <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->id ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -29,6 +34,19 @@
                 <li><a href="#" onclick="toggleAvailability('<? echo $employee->id ?>');">Available <input type="checkbox" name="available" class="all_available<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_available"; endforeach; ?>" id="available_<? echo $employee->id ?>"  onclick="toggleAvailability('<? echo $employee->id ?>');" /></a></li> 
                 <li><a href="#" onclick="toggleBusy('<? echo $employee->id ?>');"        >Busy      <input type="checkbox" name="busy"      class="all_busy<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_busy"; endforeach; ?>"      id="busy_<? echo $employee->id ?>"       onclick="toggleBusy('<? echo $employee->id ?>');"         /></a></li> 
                 <li><a href="#" onclick="toggleScheduled('<? echo $employee->id ?>');"   >Schedule  <input type="checkbox" name="scheduled" class="all_scheduled<? foreach($employee->groups as $group): echo " " . strtolower(str_replace(" ", "_", trim($group))) . "_scheduled"; endforeach; ?>" id="scheduled_<? echo $employee->id ?>"  onclick="toggleScheduled('<? echo $employee->id ?>');"  /></a></li> 
+=======
+            <div class="btn-group">
+              <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->id ?>')"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <input type="checkbox" name="employee_<? echo $employee->id ?>" id="employee_<? echo $employee->id ?>">
+              
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#" onclick="toggleAvailability('<? echo $employee->id ?>');">Available <input type="checkbox" name="available" id="available_<? echo $employee->id ?>"  onclick="toggleAvailability('<? echo $employee->id ?>');" /></a></li> 
+                <li><a href="#" onclick="toggleBusy('<? echo $employee->id ?>');"        >Busy      <input type="checkbox" name="busy"      id="busy_<? echo $employee->id ?>"       onclick="toggleBusy('<? echo $employee->id ?>');"         /></a></li> 
+                <li><a href="#" onclick="toggleScheduled('<? echo $employee->id ?>');"   >Schedule  <input type="checkbox" name="scheduled"  id="scheduled_<? echo $employee->id ?>" onclick="toggleScheduled('<? echo $employee->id ?>');"  /></a></li> 
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
               </ul>
             </div>
          <? endforeach; ?>
@@ -69,6 +87,7 @@
       </div>
       -->
          <div id='options' class='left-bar leftMenu'>
+<<<<<<< HEAD
             <!-- all employees -->            
              <div class="btn-group all">
               <button type="button" class="btn btn-default btn-employee" onclick="toggleAll();">All Employees</button>
@@ -118,6 +137,10 @@
             </div>
 
 <!--            <table class='table'>
+=======
+            <h4>Options</h4>
+            <table class='table'>
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
                <tr>
                   <td><label>All <b>E</b>mployees:</td><td>
                   <input type='checkbox' name='toggleAll' id='toggleAll' checked='checked'>
@@ -153,7 +176,11 @@
                   <input type="checkbox" name="deleteOption" id="deleteOption">
                   </input></label></td>
                </tr>
+<<<<<<< HEAD
             </table>-->
+=======
+            </table>
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
             <div id='selectTimeSlot' class='styled-select'>
                Slot:
                <select id='selectTime' class='styled-select'>
@@ -522,6 +549,7 @@
    var names =  <? echo $names ?>;
    var unstoredEvents = [];
    var removedEmployees = [-1];
+<<<<<<< HEAD
    
    var global_groups_obj = {}
 
@@ -537,10 +565,23 @@
    for (var j = 0; j < names.length; j++)
    {
       global_employee_id_arr.push(names[j]['id']);
+=======
+   var global_employee_obj = new Array(); 
+   var global_options_obj = {
+      "availability" : false,
+      "busy"         : false,
+      "scheduled"    : false,
+      "events"       : false
+   };
+
+   for (var j = 0; j < names.length; j++)
+   {
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       global_employee_obj[names[j]['id']] = {
          "firstName"    : names[j]['firstName'],
          "lastName"     : names[j]['lastName'],
          "employeeId"   : names[j]['employeeId'],
+<<<<<<< HEAD
          "sfl"          : names[j]['sfl'],
          "available"    : false,
          "busy"         : false,
@@ -564,6 +605,24 @@
          }  
       };
    }
+=======
+         "availability" : false,
+         "busy"         : false,
+         "scheduled"    : false
+      };
+   }
+   console.log(global_employee_obj);
+</script>
+
+<script src="<? echo base_url() ?>js/utility.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerTutorial.js"></script>
+<script src="<? echo base_url() ?>js/manager/managerCalendar.js"></script>
+<!--<script src="<? echo base_url() ?>jsMin/manager/manager.min.js"></script>-->
+<script type="text/javascript">
+>>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    $(document).ready(function()
    {
       $("#deleteOption").attr('checked', false);
