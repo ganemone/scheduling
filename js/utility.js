@@ -94,12 +94,8 @@ function showLeftMenuItem(show_element_id, nav_element)
 function buildForm(form_obj)
 {
    var form = "<form class='form-horizontal' id='" + form_obj.id + "' name='" + form_obj.name + "' style='" + form_obj.style + ";'>";
-<<<<<<< HEAD
    for (var i = 0; i < form_obj.elements.length; i++) 
    {
-=======
-   for (var i = 0; i < form_obj.elements.length; i++) {
->>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
       if (form_obj.elements[i].type == "textarea")
       {
          form += "<div class='form-group'>";
@@ -108,7 +104,6 @@ function buildForm(form_obj)
          form += "   </div>";
          form += "</div>"; 
       }
-<<<<<<< HEAD
       else if(form_obj.elements[i].type == "checkbox" || form_obj.elements.type == "radio")
       {
          form += "<div class='form-group'>";
@@ -143,17 +138,6 @@ function buildForm(form_obj)
          form += "</div>";
       }
    };
-=======
-      else {
-         form += "<div class='form-group'>";
-         form += "   <label for='" + form_obj.elements[i].id + "' class='col-3 control-label'>" + form_obj.elements[i].label + "</label>";
-         form += "   <div class='col-9'>";
-         form += "      <input type='" + form_obj.elements[i].type + "' + class='form-control' placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'>";
-         form += "   </div>";
-         form += "</div>";
-      }
-    };
->>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
    form += "</form>";
    return form;
 }

@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 $(window).resize(function()
 {
    $("#calendar").css("width", $(window).width() - 290);
 })
-=======
->>>>>>> 8c8203b1c97c118b81bb63531dac5a3ead007367
 $(document).click(function(e)
 {
    if ($("#editEventPopup").is(":visible"))
