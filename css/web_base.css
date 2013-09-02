@@ -61,28 +61,24 @@ footer #bottomSpan {
 }
 
 .external-event {
-   /* try to mimick the look of a real event */
+   width: 90% !important;
    margin: 10px;
    padding: 2px 4px;
    color: #fff;
    font-size: .85em;
    cursor: pointer;
-   width: 150px !important;
    -webkit-border-radius: 4px;
    -moz-border-radius: 4px;
    border-radius: 4px;
 }
 #colorCode {
-   width: 260px;
+   width: 90%;
    padding: 0 10px;
    border: 1px solid #ccc;
    background: #eee;
    text-align: left;
    margin: 10px;
    display: none;
-}
-#colorCode .external-event {
-   width: 220px !important;
 }
 #colorCode h4 {
    font-size: 16px;
@@ -202,4 +198,14 @@ footer #bottomSpan {
       width: 90%;
       margin-left: 40px;
    }
+}
+
+.form-group .border-label {
+   text-align: center !important;
+   border: 1px solid black;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
+   border-radius: 4px;
+   margin: 0px 5px 0px 10px;
+   padding-bottom: 5px;
 }

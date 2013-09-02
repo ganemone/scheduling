@@ -13,7 +13,7 @@
          <div class="nav nav-pills">
             <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
             <li onclick="showLeftMenuItem('options', this);"><a><small>Options</small></a></li>
-            <li onclick="showLeftMenuItem('colors', this);"><a><small>Color Code</small></a></li>
+            <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
             <li onclick="showLeftMenuItem('templates', this);"><a><small>Templates</small></a></li>
          </div>
          <div id='employees' class='leftMenu'>
@@ -33,32 +33,31 @@
             </div>
          <? endforeach; ?>
          </div>
-         <div id='colors' class='leftMenu'>
-            <h4>Color Code</h4>
-            <div style="background: #32CD32">
+         <div id='colorCode' class='leftMenu'>
+            <div class='external-event' style="background: #32CD32;">
                Available
             </div>
-            <div style="background: #000000">
+            <div class='external-event' style="background: #000000;">
                Busy
             </div>
-            <div style="background: #3366CC">
+            <div class='external-event' style="background: #3366CC;">
                Floor Staff Scheduled
             </div>
-            <div style="background: #B81900">
+            <div class='external-event' style="background: #B81900;">
                SFL Staff Scheduled
             </div>
-            <div style="background: #EB8F00">
+            <div class='external-event' style="background: #EB8F00;">
                Support Staff Scheduled
             </div>
-            <div style="background: #480091">
+            <div class='external-event' style="background: #480091;">
                Event
             </div>
-            <div style="background: #790ead">
+            <div class='external-event' style="background: #790ead;">
                Scheduled for Event
             </div>
          </div>
+         
          <div id='templates' class='templates left-bar leftMenu'>
-            <h4>Templates</h4>
          </div>
 
       <!--<div id='deleteConfirmation' title='Confirmation'>
@@ -533,6 +532,57 @@
       "events"  : true,
       "delete"  : false
    };       
+
+   var global_categories_obj = {
+      "Category_One" : {
+         "type"     : "radio",
+         "name"     : "category",
+         "elements" : [
+            {
+               "name" : "Floor",
+               "abbr" : "SF"
+            },
+            {
+               "name" : "Mens",
+               "abbr" : "M"
+            },
+            {
+               "name" : "Womens",
+               "abbr" : "W"
+            },
+            {
+               "name" : "Cash",
+               "abbr" : "C"
+            },
+            {
+               "name" : "Greeter",
+               "abbr" : "G"
+            },
+            {
+               "name" : "Soccer",
+               "abbr" : "S"
+            },
+            {
+               "name" : "Shoe Sherpa",
+               "abbr" : "SS"
+            },
+            {
+               "name" : "Support",
+               "abbr" : "SP"
+            }
+         ]
+      },
+      "Category_Two" : {
+         "type"     : "checkbox",
+         "name"     : "sfl",
+         "elements" : [
+            {
+               "name" : "Sales Floor Leader",
+               "abbr" : "SFL"
+            }
+         ]
+      }
+   };
 
    for (var j = 0; j < names.length; j++)
    {

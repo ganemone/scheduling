@@ -67,9 +67,13 @@ function timeToString(time)
    var string = time.toTimeString().split(" ")[0].split(":");
    var am_pm = 'am';
    var hour = Number(string[0]);
-   if (Number(string[0]) > 12)
+   if(Number(string[0] == 12))
    {
-      var am_pm = 'pm';
+      am_pm = 'pm';
+   }
+   else if (Number(string[0]) > 12)
+   {
+      am_pm = 'pm';
       hour -= 12;
    }
    return (hour + ":" + string[1] + " " + am_pm);
@@ -292,7 +296,12 @@ function eventMove(event, dayDelta, minuteDelta, revertFunc, method)
                   var result_arr = jQuery.parseJSON(msg);
                   var refetch = result_arr[1];
                   if(refetch == true)
+                  {
+                     //$(".fc-event").tooltip("hide");
+                     //$(".fc-event").tooltip("disable");
                      $("#calendar").fullCalendar("refetchEvents");
+                     //$(".fc-event").tooltip("enable");
+                  }
                },
                error : function()
                {
@@ -376,7 +385,7 @@ function getEmployeesAvailable(begin, end)
 function loadTemplates()
 {
    var html = '';
-   $('.external-event').each(function()
+   $('#templates.external-event').each(function()
    {
       $(this).remove();
    });
@@ -391,8 +400,15 @@ function loadTemplates()
          {
             var currentTemplateObject = jQuery.parseJSON(a[i]);
             var id = "#template" + i;
-            html = "<div class='external-event' id='template" + i + "' title='" + currentTemplateObject.description + "' onclick=deleteTemplate('" + id + "');>" + currentTemplateObject.templateName + "</div>";
+            html = "<div class='external-event' style='background: black;' id='template" + i + "' title='" + currentTemplateObject.description + "' onclick=deleteTemplate('" + id + "');>" + currentTemplateObject.templateName + "</div>";
             $("#templates").append(html);
+            $("#template" + i).tooltip({
+               animation : false,
+               html      : true,
+               title     : currentTemplateObject.description,
+               container : 'body',
+               placement : "right"
+            });
             /*$("#template" + i).qtip(
             {
                content : currentTemplateObject.description,
@@ -428,15 +444,15 @@ function loadTemplates()
                scroll : false,
                start : function()
                {
-                  /*$('div.fc-event').qtip('disable');
-                  $('div.external-event').qtip('hide');
-                  $('div.external-event').qtip('disable');*/
-
+                  $('div.fc-event').tooltip('hide');
+                  $('div.external-event').tooltip('hide');
+                  $('div.fc-event').tooltip('disable');
+                  $('div.external-event').tooltip('disable');
                },
                stop : function()
                {
-                  /*$('div.fc-event').qtip('enable');
-                  $('div.external-event').qtip('enable');*/
+                  $('div.fc-event').tooltip('enable');
+                  $('div.external-event').tooltip('enable');
                }
             });
          }
@@ -559,70 +575,146 @@ function scheduleEmployee(start, end, startTime, endTime)
       }
    });
 }
-
-function continueScheduling(start, end, employeeInfo)
+function buildEmployeeChecklistObj (employeeInfo) 
 {
-   var state =
+   var element_obj_arr = [{
+      "type"  : "header",
+      "value" : "Employees"
+   }];
+   var employee_id;
+   for(employee_id in employeeInfo)
    {
-      state0 :
+      if(employeeInfo.hasOwnProperty(employee_id))
       {
-         title : "Shift: " + (start.getMonth() + 1) + "/" + start.getDate() + "/" + start.getFullYear() + "<br>From: " + startTime + " Until: " + endTime,
-         html : makeForm(start, start, 'checkbox', true, employeeInfo) + "</table>",
-         submit : function(e, v, m, f)
+         if(typeof global_employee_obj[employee_id] != "undefined")
          {
-            var title = "";
-            day = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
-            var sfl = 0;
-            for (var key in f)
-            {
-               sfl = (f.SFL == 1) ? 1 : sfl;
-               if (key == 'category')
-                  continue;
-               if (key == 'emptyShift')
-               {
-                  addEmptyShift(start, end, f.category, sfl)
-                  continue;
-               }
-               var id = f[key];
-               if (id == "NA")
-                  continue;
-               if ( typeof id == 'undefined' || id == "" || id == 0 || key == "SFL")
-                  continue;
-               $.ajax(
-               {
-                  type : "POST",
-                  data :
-                  {
-                     employeeId : id,
-                     day : day,
-                     begin : start.toTimeString().split(" ")[0],
-                     end : end.toTimeString().split(" ")[0],
-                     category : f.category,
-                     sfl : sfl,
-                     eventTitle : -1
-                  },
-                  url : url + "index.php/manager/scheduleEmployee",
-                  success : function(msg)
-                  {
-                     var msgArr = jQuery.parseJSON(msg);
-                     var event = jQuery.parseJSON(msgArr[0]);
-                     var refetch = msgArr[1];
-                     if(refetch == true)
-                        $("#calendar").fullCalendar("refetchEvents");
-                     else
-                        $("#calendar").fullCalendar("renderEvent", event);
-   
-                  },
-                  error : function(msg, textStatus, errorThrown)
-                  {
-                     alert(errorThrown + "/manager/scheduleEmployee");
-                  }
-               });
-            }
+            element_obj_arr.push({
+               "name"  : "employees[]",
+               "id"    : "employee_schedule_" + employee_id,
+               "label" : global_employee_obj[employee_id]["firstName"] + " " + global_employee_obj[employee_id]["lastName"][0] + ".",
+               "value" : employee_id,
+               "type"  : "checkbox"
+            });
          }
       }
    }
-   $.prompt(state);
+   return element_obj_arr;
+}
+function continueScheduling(start, end, employeeInfo)
+{
+   var form_obj = {
+      "name"     : "schedule_employee",
+      "id"       : "schedule_employee",
+      "style"    : "width: 400px;",
+   }
+   form_obj["elements"] = buildEmployeeChecklistObj(employeeInfo);
+   var start_end_obj = buildStartEndInputs(start.getHours() + ":" + start.getMinutes() + ":00" , end.getHours() + ":" + end.getMinutes() + ":00", "06:00:00", "21:00:00");
+   form_obj["elements"].push({
+      "type"  : "header",
+      "value" : "Shift Time"
+   });
+   form_obj["elements"].push({
+      "type"  : "obj",
+      "label" : "Start: ",
+      "name"  : "start_time",
+      "id"    : "start_time",
+      "data"  : start_end_obj["start"]
+   });
+   form_obj["elements"].push({
+      "type"  : "obj",
+      "name"  : "end_time",
+      "id"    : "end_time",
+      "label" : "End: ",
+      "data"  : start_end_obj["end"]
+   });
+   form_obj["elements"].push({
+      "type"  : "header",
+      "value" : "Shift Category"
+   });
+   form_obj["title"] = "Date: " + (start.getMonth() + 1) + "/" + start.getDate() + "/" + start.getFullYear() + "<br>Time: " + timeToString(start) + " - " + timeToString(end);
+   var defaultTo = "SF";
+   for(category_group in global_categories_obj)
+   {
+      if(global_categories_obj.hasOwnProperty(category_group))
+      {
+         for (var i = 0; i < global_categories_obj[category_group]["elements"].length; i++) 
+         {
+            var attr = "";
+            if(defaultTo == global_categories_obj[category_group]["elements"][i]["abbr"])
+            {
+               attr = "checked='checked'";
+            }
+            form_obj["elements"].push({
+               "name"  : global_categories_obj[category_group]["name"],
+               "id"    : global_categories_obj[category_group]["elements"][i]["abbr"],
+               "label" : global_categories_obj[category_group]["elements"][i]["name"],
+               "value" : global_categories_obj[category_group]["elements"][i]["abbr"],
+               "type"  : global_categories_obj[category_group]["type"],
+               "attr"  : attr 
+            });
+         }
+      }
+   }
+   bootbox.confirm(buildForm(form_obj), function(result)
+   {
+             
+   });
+   /*
+   title : "Shift: " + (start.getMonth() + 1) + "/" + start.getDate() + "/" + start.getFullYear() + "<br>From: " + startTime + " Until: " + endTime,
+   html : makeForm(start, start, 'checkbox', true, employeeInfo) + "</table>",
+   submit : function(e, v, m, f)
+   {
+      var title = "";
+      day = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
+      var sfl = 0;
+      for (var key in f)
+      {
+         sfl = (f.SFL == 1) ? 1 : sfl;
+         if (key == 'category')
+            continue;
+         if (key == 'emptyShift')
+         {
+            addEmptyShift(start, end, f.category, sfl)
+            continue;
+         }
+         var id = f[key];
+         if (id == "NA")
+            continue;
+         if ( typeof id == 'undefined' || id == "" || id == 0 || key == "SFL")
+            continue;
+         $.ajax(
+         {
+            type : "POST",
+            data :
+            {
+               employeeId : id,
+               day : day,
+               begin : start.toTimeString().split(" ")[0],
+               end : end.toTimeString().split(" ")[0],
+               category : f.category,
+               sfl : sfl,
+               eventTitle : -1
+            },
+            url : url + "index.php/manager/scheduleEmployee",
+            success : function(msg)
+            {
+               var msgArr = jQuery.parseJSON(msg);
+               var event = jQuery.parseJSON(msgArr[0]);
+               var refetch = msgArr[1];
+               if(refetch == true)
+                  $("#calendar").fullCalendar("refetchEvents");
+               else
+                  $("#calendar").fullCalendar("renderEvent", event);
+
+            },
+            error : function(msg, textStatus, errorThrown)
+            {
+               alert(errorThrown + "/manager/scheduleEmployee");
+            }
+         });
+      }
+   }
+   $.prompt(state);*/
 }
 
 function promptEmployeeHPW(calEvent)
@@ -659,6 +751,7 @@ function promptEmployeeHPW(calEvent)
 
 function scheduleShiftClick(calEvent)
 {
+   $(".fc-event").tooltip("hide");
    var start, end;
    var employees = [calEvent.employeeId];
    var date = calEvent.start;
@@ -715,116 +808,525 @@ function scheduleShiftClick(calEvent)
       continueScheduleShiftClick(calEvent, null, start, end);
    }
 }
+function buildHoursLeftDiv (employeeHoursLeft, employee_id) 
+{
+   var desired = employeeHoursLeft[employee_id].desired.split("-")[1];
+   var scheduled = employeeHoursLeft[employee_id].scheduled;
+   var hoursLeft = desired - scheduled;
+   var style = (hoursLeft > 0) ? "Green" : "Red";
+   var hoursLeftDiv = "<div style='display:inline; color:" + style + ";' >(Hours Left:" + hoursLeft + ")</div>";
+   return hoursLeftDiv;
+}
+function buildEmployeeSelectObj () 
+{
+   var data = {}
+   var employee_obj;
+   for(employee_id in global_employee_obj)
+   {
+      if(global_employee_obj.hasOwnProperty(employee_id))
+      {
+         data[employee_id] = {
+            "name" : global_employee_obj[employee_id]["firstName"] + " " + global_employee_obj[employee_id]["lastName"],
+         }
+      }
+   }
+   var select_obj = 
+   {
+      "type"  : "obj",
+      "label" : "Employee: ",
+      "name"  : "employee_select_list",
+      "id"    : "employee_select_list",
+      "data"  : data
+   };
+   return select_obj;
+}
+function buildStartEndInputs (start_selected, end_selected, start_allowed, end_allowed) 
+{
+   var time_obj = {
+      '06:00:00' : 
+      {
+         "name"   : "6:00am",
+         "number" : 6.0,
+      },
+      '06:15:00' : 
+      {
+         "name"   : "6:15am",
+         "number" : 6.15,
+      },
+      '06:30:00' : 
+      {
+         "name"   : "6:30am",
+         "number" : 6.30,
+      },
+      '06:45:00' : 
+      {
+         "name"   : "6:45am",
+         "number" : 6.45,
+      },
+      '07:00:00' : 
+      {
+         "name"   : "7:00am",
+         "number" : 7.0,
+      },
+      '07:15:00' : 
+      {
+         "name"   : "7:15am",
+         "number" : 7.15,
+      },
+      '07:30:00' : 
+      {
+         "name"   : "7:30am",
+         "number" : 7.30,
+      },
+      '07:45:00' : 
+      {
+         "name"   : "7:45am",
+         "number" : 7.45,
+      },
+      '08:00:00' : 
+      {
+         "name"   : "8:00am",
+         "number" : 8.0,
+      },
+      '08:15:00' : 
+      {
+         "name"   : "8:15am",
+         "number" : 8.15,
+      },
+      '08:30:00' : 
+      {
+         "name"   : "8:30am",
+         "number" : 8.30,
+      },
+      '08:45:00' : 
+      {
+         "name"   : "8:45am",
+         "number" : 8.45,
+      },
+      '09:00:00' : 
+      {
+         "name"   : "9:00am",
+         "number" : 9.0,
+      },
+      '09:15:00' : 
+      {
+         "name"   : "9:15am",
+         "number" : 9.15,
+      },
+      '09:30:00' : 
+      {
+         "name"   : "9:30am",
+         "number" : 9.30,
+      },
+      '09:45:00' : 
+      {
+         "name"   : "9:45am",
+         "number" : 9.45,
+      },
+      '10:00:00' : 
+      {
+         "name"   : "10:00am",
+         "number" : 10.0,
+      },
+      '10:15:00' : 
+      {
+         "name"   : "10:15am",
+         "number" : 10.15,
+      },
+      '10:30:00' : 
+      {
+         "name"   : "10:30am",
+         "number" : 10.30,
+      },
+      '10:45:00' : 
+      {
+         "name"   : "10:45am",
+         "number" : 10.45,
+      },
+      '11:00:00' : 
+      {
+         "name"   : "11:00am",
+         "number" : 11.0,
+      },
+      '11:15:00' : 
+      {
+         "name"   : "11:15am",
+         "number" : 11.15,
+      },
+      '11:30:00' : 
+      {
+         "name"   : "11:30am",
+         "number" : 11.30,
+      },
+      '11:45:00' : 
+      {
+         "name"   : "11:45am",
+         "number" : 11.45,
+      },
+      '12:00:00' : 
+      {
+         "name"   : "12:00pm",
+         "number" : 12.0,
+      },
+      '12:15:00' : 
+      {
+         "name"   : "12:15pm",
+         "number" : 12.15,
+      },
+      '12:30:00' : 
+      {
+         "name"   : "12:30pm",
+         "number" : 12.30,
+      },
+      '12:45:00' : 
+      {
+         "name"   : "12:45pm",
+         "number" : 12.45,
+      },
+      '13:00:00' : 
+      {
+         "name"   : "1:00pm",
+         "number" : 13.0,
+      },
+      '13:15:00' : 
+      {
+         "name"   : "1:15pm",
+         "number" : 13.15,
+      },
+      '13:30:00' : 
+      {
+         "name"   : "1:30pm",
+         "number" : 13.30,
+      },
+      '13:45:00' : 
+      {
+         "name"   : "1:45pm",
+         "number" : 13.45,
+      },
+      '14:00:00' : 
+      {
+         "name"   : "2:00pm",
+         "number" : 14.0,
+      },
+      '14:15:00' : 
+      {
+         "name"   : "2:15pm",
+         "number" : 14.15,
+      },
+      '14:30:00' : 
+      {
+         "name"   : "2:30pm",
+         "number" : 14.30,
+      },
+      '14:45:00' : 
+      {
+         "name"   : "2:45pm",
+         "number" : 14.45,
+      },
+      '15:00:00' : 
+      {
+         "name"   : "3:00pm",
+         "number" : 15.0,
+      },
+      '15:15:00' : 
+      {
+         "name"   : "3:15pm",
+         "number" : 15.15,
+      },
+      '15:30:00' : 
+      {
+         "name"   : "3:30pm",
+         "number" : 15.30,
+      },
+      '15:45:00' : 
+      {
+         "name"   : "3:45pm",
+         "number" : 15.45,
+      },
+      '16:00:00' : 
+      {
+         "name"   : "4:00pm",
+         "number" : 16.0,
+      },
+      '16:15:00' : 
+      {
+         "name"   : "4:15pm",
+         "number" : 16.15,
+      },
+      '16:30:00' : 
+      {
+         "name"   : "4:30pm",
+         "number" : 16.30,
+      },
+      '16:45:00' : 
+      {
+         "name"   : "4:45pm",
+         "number" : 16.45,
+      },
+      '17:00:00' : 
+      {
+         "name"   : "5:00pm",
+         "number" : 17.0,
+      },
+      '17:15:00' : 
+      {
+         "name"   : "5:15pm",
+         "number" : 17.15,
+      },
+      '17:30:00' : 
+      {
+         "name"   : "5:30pm",
+         "number" : 17.30,
+      },
+      '17:45:00' : 
+      {
+         "name"   : "5:45pm",
+         "number" : 17.45,
+      },
+      '18:00:00' : 
+      {
+         "name"   : "6:00pm",
+         "number" : 18.0,
+      },
+      '18:15:00' : 
+      {
+         "name"   : "6:15pm",
+         "number" : 18.15,
+      },
+      '18:30:00' : 
+      {
+         "name"   : "6:30pm",
+         "number" : 18.30,
+      },
+      '18:45:00' : 
+      {
+         "name"   : "6:45pm",
+         "number" : 18.45,
+      },
+      '19:00:00' : 
+      {
+         "name"   : "7:00pm",
+         "number" : 19.0,
+      },
+      '19:15:00' : 
+      {
+         "name"   : "7:15pm",
+         "number" : 19.15,
+      },
+      '19:30:00' : 
+      {
+         "name"   : "7:30pm",
+         "number" : 19.30,
+      },
+      '19:45:00' : 
+      {
+         "name"   : "7:45pm",
+         "number" : 19.45,
+      },
+      '20:00:00' : 
+      {
+         "name"   : "8:00pm",
+         "number" : 20.0,
+      },
+      '20:15:00' : 
+      {
+         "name"   : "8:15pm",
+         "number" : 20.15,
+      },
+      '20:30:00' : 
+      {
+         "name"   : "8:30pm",
+         "number" : 20.30,
+      },
+      '20:45:00' : 
+      {
+         "name"   : "8:45pm",
+         "number" : 20.45,
+      },
+      '21:00:00' : 
+      {
+         "name"   : "9:00pm",
+         "number" : 21.0
+      }
+   }
+   var start_selected_split = start_selected.split(":");
+   var end_selected_split   = end_selected.split(":");
+   var start_allowed_split  = start_allowed.split(":");
+   var end_allowed_split    = end_allowed.split(":");
 
+   var start_selected_num = Number(start_selected_split[0]) + Number("0." + start_selected_split[1]);
+   var end_selected_num   = Number(end_selected_split[0]) + Number("0." + end_selected_split[1]);
+   var start_allowed_num  = Number(start_allowed_split[0]) + Number("0." + start_allowed_split[1]);
+   var end_allowed_num    = Number(end_allowed_split[0]) + Number("0." + end_allowed_split[1]);
+
+   var start_end_obj = {
+      "start" : {},
+      "end"   : {}
+   };
+
+   for(timestamp in time_obj)
+   {
+      if(time_obj.hasOwnProperty(timestamp) && time_obj[timestamp]["number"] >= start_allowed_num && time_obj[timestamp]["number"] <= end_allowed_num)
+      {
+         var s_selected = false;
+         var e_selected = false;
+         if(start_selected_num == time_obj[timestamp]["number"])
+         {
+            s_selected = true;
+         }
+         else if(end_selected_num == time_obj[timestamp]["number"])
+         {
+            e_selected = true;
+         }
+         start_end_obj["start"][timestamp] = 
+         {
+            "name"     : time_obj[timestamp]["name"],
+            "selected" : s_selected 
+         };
+         start_end_obj["end"][timestamp] = 
+         {
+            "name"     : time_obj[timestamp]["name"],
+            "selected" : e_selected 
+         };
+      }  
+   }
+   return start_end_obj;
+}
 function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end)
 {
    if (employeeHoursLeft != null)
    {
-      var desired = employeeHoursLeft[calEvent.employeeId].desired.split("-")[1];
-      var scheduled = employeeHoursLeft[calEvent.employeeId].scheduled;
-      var hoursLeft = desired - scheduled;
-      var style = (hoursLeft > 0) ? "Green" : "Red";
-      hoursLeft = "<div style='display:inline; color:" + style + ";' >(Hours Left:" + hoursLeft + ")</div>";
+      var hoursLeft = buildHoursLeftDiv(employeeHoursLeft, calEvent.employeeId);
    }
-   $("#start").children("option").each(function()
-   {
-      if ($(this).val() == start)
-         $(this).prop("selected", true);
-      else
-         $(this).prop("selected", false);
-   });
-   $("#end").children("option").each(function()
-   {
-      if ($(this).val() == end)
-         $(this).prop("selected", true);
-      else
-         $(this).prop("selected", false);
-   });
-   var html = $("#customTimes").html();
-   $(".rightClickMenuItem").each(function()
-   {
-      $(this).prop("checked", false);
-   });
-   if (calEvent.position == "SP")
-      $("#supportOption").prop("checked", true);
-   else
-      $("#floorOption").prop("checked", true);
-   html += "Add Empty Shift:<input type='checkbox' name='emptyShift' />";
-   html += $("#editEventPopup").html();
-   $("#sflRightClickItem").prop("checked", false);
-   eventTitle = -1;
+   var start_end_obj = buildStartEndInputs(start, end, "06:00:00", "21:00:00");
+   var form_obj = {
+      "name"     : "schedule_employee",
+      "id"       : "schedule_employee",
+      "style"    : "width: 500px;",
+      "elements" : [
+         {
+            "type"  : "obj",
+            "label" : "Start: ",
+            "name"  : "start_time",
+            "id"    : "start_time",
+            "data"  : start_end_obj["start"]
+         },
+         {
+            "type"  : "obj",
+            "name"  : "end_time",
+            "id"    : "end_time",
+            "label" : "End: ",
+            "data"  : start_end_obj["end"]
+         }
+      ]
+   }
+   var eventTitle = -1;
    var name = calEvent.title.split(" ");
    name = name[0] + " " + name[1] + " ";
    var title = "Schedule " + name;
    if (calEvent.category == "events")
    {
       title = "Schedule Employee for " + calEvent.title.split("(")[0] + " At " + calEvent.location;
-      html = "Employee: " + selectList;
-      html += $("#customTimes").html();
-      html += "Add Empty Shift:<input type='checkbox' name='emptyShift' />";
+      form_obj["elements"].push(buildEmployeeSelectObj());
       eventTitle = calEvent.title.split("(")[0];
    }
-   title += (hoursLeft) ? hoursLeft: "";
-   $.prompt(html,
+   else
    {
-      title : title,
-      buttons :
+      var defaultTo = (typeof calEvent.defaultTo != "undefined") ? calEvent.defaultTo : "SF";
+      var category_group;
+      for(category_group in global_categories_obj)
       {
-         "Submit" : 1,
-         "Cancel" : 2
-      },
-      submit : function(e, v, m, f)
-      {
-         var id = (calEvent.category == "events") ? f.group : calEvent.employeeId;
-         var emptyShift = f.emptyShift;
-
-         if (v == 1)
+         if(global_categories_obj.hasOwnProperty(category_group))
          {
-            if (id != "NA")
+            for (var i = 0; i < global_categories_obj[category_group]["elements"].length; i++) 
             {
-               $.ajax(
+               var attr = "";
+               if(defaultTo == global_categories_obj[category_group]["elements"][i]["abbr"])
                {
-                  type : "POST",
-                  data :
-                  {
-                     employeeId : id,
-                     day : calEvent.start.toDateString(),
-                     begin : f.start,
-                     end : f.end,
-                     category : f.category,
-                     sfl : f.SFL,
-                     eventTitle : eventTitle,
-
-                  },
-                  url : url + "index.php/manager/scheduleEmployee",
-                  success : function(msg)
-                  {
-                     var msgArr = jQuery.parseJSON(msg);
-                     var event = jQuery.parseJSON(msgArr[0]);
-                     var refetch = msgArr[1];
-                     if(refetch == true)
-                        $("#calendar").fullCalendar("refetchEvents");
-                     else
-                        $("#calendar").fullCalendar("renderEvent", event);
-                  },
-                  error : function(msg1, msg2, msg3)
-                  {
-                     alert(msg1 + " scheduleEmployee");
-                  }
+                  attr = "checked='checked'";
+               }
+               form_obj["elements"].push({
+                  "name"  : global_categories_obj[category_group]["name"],
+                  "id"    : global_categories_obj[category_group]["elements"][i]["abbr"],
+                  "label" : global_categories_obj[category_group]["elements"][i]["name"],
+                  "value" : global_categories_obj[category_group]["elements"][i]["abbr"],
+                  "type"  : global_categories_obj[category_group]["type"],
+                  "attr"  : attr 
                });
             }
-            if (emptyShift == 'on')
-            {
-               var start = calEvent.start;
-               start.setHours(f.start.split(":")[0]);
-               start.setMinutes(f.start.split(":")[1]);
-               var end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), f.end.split(":")[0], f.end.split(":")[1], 0);
-               var cat = (eventTitle == -1) ? f.category : eventTitle;
-               addEmptyShift(start, end, cat, f.sfl);
-            }
          }
-         return true;
       }
+   }
+   form_obj["elements"].push({
+      "name"  : "emptyShift",
+      "id"    : "emptyShift",
+      "label" : "Add Empty Shift: ",
+      "type"  : "checkbox" 
+   });
+
+   title += (hoursLeft) ? hoursLeft: "";
+   form_obj["title"] = title;
+   var form = buildForm(form_obj);
+   bootbox.confirm(form, function(result)
+   {
+      if(result)
+      {
+         var id = (calEvent.category == "events") ? $("#employee_select_list").val() : calEvent.employeeId;
+         alert(id);
+         var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
+         var sfl = ($("#SFL").is(":checked")) ? 1 : 0;
+         if(validateStartEndTimes($("#start_time").val(), $("#end_time").val()) === false)
+         {
+            alert("The start time must come before the end time");
+            return false;
+         }
+         if (id != "NA" && id > 0)
+         {
+            $.ajax(
+            {
+               type : "POST",
+               data :
+               {
+                  employeeId : id,
+                  day        : calEvent.start.toDateString(),
+                  begin      : $("#start_time").val(),
+                  end        : $("#end_time").val(),
+                  category   : $("#schedule_employee input[name=category]:checked").val(),
+                  sfl        : sfl,
+                  eventTitle : eventTitle
+               },
+               url : url + "index.php/manager/scheduleEmployee",
+               success : function(msg)
+               {
+                  var msgArr = jQuery.parseJSON(msg);
+                  var event = jQuery.parseJSON(msgArr[0]);
+                  var refetch = msgArr[1];
+                  if(refetch == true)
+                  {
+                     $("#calendar").fullCalendar("refetchEvents");
+                  }
+                  else
+                  {
+                     $("#calendar").fullCalendar("renderEvent", event);
+                  }
+               },
+               error : function(msg1, msg2, msg3)
+               {
+                  alert(msg1 + " scheduleEmployee");
+               }
+            });
+         }
+         if (emptyShift)
+         {
+            var start = calEvent.start;
+            start.setHours($("#start_time").val().split(":")[0]);
+            start.setMinutes($("#start_time").val().split(":")[1]);
+            var end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), $("#end_time").val().split(":")[0], $("#end_time").val().split(":")[1], 0);
+            var cat = (eventTitle == -1) ? $("#schedule_employee input[name=category]:checked").val() : eventTitle;
+            addEmptyShift(start, end, cat, sfl);
+         }
+      }
+      return true;
    });
 }
 

@@ -239,10 +239,11 @@ function renderCalendar(slotMinutes, view, date)
             default: position = "top"; break;
          }
          element.tooltip({
-            animation: false,
-            title: content,
-            container: 'body',
-            placement: position      
+            animation : false,
+            title     : content,
+            container : 'body',
+            placement : position,
+            trigger   : "click"      
          });
          /*element.qtip(
          {
@@ -312,6 +313,7 @@ function renderCalendar(slotMinutes, view, date)
             }
             else if (global_options_obj["delete"] == true && !jsEvent.shiftKey)
             {
+               $(".fc-event").tooltip("hide");
                bootbox.confirm("Are you sure you want to delete this event?", function(result)
                {
                   if(result)
@@ -324,20 +326,17 @@ function renderCalendar(slotMinutes, view, date)
       },
       eventDragStart : function(event, jsEvent, ui, view)
       {
-         //$('.fc-event').qtip('hide');
       },
       eventDragStop : function(event, jsEvent, ui, view)
       {
-         //$('.fc-event').qtip('hide');
+         //$('body').tooltip('hide');
       },
       /* Function called when an event is droped onto the calendar. Simply calls the eventMove function.
        *
        */
       eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc)
       {
-         //$('.fc-event').qtip('hide');
          eventMove(event, dayDelta, minuteDelta, revertFunc, "dragged");
-
       },
       /* Function called when an event is resized on the calendar. Calls the eventMove function.
        *
