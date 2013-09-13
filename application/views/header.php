@@ -1,4 +1,4 @@
-<title>Scheduling Home</title>
+<title>Gazelle Scheduling - <? echo $brand ?></title>
 <body>
 	<div class="navbar navbar-inverse navbar-fixed-top" id="navbar">
       <div class="container" style='width: 100%; position: absolute; left: 10px;'>

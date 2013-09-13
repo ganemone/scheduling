@@ -1,4 +1,3 @@
-<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,4 +18,13 @@
 <link rel="stylesheet" media='screen' href="<? echo base_url() ?>js/plugins/jQuery-Impromptu-master/jquery-impromptu.css" />
 <link rel="stylesheet" media='screen' href="<? echo base_url() ?>js/plugins/bootstrap/css/bootstrap-notify.css" />
 <link rel="stylesheet" media='screen' href="<? echo base_url() ?>js/plugins/bootstrap/css/alert-bangtidy.css" />
+
+<!-- sparkline -->
+<script src="<? echo base_url() ?>js/plugins/sparkline.js"></script>
+<!-- morris charts and graphs 
+<script src="<? echo base_url() ?>js/plugins/morris/morris.min.js"></script>
+<script src="<? echo base_url() ?>js/plugins/morris/raphael.js"></script>
+<link rel="stylesheet" media='all'	  href="<? echo base_url() ?>js/plugins/morris/morris.css" />
+-->
+
 </head>

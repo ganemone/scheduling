@@ -66,33 +66,10 @@ $("#calendar").fullCalendar(
 });
 function initializeGoals()
 {
-   
    sendRequest("GET", url + "index.php/manager/initializeGoals", {}, function(msg) {
       global_goal_arr = jQuery.parseJSON(msg);
       return showGoals($("#calendar").fullCalendar("getView"));
    }, true);
-   /*
-   $.ajax(
-   {
-      type : "GET",
-      url : url + "index.php/manager/initializeGoals",
-      beforeSend: function(jqXHR, settings) {
-         showLoading();
-      },
-      success : function(msg)
-      {
-         global_goal_arr = jQuery.parseJSON(msg);
-         showGoals($("#calendar").fullCalendar("getView"));
-      },
-      error : function(textStatus, msg, error)
-      {
-         alert(error + " initializeGoals");
-      },
-      complete: function()
-      {
-         hideLoading();
-      }
-   });*/
 }
 
 function showGoals(view)
@@ -241,24 +218,6 @@ function deletePost(id)
             $("#message" + id).hide();
          },
          true);
-         /*
-         $.ajax(
-         {
-            type : "GET",
-            url : url + "index.php/news/deletePost",
-            data :
-            {
-               messageId : id
-            },
-            success : function(msg)
-            {
-               $("#message" + id).hide();
-            },
-            error : function(msg, textStatus, errorThrown)
-            {
-               error_handler(msg, textStatus, errorThrown, "SFL Calendar deletePost");
-            }
-         });*/
       }
    });
 }
@@ -287,29 +246,6 @@ function updatePost(id)
          return true;
       }, 
       true);
-      /*
-      $.ajax(
-      {
-         type : "GET",
-         url : url + "index.php/news/updateNewsfeedPost",
-         data :
-         {
-            employeeId : f.employeeId,
-            messageId : id,
-            message : text
-         },
-         success : function(msg)
-         {
-            if (msg == "false")
-               alert("Whoops, an error occured");
-            else
-               alert("You have successfully updated this post");
-         },
-         error : function(msg, textStatus, errorThrown)
-         {
-            error_handler(msg, textStatus, errorThrown, "SFL Calendar updateNewsfeedPost");
-         }
-      }); */
    });
 }
 
@@ -338,30 +274,6 @@ function addNewPost()
       },
       true);
       return true;   
-
-      /*
-      $.ajax(
-      {
-         type : "GET",
-         url : url + "index.php/news/addNewsfeedPost",
-         data :
-         {
-            employeeId : f.employeeId,
-            message : value
-         },
-         success : function(msg)
-         {
-            if (msg == "false")
-               alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
-            else
-               reloadNewsfeed();
-         },
-         error : function(msg, textStatus, errorThrown)
-         {
-            error_handler(msg, textStatus, errorThrown, "SFL Calendar addNewsfeedPost");
-         }
-      });*/
-        
    });
 
 }
@@ -373,20 +285,6 @@ function reloadNewsfeed()
    {
       $("#newsfeed").replaceWith(msg);
    }, true);
-   /*
-   $.ajax(
-   {
-      type : "GET",
-      url : url + "index.php/news/reloadNewsfeed",
-      success : function(msg)
-      {
-         $("#newsfeed").replaceWith(msg);
-      },
-      error : function(msg, textStatus, errorThrown)
-      {
-         alert("reloadNewsfeed " + errorThrown);
-      }
-   });*/
 }
 
 function addMissedSale()
@@ -529,55 +427,21 @@ function addStory()
          }, true);
       }
       return true;
-   })
-   /*$.prompt(form,
-   {
-      title : "Employee ID",
-      buttons :
-      {
-         "Submit" : 1,
-         "Cancel" : 0
-      },
-      loaded : function()
-      {
-         $("#impromptu_employeeId").focus();
-      },
-      submit : function(e, v, m, f)
-      {
-         if (v == 1)
-         {
-            ajaxAddStory(f);
-         }
-         return true;
-      }
-   });*/
+   });
 }
 
 function ajaxAddStory(employeeId, story)
 {
    
-   
-   /*
-   $.ajax(
+   sendRequest("POST", url + "index.php/sfl/addStory", {
+      date: date.toDateString(),
+      employeeId : employeeId,
+      story : story
+   }, function(msg)
    {
-      type : "POST",
-      url : url + "index.php/sfl/addStory",
-      data :
-      {
-         date: date.toDateString(),
-         employeeId : employeeId,
-         story : story
-      },
-      success : function(msg)
-      {
-         if (msg == "false")
-            alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
-      },
-      error : function(msg, textStatus, errorThrown)
-      {
-         alert("ajaxAddStory " + errorThrown);
-      }
-   }); */
+      if (msg == "false")
+         alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
+   }, false);   
 }
 
 function getEmailTemplate()
@@ -595,39 +459,6 @@ function getEmailTemplate()
       selectText("emailTemplate");
 
    }, true);
-   /*
-   $.ajax(
-   {
-      type : "GET",
-      url : url + "index.php/sfl/getEmailTemplate",
-      data: {
-         date: date.toDateString()
-      },
-      success : function(msg)
-      {
-         $.prompt(msg,
-         {
-            classes : "wide",
-            title : "Nightly Email for " + new Date().toDateString(),
-            buttons :
-            {
-               "Ok" : 1
-            },
-            loaded : function()
-            {
-               selectElementText($("#emailTemplate"));
-            },
-            submit : function(e, v, m, f)
-            {
-               return true;
-            }
-         });
-      },
-      error : function(msg, textStatus, errorThrown)
-      {
-         alert("getEmailTemplate" + errorThrown);
-      }
-   }); */
 }
 
 function selectText(element) {

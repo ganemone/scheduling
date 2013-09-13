@@ -43,27 +43,145 @@ class admin extends CI_Model
       $employees = array();
       foreach ($query->result() as $row)
       {
-         if($row->position == "SFL")
-            $row->sfl = true;
-         else
-            $row->sfl = false;
+         $employee = array();
+         if($row->position == "SFL") {
+            $employee["sfl"] = true;
+         }
+         else {
+            $employee["sfl"] = false;
+         }
 
-         if($row->groups != "")
-            $row->groups = explode(" ", $row->groups);
-         else
-            $row->groups = array();
+         $employee["firstName"] = $row->firstName;
+         $employee["lastName"] = $row->lastName;
+         $employee["position"] = $row->position;
+         $employee["employeeId"] = $row->id;
 
-         $employees[] = $row;        
+         $_query = $this->db->query("SELECT * FROM groups 
+            LEFT JOIN employee_groups 
+            ON employee_groups.group_id = groups.group_id 
+            WHERE employee_groups.employee_id = '$row->id'");
+         
+         if($_query->num_rows() == 0) {
+            $employee["groups"] = array();
+         }
+         foreach($_query->result() as $_row) {
+            $employee["groups"][] = $_row;
+         }
+
+         $employees[] = $employee;       
       }
       return $employees;
    }
+   function getGraphs($start, $end, $view)
+   {
+      $query = $this->db->query("SELECT * FROM groups");
+      $group_arr = array();
+      foreach($query->result() as $row) {
+         $group_arr[$row->name] = 0;
+      }
+      $group_arr["Male"] = 0;
+      $group_arr["Female"] = 0;
+
+      $query = $this->db->query("SELECT employees.groups, employees.gender 
+         FROM employees 
+         LEFT JOIN scheduled 
+         ON employees.id = scheduled.employeeId
+         WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
+
+      foreach ($query->result() as $row) {
+         
+         $emp_group_arr = explode(" ", $row->groups);
+         foreach ($emp_group_arr as $group) {
+            if(isset($group_arr[$group])) {
+               $group_arr[$group] = $group_arr[$group] + 1;
+            }
+         }
+
+         if($row->gender == "M") {
+            $group_arr["Male"]++;
+         }
+         else {
+            $group_arr["Female"]++;
+         }
+      }
+
+      $query = $this->db->query("SELECT scheduled.employeeId, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum 
+         FROM employees
+         LEFT JOIN scheduled
+         ON scheduled.employeeId = employees.id
+         AND scheduled.day >= '$start' && scheduled.day <= '$end'
+         LEFT JOIN weekInfo ON weekInfo.employeeId = scheduled.employeeId
+         AND weekInfo.month LIKE '" . date("Y-m", strtotime($start)) . "-%%'
+         GROUP BY scheduled.employeeId");
+      $emp_met = 0;
+      $emp_over = 0;
+      $emp_under = 0;
+      foreach ($query->result() as $row) {
+         $min = $row->minHours;
+         $max = $row->maxHours;
+   
+         if($view == "month") {
+            $min *= 4;
+            $max *= 4;
+         }
+         else if($view == "agendaDay") {
+            $min /= 4;
+            $max /= 4;
+         }
+
+         if($row->sum < $min) {
+            $emp_under++;
+         }
+         else if($row->sum > $max) {
+            $emp_over++;
+         }
+         else {
+            $emp_met++;
+         }
+
+      }
+      if($view == "agendaDay")
+      {
+         $graph_data = array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+
+         $query = $this->db->query("SELECT begin, end FROM scheduled WHERE day = '$start' && category != 'SP'");
+         foreach ($query->result() as $row) {
+            $start_num = date("H", strtotime($row->begin));
+            $end_num = date("H", strtotime($row->end));
+            while($start_num < $end_num) {
+               $start_num++;
+               $graph_data[$start_num - 6]++;
+            }
+         }
+         $graph_obj = array(
+            "type"  => "line",
+            "width" => 190,
+            "height" => 120);
+      }
+      else {
+         $graph_data = [$emp_met, $emp_under, $emp_over];
+         $graph_obj = array(
+            "type"        => "pie",
+            "sliceColors" => ['#468847','#c09853','#b94a48'],
+            "height"      => 120,
+            "borderColor" => "#000000");
+      }
+      $graph_data_two = $group_arr;
+      $graph_obj_two = array(
+         "type" => "bar",
+         "height" => 120,
+         "barWidth" => 15,
+         "chartRangeMin" => 0);
+
+      return [$graph_data, $graph_obj, $graph_data_two, $graph_obj_two];
+   }
    function getGroups()
    {
-      $query = $this->db->query("SELECT group_name FROM groups");
+      $query = $this->db->query("SELECT name, abbr FROM groups");
       $ret = array();
       foreach ($query->result() as $row)
       {
-         $ret[] = $row->group_name;
+         $ret[] = $row;
       }
       return $ret;
    }
@@ -75,7 +193,8 @@ class admin extends CI_Model
       $json = array();
       $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.*
       FROM scheduled 
-      LEFT JOIN employees ON scheduled.employeeId = employees.id");
+      LEFT JOIN employees ON scheduled.employeeId = employees.id
+      ORDER BY employees.firstName");
 
       foreach ($query->result() as $row)
       {
@@ -173,7 +292,7 @@ class admin extends CI_Model
                "position" => $row->position
             )));
          }
-         else if ($employee_obj[$row->employeeId]->available)
+         else if ($availability == "Custom" && $employee_obj[$row->employeeId]->available)
          {
             $color = '#32CD32';
             $startTime = Date("g:i a", strtotime($begin));
@@ -252,9 +371,8 @@ class admin extends CI_Model
    /*
     * Finalizes the current month being edited by the manager
     */
-   function finalizeSchedule($start)
+   function finalizeSchedule($date)
    {
-      $date = Date('Y-m-d', strtotime($start));
       $this->db->query("DELETE FROM settings WHERE id > 0");
       $this->db->query("INSERT INTO settings (viewable) VALUES ('$date')");
       return $date;
@@ -262,10 +380,9 @@ class admin extends CI_Model
 
    function createTemplate($employeeId, $title, $date)
    {
-      $startDate = Date('Y-m-d', strtotime($date));
-      $split = explode("-", $startDate);
+      $split = explode("-", $date);
       $endDate = Date('Y-m-d', mktime(0, 0, 0, $split[1], $split[2] + 6, $split[0]));
-      $query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$employeeId' && day >= '$startDate' && day <= '$endDate'");
+      $query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$employeeId' && day >= '$date' && day <= '$endDate'");
       $_query = $this->db->query("SELECT MAX(templateId) AS templateId FROM templates");
       $return = '';
       $templateId = 0;
@@ -329,69 +446,85 @@ class admin extends CI_Model
       return $this->db->query("DELETE FROM templates WHERE templateId = '$templateId'");
    }
 
-   function getInfoSpan($startDate, $endDate)
+   function getInfoSpan($start, $end)
    {
-      $start = Date('Y-m-d', strtotime($startDate));
-      $end = Date('Y-m-d', strtotime($endDate));
+      $query = $this->db->query("SELECT SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600*employees.wage) AS wages, 
+         SUM(TIME_TO_SEC(TIMEDIFF(end, begin))/3600) AS hours 
+         FROM scheduled 
+         LEFT JOIN employees 
+         ON scheduled.employeeId = employees.id 
+         WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
+      $result = $query->row_array();
 
-      $query = $this->db->query("SELECT SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600*employees.wage) FROM scheduled LEFT JOIN employees ON scheduled.employeeId = employees.id WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
-      $totalMoney = $query->row_array();
-
-      $hours = $this->db->query("SELECT SUM(TIME_TO_SEC(TIMEDIFF(end, begin))/3600) FROM scheduled WHERE day >= '$start' && day <= '$end'");
-      $hour_result = $hours->row_array();
-      //array_values($hours->row_array());
       $goal = $this->getGoal($start, $end, false);
-      $wages = $totalMoney['SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600*employees.wage)'];
-      $str = "<table><tr><th>Total Hours:</th><th> " . number_format($hour_result['SUM(TIME_TO_SEC(TIMEDIFF(end, begin))/3600)'], 1, '.', ',') . "</th></tr>";
-      $str .= "<tr><th>Total Wages:</th><th>$" . number_format($wages, 1, '.', ',') . "</th></tr>";
+
+      $str = "<table><tr><th>Total Hours:</th><th> " . number_format($result['hours'], 1, '.', ',') . "</th></tr>";
+      $str .= "<tr><th>Total Wages:</th><th>$" . number_format($result['wages'], 1, '.', ',') . "</th></tr>";
       $str .= "<tr><th>Sales Goal:</th><th>$" . number_format($goal, 1, '.', ',') . "</th></tr>";
-      $str .= "<tr><th>Labor Percentage:</th><th>" . number_format(($wages / $goal) * 100, 1, '.', ',') . "%</th></tr></table>";
+      $str .= "<tr><th>Labor Percentage:</th><th>";
+      if($goal > 0)
+      {
+         $str .= number_format(($result['wages'] / $goal) * 100, 1, '.', ',');
+      }
+      else
+      {
+         $str .= "0";
+      }
+      $str .= "%</th></tr></table>";
       return $str;
    }
 
-   function getEmployeeHourTotals($startDate, $endDate, $view)
+   function getEmployeeHourTotals($start, $end, $view)
    {
-      $start = Date('Y-m-d', strtotime($startDate));
-      $end = Date('Y-m-d', strtotime($endDate));
+      $graph_data = array();
       $array = array();
-      $q = $this->db->query("SELECT employeeId, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) FROM scheduled WHERE day >= '$start' && day <= '$end' GROUP BY employeeId");
+      $q = $this->db->query("SELECT scheduled.employeeId, employees.firstName, employees.lastName, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum 
+         FROM employees
+         LEFT JOIN scheduled
+         ON scheduled.employeeId = employees.id
+         AND scheduled.day >= '$start' && scheduled.day <= '$end'
+         LEFT JOIN weekInfo ON weekInfo.employeeId = scheduled.employeeId
+         AND weekInfo.month LIKE '" . date("Y-m", strtotime($start)) . "-%%'
+         GROUP BY employees.id");
+
+      $ret = "<table class='table table-striped table-condensed'><tr><th>Name</th><th>Scheduled</th><th>Desired</th></tr>";
+      
       foreach ($q->result() as $row)
       {
-         $employee_arr = array_values((array)$row);
-         $_q = $this->db->query("SELECT firstName, lastName FROM employees WHERE id='$employee_arr[0]'");
-         $month = Date("Y-m", strtotime($start));
-         $hpwInfo = $this->db->query("SELECT * FROM weekInfo WHERE month like '$month-%%' && employeeId = '$row->employeeId'");
-         $min = $max = "";
-         if ($hpwInfo->num_rows() > 0)
+         $min = $max = 0;
+         if ($row->minHours && $row->maxHours)
          {
-            $result = $hpwInfo->row();
-            $min = $result->minHours;
-            $max = $result->maxHours;
+            $min = $row->minHours;
+            $max = $row->maxHours;
             if ($view == 'month')
             {
                $min *= 4;
                $max *= 4;
             }
-            else if ($view == 'agendaDay' || $view == 'basicDay')
+            else if ($view == 'agendaDay')
             {
-               $min /= 4;
-               $max /= 4;
+               if($min > 0) $min /= 4;
+               if($max > 0) $max /= 4;
             }
          }
-         foreach ($_q->result() as $_row)
+         $class = "";
+         if($row->sum > $max)
          {
-            $style = "";
-            if (!($min == "") && !($max == ""))
-            {
-               if (($min - $employee_arr[1]) > 0)
-                  $style = "border:2px dotted blue";
-               else if (($max - $employee_arr[1]) < 0)
-                  $style = "border:2px dotted red";
-            }
-            array_push($array, "<tr><td>$_row->firstName", " $_row->lastName</td> ", "<td style='$style'>" . number_format($employee_arr[1], 2, '.', ',') . "</td><td style='$style'>" . "$min-$max" . "</tr>");
+            $class = "danger";
+         } 
+         else if($row->sum < $min)
+         {
+            $class = "warning";
          }
+         else
+         {
+            $class = "success";
+         }
+         $ret .= "<tr><td class='$class'>{$row->firstName}&nbsp{$row->lastName[0]}</td><td class='$class'>" . number_format($row->sum, 2, '.', ',') . "</td><td class='$class'>" . "$min-$max" . "</tr>";
       }
-      return json_encode($array);
+      $ret .= "</table>";
+
+      return $ret;
    }
 
    function getGoal($startDate, $endDate, $formatted = true)
@@ -432,13 +565,112 @@ class admin extends CI_Model
 
    function updateShiftCategory($id, $category)
    {
-      $query = $this->db->query("UPDATE scheduled SET category = '$category' WHERE id = '$id'");
-      return $query;
+      $this->db->query("UPDATE scheduled SET category = '$category' WHERE id = '$id'");
+      return $this->buildScheduledEventObj($id);
    }
 
    function updateSFL($id, $sfl)
    {
-      return $this->db->query("UPDATE scheduled SET sfl = '$sfl' WHERE id = '$id'");
+      $this->db->query("UPDATE scheduled SET sfl = '$sfl' WHERE id = '$id'");
+      return $this->buildScheduledEventObj($id);
+   }
+
+   function buildScheduledEventObj($event_id)
+   {
+      $query = $this->db->query("SELECT scheduled.*, event_settings.color, event_settings.border, employees.firstName, employees.lastName, employees.position
+         FROM scheduled 
+         LEFT JOIN event_settings 
+         ON scheduled.category = event_settings.category_abbr
+         LEFT JOIN employees
+         ON scheduled.employeeId = employees.id
+         WHERE scheduled.id='$event_id'");
+
+      foreach($query->result() as $row)
+      {
+         $_sfl = ($row->sfl == 1) ? "(SFL)" : "";
+
+         $start = Date('Y-m-d H:i:s', strtotime($row->day . " " . $row->begin));
+         $end = Date('Y-m-d H:i:s', strtotime($row->day . " " . $row->end));
+         $name = $row->firstName . " " . $row->lastName[0];
+         $event = false;
+         if ($row->sfl == 1)
+         {
+            $color = "#B81900";
+            $border = "#000000";
+         }
+         else if($row->color == null)
+         {
+            $color = "#790ead";
+            $border = "#790ead";
+            $event = true;
+         }
+         else
+         {
+            $color = "#" . $row->color;
+            $border = "#" . $row->border;
+         }
+
+         $id = md5("scheduled" . $row->id);
+         $ret = json_encode(array(
+            "id"          => md5("scheduled" . $row->id),
+            "employeeId"  => $row->employeeId,
+            "category"    => "scheduled",
+            "rowId"       => $row->id,
+            "title"       => $name . " (" . $row->category . ") " . $_sfl,
+            "start"       => "$start",
+            "end"         => "$end",
+            "color"       => $color,
+            "area"        => $row->category,
+            "position"    => $row->position,
+            "sfl"         => $row->sfl,
+            "allDay"      => false,
+            "event"       => $event,
+            'borderColor' => $border
+         ));
+      }
+      return $ret;
+   }
+   function buildAvailabilityEventObj($event_id)
+   {
+      $query = $this->db->query("SELECT hours.*, event_settings.color, event_settings.border, employees.firstName, employees.lastName, employees.position
+         FROM hours 
+         LEFT JOIN event_settings 
+         ON hours.availability = event_settings.category_name
+         LEFT JOIN employees
+         ON hours.employeeId = employees.id
+         WHERE hours.id='$event_id'");
+
+      $row = $query->result();
+      if($row->start == "00:00:00")
+      {
+         $start = date("Y-m-d", strtotime($row->day));
+         $end = null;
+         $all_day = true;
+      }
+      else
+      {
+         $start = date("Y-m-d H:i:s", strtotime($row->day . " " . $row->start));
+         $end = date("Y-m-d H:i:s", strtotime($row->day . " " . $row->end));
+         $all_day = false;
+      }
+
+      $id = md5("scheduled" . $row->id);
+      return json_encode(array(
+         "id"          => md5("scheduled" . $row->id),
+         "employeeId"  => $row->employeeId,
+         "category"    => "scheduled",
+         "rowId"       => $row->id,
+         "title"       => $row->firstName . " " . $row->lastName[0] . " (" . $row->category . ") " . $_sfl,
+         "start"       => $start,
+         "end"         => $end,
+         "color"       => "#" + $row->color,
+         "area"        => $row->category,
+         "position"    => $row->position,
+         "sfl"         => $row->sfl,
+         "allDay"      => $all_day,
+         "event"       => $row->event,
+         'borderColor' => "#" + $row->border
+      ));
    }
 
    function coEventSource($array = array())
@@ -449,7 +681,7 @@ class admin extends CI_Model
          $array[] = json_encode(array(
             "id" => md5("events$row->id"),
             "rowId" => $row->id,
-            "title" => $row->title,
+            "title" => $row->title . " (" . date("g:i a", strtotime($row->start)) . "-" . date("g:i a", strtotime($row->end)) . ")",
             "allDay" => true,
             "start" => $row->date . " " . $row->start,
             "end" => $row->date . " " . $row->end,
@@ -462,8 +694,9 @@ class admin extends CI_Model
       return $array;
    }
 
-   function addCOEvent($title, $date, $start, $end, $location, $repeating, $finalDate)
+   function addExternalEvent($title, $date, $start, $end, $location, $repeating, $finalDate)
    {
+      $finalDate = date("Y-m-d", strtotime($finalDate));
       if ($repeating == 0)
       {
          $query = $this->db->query("INSERT INTO events (title, date, start, end, location, repeating) VALUES ('$title', '$date','$start', '$end','$location','$repeating')");
@@ -479,105 +712,113 @@ class admin extends CI_Model
          {
             $query = $this->db->query("INSERT INTO events (title, date, start, end, location, repeating) VALUES ('$title', '$_date', '$start', '$end', '$location', '$repeating')");
             $increment += 7 * $repeating;
-            if ($repeating == 4)
+            /*if ($repeating == 4)
                $_date = Date("Y-m-d", strtotime("+$counter months", $time));
-            else
+            else */
                $_date = Date("Y-m-d", strtotime("+$increment days", $time));
             $counter++;
          }
       }
-      return $query;
+      return true;
    }
    function scheduleEmployeeTemplate($employeeId_arr, $day_arr, $begin_arr, $end_arr, $category_arr)
    {
       $ret = array();
       $refetch = false;
-      for ($i=0; $i < count($employeeId_arr); $i++) 
-      {
-         for ($j=0; $j < count($day_arr); $j++) 
-         { 
-            $result = json_decode($this->scheduleEmployeeFloor($employeeId_arr[$i], date("Y-m-d", strtotime($day_arr[$j])), date("H:i:s", strtotime($begin_arr[$j])), date("H:i:s", strtotime($end_arr[$j])), $category_arr[$j], 0));
-            if($result[1] == false && $refetch == false)
-            {
-               $refetch = false;
-            }
-            else
-            {
-               $refetch = true;
-            }
-            $ret[] = $result[0];
-         }
+      for ($j=0; $j < count($day_arr); $j++) 
+      { 
+         $this->scheduleEmployeeFloor($employeeId_arr, $day_arr[$j], $begin_arr[$j], $end_arr[$j], $category_arr[$j], 0);
       }
-      $ret[] = $refetch;
-      return $ret;
+      return true;
    }
-   function scheduleEmployeeFloor($employeeId, $day, $begin, $end, $category, $sfl)
+   function scheduleEmployeeFloor($employee_arr, $day, $begin, $end, $category, $sfl)
    {
-      $ids = $this->getOverlappingEvents($employeeId, $day, $begin, $end);
-      $refetch = (count($ids) > 0) ? true : false;
-      
-      $calIds = array();
-      foreach ($ids as $value)
+       $ret = array();
+      foreach ($employee_arr as $employeeId) 
       {
-         $calIds[] = md5("scheduled$value");
-         $this->db->query("DELETE FROM scheduled WHERE id='$value'");
+         $ids = $this->getOverlappingEvents($employeeId, $day, $begin, $end);
+         $refetch = (count($ids) > 0) ? true : false;
+         
+         $calIds = array();
+         foreach ($ids as $value)
+         {
+            $calIds[] = md5("scheduled$value");
+            $this->db->query("DELETE FROM scheduled WHERE id='$value'");
+         }
+         $_query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, SFL) values ('$employeeId','$day','$begin','$end','$category','$sfl')");
+         $query = $this->db->query('SELECT LAST_INSERT_ID()');
+         $result = $query->result_array();
+         $id = $result[0]['LAST_INSERT_ID()'];
+         $query = $this->db->query("SELECT firstName, lastName, position FROM employees WHERE id = '$employeeId'");
+         $row = $query->row();
+         $array = array(
+            "id" => $id,
+            "firstName" => $row->firstName,
+            "lastName" => $row->lastName,
+            "position" => $row->position,
+            "employeeId" => $employeeId,
+            "date" => $day,
+            "start" => $begin,
+            "end" => $end,
+            "event" => "false",
+            "category" => $category,
+            "sfl" => $sfl
+         );
+         $ret[] = json_encode(array($this->makeScheduledJSON($array), $refetch));
       }
-      $_query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, SFL) values ('$employeeId','$day','$begin','$end','$category','$sfl')");
-      $query = $this->db->query('SELECT LAST_INSERT_ID()');
-      $result = $query->result_array();
-      $id = $result[0]['LAST_INSERT_ID()'];
-      $query = $this->db->query("SELECT firstName, lastName, position FROM employees WHERE id = '$employeeId'");
-      $row = $query->row();
-      $array = array(
-         "id" => $id,
-         "firstName" => $row->firstName,
-         "lastName" => $row->lastName,
-         "position" => $row->position,
-         "employeeId" => $employeeId,
-         "date" => $day,
-         "start" => $begin,
-         "end" => $end,
-         "event" => "false",
-         "category" => $category,
-         "sfl" => $sfl
-      );
-      $json[] = $this->makeScheduledJSON($array);
-      $json[] = $refetch;
-      return json_encode($json);
+      return json_encode($ret);
    }
 
-   function scheduleEmployeeEvent($employeeId, $date, $start, $end, $eventTitle)
+   function scheduleEmployeeEvent($employee_arr, $date, $start, $end, $eventTitle)
    {
-      $ids = $this->getOverlappingEvents($employeeId, $date, $start, $end);
-      $refetch = (count($ids) > 0) ? true : false;
-      $calIds = array();
-      foreach ($ids as $value)
+      $ret = array();
+      foreach ($employee_arr as $employeeId) 
       {
-         $calIds[] = md5("scheduled$value");
-         $this->db->query("DELETE FROM scheduled WHERE id='$value'");
+         $ids = $this->getOverlappingEvents($employeeId, $date, $start, $end);
+         $refetch = (count($ids) > 0) ? true : false;
+         $calIds = array();
+         foreach ($ids as $value)
+         {
+            $calIds[] = md5("scheduled$value");
+            $this->db->query("DELETE FROM scheduled WHERE id='$value'");
+         }
+         $_query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, SFL) values ('$employeeId','$date','$start','$end','$eventTitle','0')");
+         $query = $this->db->query("SELECT firstName, lastName, position FROM employees WHERE id='$employeeId'");
+         $row = $query->row();
+         $query = $this->db->query('SELECT LAST_INSERT_ID()');
+         $result = $query->result_array();
+         $id = $result[0]['LAST_INSERT_ID()'];
+         $array = array(
+            "id" => $id,
+            "firstName" => $row->firstName,
+            "lastName" => $row->lastName,
+            "position" => $row->position,
+            "employeeId" => $employeeId,
+            "date" => $date,
+            "start" => $start,
+            "end" => $end,
+            "event" => "true",
+            "category" => $eventTitle,
+            "sfl" => 0
+         );
+         $ret[] = json_encode(array($this->makeScheduledJSON($array), $refetch));
       }
-      $_query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, SFL) values ('$employeeId','$date','$start','$end','$eventTitle','0')");
-      $query = $this->db->query("SELECT firstName, lastName, position FROM employees WHERE id='$employeeId'");
-      $row = $query->row();
-      $query = $this->db->query('SELECT LAST_INSERT_ID()');
-      $result = $query->result_array();
-      $id = $result[0]['LAST_INSERT_ID()'];
-      $array = array(
-         "id" => $id,
-         "firstName" => $row->firstName,
-         "lastName" => $row->lastName,
-         "position" => $row->position,
-         "employeeId" => $employeeId,
-         "date" => $date,
-         "start" => $start,
-         "end" => $end,
-         "event" => "true",
-         "category" => $eventTitle,
-         "sfl" => 0
-      );
-      $json[] = $this->makeScheduledJSON($array);
-      $json[] = $refetch;
-      return json_encode($json);
+      return json_encode($ret);
+   }
+   function updateScheduledEvent($shift_id, $employee_id, $date, $start, $end)  
+   {
+      $ids = $this->getOverlappingEvents($employee_id, $date, $start, $end, $shift_id);
+
+      $this->db->where("id", $shift_id);
+      $this->db->update("scheduled", array("day" => $date, "begin" => $start, "end" => $end));
+   
+      if(count($ids) > 0)
+      {
+         $this->db->where_in("id", $ids);
+         $this->db->delete("scheduled");
+      }
+
+      return json_encode($ids);
    }
 
    function makeScheduledJSON($infoArray)
@@ -618,31 +859,19 @@ class admin extends CI_Model
       return $json;
    }
 
-   function getOverlappingEvents($employeeId, $day, $start, $end)
+   function getOverlappingEvents($employeeId, $day, $start, $end, $shift_id = 0)
    {
-      $query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$employeeId' && day = '$day'");
+      $query = $this->db->query("SELECT id, day, begin, end FROM scheduled WHERE employeeId = '$employeeId' && day = '$day' && id != '$shift_id'");
       $ids = array();
       foreach ($query->result() as $row)
       {
-         if ($start >= $row->end || $end <= $row->begin)
-            continue;
-         if ($start < $row->begin)
-         {
-            if ($end > $row->begin)
-            {
-               $ids[] = $row->id;
-            }
-         }
-         else if ($start = $row->begin)
+         if($start >= $row->begin && $start <= $row->end)
          {
             $ids[] = $row->id;
          }
-         if($end < $row->end)
+         else if($row->begin >= $start && $row->begin <= $end)
          {
-            if($end > $row->begin)
-            {
-               $ids[] = $row->id;
-            }
+            $ids[] = $row->id;
          }
       }
       return $ids;

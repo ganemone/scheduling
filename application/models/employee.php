@@ -159,14 +159,42 @@ class employee extends CI_Model
 
    function updateHour($employeeId, $date, $available, $begin, $end)
    {
-
       $query = $this->db->query("SELECT id FROM hours WHERE employeeId='$employeeId' && day = '$date'");
       $result = $query->row();
-      $id = $result->id;
-      $this->db->query("DELETE FROM hours WHERE id='$id'");
-      $result = $this->db->query("INSERT INTO hours (employeeId,day,available,begin,end)
-		VALUES ('$employeeId','$date','$available','$begin','$end')");
-      return $id;
+      $id = 0;
+      if($query->num_rows > 0) {
+         $this->db->query("DELETE FROM hours WHERE id='{$result->id}'");
+         $id = $result->id;
+      }
+      $insert_arr = array("employeeId" => $employeeId, "day" => $date, "available" => $available, "begin" => $begin, "end" => $end);
+      $insert = $this->db->insert("hours", $insert_arr);
+      $result_arr = $this->db->query("SELECT hours.*, event_settings.color FROM hours LEFT JOIN event_settings ON event_settings.category_name = hours.available WHERE hours.employeeId = '$employeeId' && hours.day = '$date'")->row();
+      return [$id, $this->buildAvailableEvent($result_arr)];      
+   }
+   function buildAvailableEvent($row)
+   {
+      $allDay; $title;
+      $start = "";
+      $end = "";
+      if($row->available == "Custom") {
+         $start = " " . $row->begin;
+         $end = " " . $row->end;
+         $allDay = false;
+         $description = "This means you are available for the times listed below.  You can drag this to another day to duplicate it!";
+      }
+      else {
+         $allDay = true;
+         $description = "This means you are " . strtolower($row->available) . " for the entire day.";
+      }
+      return array(
+         "title"  => ($row->available == "Custom") ? "" : $row->available,
+         "allDay" => $allDay,
+         "start"  => $row->day . $start,
+         "end"    => $row->day . $end,
+         "color"  => "#" . $row->color,
+         "tip"    => $description,
+         "id"     => $row->id
+      );
    }
 
    function getFinalizedDate()
@@ -323,9 +351,7 @@ class employee extends CI_Model
    function popMonthInfoForm($employeeId, $month)
    {
       $employeeId = $this->input->cookie('EmployeeId');
-      $_month = Date("Y-m-d", strtotime($month));
-      $month2 = Date("Y-m-d", strtotime($_month . "Next Month"));
-      $query = $this->db->query("SELECT * FROM weekInfo WHERE employeeId = '$employeeId' && month = '$_month'");
+      $query = $this->db->query("SELECT * FROM weekInfo WHERE employeeId = '$employeeId' && month = '$month'");
 
       if ($query->num_rows() > 0)
          return $query->row();
@@ -369,15 +395,16 @@ class employee extends CI_Model
          if ($oldId != $newId)
             return json_encode(array("false", $ret_arr[1]));
       }
-      if ($start == $result->begin && $end == $result->end)
+      if ($start == $result->begin && $end == $result->end) {
          $this->employeeShiftSwap($oldId, $newId, $eventId);
+      }
       else if ($start > $result->begin)
       {
          $query = $this->db->query("UPDATE scheduled SET end = '$start' WHERE id = '$eventId'");
          $query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, sfl) values ('$newId','$result->day', '$start','$end', '$result->category', '$result->sfl')");
          if ($end < $result->end)
          {
-            $query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, sfl) values ('$oldId', '$result->day','$end', '$result->end', '$result->category','$result->sfl)");
+            $query = $this->db->query("INSERT INTO scheduled (employeeId, day, begin, end, category, sfl) values ('$oldId', '$result->day','$end', '$result->end', '$result->category','$result->sfl')");
             $query = $this->db->query('SELECT LAST_INSERT_ID()');
             $row = $query->row_array();
             $this->inputScheduleRequest($row['LAST_INSERT_ID()']);
@@ -410,13 +437,15 @@ class employee extends CI_Model
                {
                   $this->db->query("UPDATE scheduled SET end = '$previousEnd' WHERE id='$row->id'");
                   $this->db->query("DELETE FROM scheduled WHERE id='$previousId'");
+                  return $this->mergeShifts($day, $employeeId);
                }
                else if ($previousEnd == $row->begin)
                {
                   $this->db->query("UPDATE scheduled SET begin = '$previousStart' WHERE id='$row->id'");
                   $this->db->query("DELETE FROM scheduled WHERE id='$previousId'");
+                  return $this->mergeShifts($day, $employeeId);
                }
-               return $this->mergeShifts($day, $employeeId);
+               
             }
             $previousStart = $row->begin;
             $previousEnd = $row->end;
@@ -527,30 +556,6 @@ class employee extends CI_Model
       }
       return $_json;
    }
-
-   /*function getEmptyShifts()
-    {
-    $query = $this->db->query("SELECT * FROM emptyShifts");
-    $array = array();
-    foreach ($query->result() as $row)
-    {
-    $prettyStart = Date("g:i a", strtotime($row->start));
-    $prettyEnd = Date("g:i a", strtotime($row->end));
-    $array[] = json_encode(array(
-    "title" => "Pick Up Shift ($row->category)",
-    "description" => "We need more hours on $row->date.  Would you like to pick up a shift from $prettyStart until $prettyEnd on $row->date?",
-    "start" => "$row->date $row->start",
-    "end" => "$row->date $row->end",
-    "allDay" => false,
-    "tip" => "We need more hours on this date. Click on the shift to help out!",
-    "color" => "RED",
-    "category" => "emptyShifts",
-    "shiftId" => $row->id,
-    "position" => "$row->category"
-    ));
-    }
-    return $array;
-    }*/
 
    function pickUpEmptyShift($employeeId, $start, $end, $date, $position, $sfl, $shiftId)
    {

@@ -1,9 +1,7 @@
 <html>
 	<style type='text/css'>
 	    #calendar {
-	    	height: 90%;
-	        margin: 10px;
-	        padding-bottom: 50px;
+	    	height: 85%;
 	        position: absolute;
 	        right: 5px;
 	        top: 50px;
@@ -29,7 +27,7 @@
 			display:none;
 			width: 190px;
 			padding: 0 10px 10px 0px;
-			margin: 0 0 0 10px;
+			margin: 10px 0 0 10px;
 			border: 1px solid #ccc;
 	        background: #eee;
 	        text-align: left;
@@ -71,6 +69,22 @@
 			position: relative;
 			top: 0px;
 		}
+		#statistics, #graphs {
+			width: 101%;
+			height: 75%;
+			margin: 10px 0 0 0;
+			padding: 0px;
+			overflow-y: scroll;
+			overflow-x: hidden;
+		}
+		#graphs div {
+			margin-left: 20px;
+		}
+		.sparkline-tooltip {
+			width: 50px;
+			background: #000000;
+		}
+
 		.adminNav {
    			width: 250px;
    			padding: 20px 5px 5px 5px;

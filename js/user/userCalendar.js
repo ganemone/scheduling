@@ -128,8 +128,13 @@ $('#calendar').fullCalendar(
          bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
    },
+   eventDragStart : function() {
+      $(".fc-event").tooltip("hide");
+      $(".fc-event").tooltip("disable");
+   },
    eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view)
    {
+      $(".fc-event").tooltip("enable");
       var draggedEvent, start, _start, end, _end;
       if(!isLockedOut(event.start) && event.category == 'availability')
       {
@@ -162,7 +167,7 @@ $('#calendar').fullCalendar(
             };
             updateEvent(draggedEvent.title, start, true, '', '');
          }
-         $("#calendar").fullCalendar("renderEvent", draggedEvent);
+         //$("#calendar").fullCalendar("renderEvent", draggedEvent);
       }
       else if(event.category == 'availability')
       {

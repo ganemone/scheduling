@@ -41,10 +41,12 @@ class Site extends CI_Controller
       // Validates the form
       if ($this->form_validation->run() == FALSE)
       {
+         $this->data['brand'] = "Gazelle Sports Scheduling";
+         $this->data['menu_items'] = array();
          $this->data['loginErrors'] = validation_errors();
+         $this->load->view('includes.php');
+         $this->load->view('header.php', $this->data);
          $this->load->view('/indexForms/home', $this->data);
-         $this->load->view('footer.php');
-         
       }
       else
       {
@@ -55,10 +57,12 @@ class Site extends CI_Controller
          $result = $this->employee->login($employeeId, $password);
          if($result === false)
          {
+            $this->data['brand'] = "Gazelle Sports Scheduling";
+            $this->data['menu_items'] = array();
             $this->data['loginErrors'] = "Incorrect Password/ID Combination";
+            $this->load->view('includes.php');
+            $this->load->view('header.php', $this->data);
             $this->load->view('/indexForms/home', $this->data);
-            $this->load->view('footer.php');
-            
          }
          else
          {

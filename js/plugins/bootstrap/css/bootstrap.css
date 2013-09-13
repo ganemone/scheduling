@@ -2058,7 +2058,7 @@ input[type="button"].btn-block {
 
 @media (min-width: 768px) {
   .form-horizontal .control-label {
-    text-align: right;
+    text-align: left;
   }
 }
 
@@ -2108,6 +2108,7 @@ input[type="button"].btn-block {
 
 .dropdown-menu > li > a {
   display: block;
+  position: relative !important;
   padding: 3px 20px;
   clear: both;
   font-weight: normal;
@@ -3536,7 +3537,7 @@ button.close {
 .modal {
   position: fixed;
   top: 10%;
-  left: 50%;
+  left: 55%;
   z-index: 1050;
   max-width: 560px;
   min-width: 200px;
@@ -4114,11 +4115,11 @@ a.thumbnail:focus {
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
-  color: #ffffff;
+  color: #222;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  background-color: #999999;
+  background-color: #fff;
   border-radius: 10px;
 }
 

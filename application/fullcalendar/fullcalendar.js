@@ -1610,12 +1610,14 @@ function _exclEndDay(end, allDay) {
 
 
 function segCmp(a, b) {
-	return (b.msLength - a.msLength) * 100 + (a.event.start - b.event.start);
+	return a.title - b.title;
+	//return (b.msLength - a.msLength) * 100 + (a.event.start - b.event.start);
 }
 
 
 function segsCollide(seg1, seg2) {
-	return seg1.end > seg2.start && seg1.start < seg2.end;
+	return true;
+	//return seg1.end > seg2.start && seg1.start < seg2.end;
 }
 
 

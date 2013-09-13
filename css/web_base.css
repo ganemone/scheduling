@@ -32,6 +32,9 @@ footer #bottomSpan {
 .toolbar-btn {
    width: 150px;
 }
+/*----------------- */
+/* Button Dropdowns */
+/*----------------- */
 .btn-group {
    width: 150px !important;
 }
@@ -45,6 +48,14 @@ footer #bottomSpan {
    position: absolute; right: 8px;
    top: 5px;
 }
+/* Left Menu Buttons */
+.btn-menu {
+   width: 140px;
+   text-align: left !important;
+}
+/*----------------- */
+/* External Events  */
+/*----------------- */
 #external-events {
    width: 260px;
    padding: 0 10px;
@@ -156,7 +167,9 @@ footer #bottomSpan {
    overflow-y: scroll;
    overflow-x: hidden;
 }
-
+/* -------- */
+/* Loading  */
+/* -------- */
 .overlay {
    display:none;
    background-color: white;
@@ -184,6 +197,18 @@ footer #bottomSpan {
    z-index: 3000;
    background: black;
 }
+
+/* ---------------- */
+/* Right Click Menus */
+/* ---------------- */
+.dropdown ul li a {
+   position: relative;
+}
+.dropdown ul li a input {
+   position: absolute;
+   right: 10px;
+   top: 0px;
+}
 /* ---------------- */
 /* Newsfeed */
 /* ---------------- */
@@ -199,13 +224,15 @@ footer #bottomSpan {
       margin-left: 40px;
    }
 }
-
+/*------------ */
+/* Form Styles */
+/*------------ */
 .form-group .border-label {
    text-align: center !important;
-   border: 1px solid black;
+   /*border: 1px solid black;*/
    -webkit-border-radius: 4px;
    -moz-border-radius: 4px;
    border-radius: 4px;
-   margin: 0px 5px 0px 10px;
+   margin: 0px 5px 5px 10px;
    padding-bottom: 5px;
 }

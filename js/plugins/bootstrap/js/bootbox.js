@@ -100,8 +100,8 @@ var bootbox = window.bootbox || (function(document, $) {
         var str         = "",
             labelCancel = _translate('CANCEL'),
             labelOk     = _translate('CONFIRM'),
-            cb          = null;
-
+            cb          = null,
+            onShow      = null;
         switch (arguments.length) {
             case 1:
                 str = arguments[0];
@@ -129,8 +129,15 @@ var bootbox = window.bootbox || (function(document, $) {
                 labelOk     = arguments[2];
                 cb          = arguments[3];
                 break;
+            case 5:
+                str         = arguments[0];
+                labelCancel = arguments[1];
+                labelOk     = arguments[2];
+                cb          = arguments[3];
+                onShow      = arguments[4];
+                break;
             default:
-                throw new Error("Incorrect number of arguments: expected 1-4");
+                throw new Error("Incorrect number of arguments: expected 1-5");
         }
 
         var cancelCallback = function() {
@@ -142,6 +149,12 @@ var bootbox = window.bootbox || (function(document, $) {
         var confirmCallback = function() {
             if (typeof cb === 'function') {
                 return cb(true);
+            }
+        };
+
+        var onShowFunction = function() {
+            if (typeof onShow == 'function') {
+                return onShow();
             }
         };
 
@@ -160,7 +173,7 @@ var bootbox = window.bootbox || (function(document, $) {
         }], {
             // escape key bindings
             "onEscape": cancelCallback
-        });
+        }, onShowFunction);
     };
 
     that.prompt = function(/*str, labelCancel, labelOk, cb, defaultVal*/) {
@@ -269,7 +282,7 @@ var bootbox = window.bootbox || (function(document, $) {
         return div;
     };
 
-    that.dialog = function(str, handlers, options) {
+    that.dialog = function(str, handlers, options, onShowFunction) {
         var buttons    = "",
             callbacks  = [];
 
@@ -315,7 +328,6 @@ var bootbox = window.bootbox || (function(document, $) {
                     handlers[i]['callback'] = handlers[i][j];
                 }
             }
-
             if (typeof handlers[i]['callback']== 'function') {
                 callback = handlers[i]['callback'];
             }
@@ -347,7 +359,6 @@ var bootbox = window.bootbox || (function(document, $) {
             else {
                 href = _defaultHref;
             }
-
             buttons = "<a data-handler='"+i+"' class='"+_class+"' href='" + href + "'>"+icon+""+label+"</a>" + buttons;
 
             callbacks[i] = callback;
@@ -493,7 +504,10 @@ var bootbox = window.bootbox || (function(document, $) {
         if (typeof options.show === 'undefined' || options.show === true) {
             div.modal("show");
         }
-
+        if (typeof onShowFunction == "function")
+        {
+            onShowFunction();
+        }
         return div;
     };
 

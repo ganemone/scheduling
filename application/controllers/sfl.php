@@ -10,6 +10,7 @@ class sfl extends CI_Controller
       $this->load->helper('url');
       $this->load->model("leader");
       $this->load->model("newsfeed");
+      $this->load->model("validator");
       $this->load->library('email');
       $this->load->library('user_agent');
       $this->info['mobile'] = $this->agent->is_mobile();
@@ -20,35 +21,40 @@ class sfl extends CI_Controller
 
    function index()
    {
-      $this->info['userId'] = $this->input->cookie("employeeId");
-      if (!($this->info))
+      $this->info['userId'] = $this->input->cookie("EmployeeId");
+      if (!($this->info)) {
          header("location: " . base_url() . "index.php/site");
-      else
-      {
-         $this->info['events'] = "FALSE";
-         $this->info['support'] = "FALSE";
-         
-         $this->info['menu_items'] = array(
-         "Calendar Actions" => array(
-            "id='missedSale' onclick='addMissedSale()'" => "Missed Sale",
-            "id='story' onclick='addStory()'" => "Employee Actions",
-            "id='nightlyEmail' onclick='getEmailTemplate()'" => "Nightly Email",
-            "id='printSchedule'" => "Printable Schedule"
-         ),
-         "Calendar Options" => array(
-            "id='toggleSupportStaff'" => "Support Staff",
-            "id='toggleStoreEvents'" => "Store Events"
-         ),
-         "href='" . base_url() . "index.php/user'" => "Home",
-         "href='" . base_url() . "index.php/user/logout'" => "Log Out");
-
-         $this->load->view("includes");
-         $this->load->view("header.php", $this->info);
-         $this->load->view("/sfl/sflCSS.html");
-
-         $this->getNewsfeed();
-         $this->load->view("/sfl/sflCalendar", $this->info);
       }
+      if (!$this->validator->valid_employee_id($this->info['userId'])) {
+         header("location: " . base_url() . "index.php/site");
+      }
+      
+      if(!$this->validator->valid_sfl($this->info['userId'])) {
+         header("location: " . base_url() . "index.php/site");
+      }
+      $this->info['events'] = "FALSE";
+      $this->info['support'] = "FALSE";
+      
+      $this->info['menu_items'] = array(
+      "Calendar Actions" => array(
+         "id='missedSale' onclick='addMissedSale()'" => "Missed Sale",
+         "id='story' onclick='addStory()'" => "Employee Actions",
+         "id='nightlyEmail' onclick='getEmailTemplate()'" => "Nightly Email",
+         "id='printSchedule'" => "Printable Schedule"
+      ),
+      "Calendar Options" => array(
+         "id='toggleSupportStaff'" => "Support Staff",
+         "id='toggleStoreEvents'" => "Store Events"
+      ),
+      "href='" . base_url() . "index.php/user'" => "Home",
+      "href='" . base_url() . "index.php/user/logout'" => "Log Out");
+
+      $this->load->view("includes");
+      $this->load->view("header.php", $this->info);
+      $this->load->view("/sfl/sflCSS.html");
+
+      $this->getNewsfeed();
+      $this->load->view("/sfl/sflCalendar", $this->info);
    }
 
    function printable()
@@ -62,7 +68,6 @@ class sfl extends CI_Controller
          $this->info['support'] = $this->input->get("support");
 
          $this->load->view("includes");
-         //$this->load->view("/sfl/sflCSS.html");
          $this->load->view("/sfl/print.php");
          $this->load->view("/sfl/sflCalendar", $this->info);
       }
@@ -114,7 +119,13 @@ class sfl extends CI_Controller
       $size = mysql_real_escape_string($this->input->post('size'));
       $date = Date("Y-m-d");
       $price = $this->input->post('price');
-      echo $this->leader->addMissedSale($style, $color, $desc, $size, $price, $date);
+
+      $result = "error";
+
+      if($this->validator->valid_date($date)) {
+         $result = $this->leader->addMissedSale($style, $color, $desc, $size, $price, $date);
+      }
+      echo $result;
    }
    
    function addStory()
@@ -122,7 +133,12 @@ class sfl extends CI_Controller
       $employeeId = mysql_real_escape_string($this->input->post("employeeId"));
       $story = mysql_real_escape_string($this->input->post("story"));
       $date = Date("Y-m-d", strtotime($this->input->post("date")));
-      echo $this->leader->addStory($employeeId, $story, $date);
+
+      $result = "error";
+      if($this->valid_date($date)) {
+         $result = $this->leader->addStory($employeeId, $story, $date);
+      }
+      echo $result;
    }
    
    function getEmailTemplate()

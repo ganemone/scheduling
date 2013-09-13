@@ -12,6 +12,7 @@ class User extends CI_Controller
       $this->load->model('employee');
       $this->load->model('emailer');
       $this->load->model('newsfeed');
+      $this->load->model('validator');
       $this->employeeInfo['employeeId'] = $this->input->cookie('EmployeeId');
       $this->employeeInfo['permissions'] = $this->input->cookie('permissions');
       $cookie = array(
@@ -147,11 +148,21 @@ class User extends CI_Controller
    function updateHourAction()
    {
       $employeeId = $_POST['employeeId'];
-      $date = $_POST['day'];
-      $available = $_POST['available'];
-      $begin = $_POST['begin'];
-      $end = $_POST['end'];
-      $result = $this->employee->updateHour($employeeId, $date, $available, $begin, $end);
+      $date       = date("Y-m-d", strtotime($_POST['day']));
+      $available  = $_POST['available'];
+      $begin      = date("H:i:s", strtotime($_POST['begin']));
+      $end        = date("H:i:s", strtotime($_POST['end']));
+
+      $result = "error";
+
+      if($this->validator->valid_employee_id($employeeId) &&
+         $this->validator->valid_date($date) &&
+         $this->validator->valid_availability($available) && 
+         (($available == "Custom" && $this->validator->valid_time($begin) && $this->validator->valid_time($end)) || $available == "Available" || $available == "Busy")) {
+
+         $result = json_encode($this->employee->updateHour($employeeId, $date, $available, $begin, $end));
+      }
+      
       echo $result;
    }
 
@@ -164,13 +175,18 @@ class User extends CI_Controller
       $min = $_POST['min'];
       $max = $_POST['max'];
       $notes = mysql_real_escape_string($_POST['notes']);
-      $result = $this->employee->insertMonthInfo($employeeId, $_date_, $min, $max, $notes);
+      $result = "error";
+      
+      if($this->validator->valid_date($_date_) && $this->validator->valid_employee_id($employeeId)) {
+         $result = $this->employee->insertMonthInfo($employeeId, $_date_, $min, $max, $notes);
+      }
+      
       echo $result;
    }
 
    function populateMonthInfoForm()
    {
-      $month = $this->input->post('month');
+      $month = date("Y-m-01", strtotime($this->input->post('month')));
       $employeeId = $this->input->post('employeeId');
       $result = $this->employee->popMonthInfoForm($employeeId, $month);
       echo json_encode($result);
@@ -200,10 +216,17 @@ class User extends CI_Controller
       $employeeId = $this->input->post('employeeId');
       $originalEmployeeId = $this->input->post('originalEmployeeId');
       $eventId = $this->input->post('eventId');
-      $result = $this->employee->employeeShiftSwap($originalEmployeeId, $employeeId, $eventId);
-      if ($result[0] !== "false")
-         $this->emailer->shiftSwap($employeeId, $originalEmployeeId, $eventId);
-      echo json_encode($result);
+      
+      $result = "error";
+
+      if($this->validator->valid_employee_id($employeeId) && $this->validator->valid_employee_id($originalEmployeeId)) {
+         $result = $this->employee->employeeShiftSwap($originalEmployeeId, $employeeId, $eventId);
+         if ($result[0] != "false") {
+            $this->emailer->shiftSwap($employeeId, $originalEmployeeId, $eventId);
+         }
+         $result = json_encode($result);
+      }
+      echo $result;
    }
 
    function logOut()
@@ -214,15 +237,22 @@ class User extends CI_Controller
 
    function partialShiftSwap()
    {
-      $start = $this->input->post('start');
-      $end = $this->input->post('end');
+      $start      = date("H:i:s", strtotime($this->input->post('start')));
+      $end        = date("H:i:s", strtotime($this->input->post('end')));
       $employeeId = $this->input->post('employeeId');
-      $oldId = $this->input->post('originalEmployeeId');
-      $shiftId = $this->input->post('eventId');
-      $result = $this->employee->partialShiftSwap($start, $end, $employeeId, $oldId, $shiftId);
-      if($result[0] != "false")
-         $this->emailer->shiftSwap($employeeId, $oldId, $shiftId, $start, $end);
-      echo json_encode($result);
+      $oldId      = $this->input->post('originalEmployeeId');
+      $shiftId    = $this->input->post('eventId');
+
+      $result = "error";
+      
+      if($this->validator->valid_time($start) && $this->validator->valid_time($end) && $this->validator->valid_employee_id($employeeId) && $this->validator->valid_employee_id($oldId)) {
+         $result = $this->employee->partialShiftSwap($start, $end, $employeeId, $oldId, $shiftId);
+         if($result[0] != "false") {
+            $this->emailer->shiftSwap($employeeId, $oldId, $shiftId, $start, $end);
+         }
+         $result = json_encode($result);
+      }
+      echo $result;
    }
 
    function coEventSource()
@@ -246,8 +276,14 @@ class User extends CI_Controller
       $requestEnd = $this->input->post('requestEnd');
       $employeeId = $this->input->post('employeeId');
       $shiftId = $this->input->post('shiftId');
-      $this->emailer->shiftCoverRequestEmail($shiftId, $this->employeeInfo['employeeId'], $requestStart, $requestEnd);
-      echo $this->employee->requestPartialShiftCover($requestStart, $requestEnd, $employeeId, $shiftId);
+
+      $result = "error";
+
+      if($this->validator->valid_employee_id($employeeId) && $this->validator->valid_time($requestStart) && $this->validator->valid_time($requestEnd)) {
+         $this->emailer->shiftCoverRequestEmail($shiftId, $this->employeeInfo['employeeId'], $requestStart, $requestEnd);
+         $result = $this->employee->requestPartialShiftCover($requestStart, $requestEnd, $employeeId, $shiftId);
+      }
+      echo $result;
    }
 
    function allStaffSource()
@@ -274,7 +310,13 @@ class User extends CI_Controller
       $position = $this->input->get("position");
       $sfl = $this->input->get("sfl");
       $shiftId = $this->input->get("shiftId");
-      echo json_encode($this->employee->pickUpEmptyShift($employeeId, $start, $end, $date, $position, $sfl, $shiftId));
+
+      $result = "error";
+
+      if($this->validator->valid_employee_id($employeeId) && $this->validator->valid_time($start) && $this->validator->valid_time($end) && $this->validator->valid_date($date)) {
+         $result = json_encode($this->employee->pickUpEmptyShift($employeeId, $start, $end, $date, $position, $sfl, $shiftId));
+      }
+      echo $result;
    }
 
    function getNewsfeed()
@@ -289,7 +331,12 @@ class User extends CI_Controller
       $week_start = Date("Y-m-d", strtotime($this->input->post('week_start')));
       $week_end = Date("Y-m-d", strtotime($this->input->post('week_end')));
 
-      echo $this->employee->pasteWeek($week_start, $week_end, json_decode($this->input->post("week")));
+      $result = "error";
+      
+      if($this->validator->valid_date($week_start) && $this->validator->valid_date($week_end)) {
+         $result = $this->employee->pasteWeek($week_start, $week_end, json_decode($this->input->post("week")));
+      }
+      echo $result;
    }
    function error_handler()
    {
