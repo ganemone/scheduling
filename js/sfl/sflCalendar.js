@@ -1,6 +1,10 @@
 var global_goal_arr;
 initializeGoals();
 bootbox.animate(false);
+$(window).resize(function()
+{
+   resizeCalendar();   
+});
 $("#calendar").fullCalendar(
 {
    header :
@@ -9,7 +13,6 @@ $("#calendar").fullCalendar(
       center : 'title',
       right : 'month,basicWeek,agendaDay'
    },
-   height : 600,
    aspectRatio : 1,
    selectable : false,
    slotMinutes : 15,
@@ -64,6 +67,14 @@ $("#calendar").fullCalendar(
       }
    }]
 });
+function resizeCalendar () {
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 90;
+   $("#calendar").css("width", $(document).width() - calendar_width);
+
+   if(String(window.location).indexOf("printable") == -1) {
+      $(".leftNav").css("height", $(window).height() - 40);
+   }
+}
 function initializeGoals()
 {
    sendRequest("GET", url + "index.php/manager/initializeGoals", {}, function(msg) {

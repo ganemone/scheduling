@@ -169,7 +169,7 @@ class employee extends CI_Model
       $insert_arr = array("employeeId" => $employeeId, "day" => $date, "available" => $available, "begin" => $begin, "end" => $end);
       $insert = $this->db->insert("hours", $insert_arr);
       $result_arr = $this->db->query("SELECT hours.*, event_settings.color FROM hours LEFT JOIN event_settings ON event_settings.category_name = hours.available WHERE hours.employeeId = '$employeeId' && hours.day = '$date'")->row();
-      return [$id, $this->buildAvailableEvent($result_arr)];      
+      return array($id, $this->buildAvailableEvent($result_arr));      
    }
    function buildAvailableEvent($row)
    {

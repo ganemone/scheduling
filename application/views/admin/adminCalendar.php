@@ -1,133 +1,128 @@
-<html>
-   <head></head>
-    <body>
-      <div id='overlay' class='overlay'>  
-      </div> 
-          <div class='overlay-container'><h4>Loading... Please Wait</h4>  
-          <div class='progress progress-striped active'>  
-               <div class='progress-bar progress-bar-info' style='width: 100%;'></div>  
-          </div>  
+      <div id='overlay' class='overlay'></div>
+      <div class='overlay-container'><h4>Loading... Please Wait</h4>  
+         <div class='progress progress-striped active'>  
+            <div class='progress-bar progress-bar-info' style='width: 100%;'></div>  
+         </div>  
       </div>
       <div class='notifications top-right'></div>
-      <div class='leftNav adminNav'>
-          <div class="nav nav-pills">
-               <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
-               <li onclick="showLeftMenuItem('options', this);"><a><small>Options</small></a></li>
-               <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
-               <li onclick="showLeftMenuItem('templates', this);"><a><small>Templates</small></a></li>
-               <li onclick="initStatistics(this);"><a><small>Statistics</small></a></li>
-               <li onclick="initGraphs(this);"><a><small>Graphs</small></a></li>
-          </div>
-          <div id='employees' class='leftMenu'>
-          <? foreach(json_decode($names) as $employee): ?>
-               <!-- Split button -->
-               <div class="btn-group employee_list">
-                  <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->employeeId ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                     <span class="caret"></span>
-                  </button>
-                  <input type="checkbox" class="all_employees<? foreach($employee->groups as $group): echo " " . $group->abbr . "_employees"; endforeach; ?>" name="employee_<? echo $employee->employeeId ?>" id="employee_<? echo $employee->employeeId ?>" onclick="toggleEmployee('<? echo $employee->employeeId ?>', event);">
-                  <ul class="dropdown-menu" role="menu">
-                     <li><a href="#" onclick="toggleAvailability('<? echo $employee->employeeId ?>');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="available" class="preventDefault all_available<? foreach($employee->groups as $group): echo " " . $group->abbr . "_available"; endforeach; ?>" id="available_<? echo $employee->employeeId ?>" /></td></tr></table></a></li> 
-                     <li><a href="#" onclick="toggleBusy('<? echo $employee->employeeId ?>');"        ><table><tr><td style='width: 100px;'>Busy</td>     <td><input type="checkbox" name="busy"      class="preventDefault all_busy<? foreach($employee->groups as $group): echo " " . $group->abbr . "_busy"; endforeach; ?>"           id="busy_<? echo $employee->employeeId ?>"      /></td></tr></table></a></li> 
-                     <li><a href="#" onclick="toggleScheduled('<? echo $employee->employeeId ?>');"   ><table><tr><td style='width: 100px;'>Schedule</td> <td><input type="checkbox" name="scheduled" class="preventDefault all_scheduled<? foreach($employee->groups as $group): echo " " . $group->abbr . "_scheduled"; endforeach; ?>" id="scheduled_<? echo $employee->employeeId ?>" /></td></tr></table></a></li> 
-                  </ul>
-               </div>
-          <? endforeach; ?>
-          </div>
-          <div id='colorCode' class='leftMenu'>
-               <div class='external-event' style="background: #32CD32;">
-                   Available
-               </div>
-               <div class='external-event' style="background: #000000;">
-                   Busy
-               </div>
-               <div class='external-event' style="background: #3366CC;">
-                   Floor Staff Scheduled
-               </div>
-               <div class='external-event' style="background: #B81900;">
-                   SFL Staff Scheduled
-               </div>
-               <div class='external-event' style="background: #EB8F00;">
-                   Support Staff Scheduled
-               </div>
-               <div class='external-event' style="background: #480091;">
-                   Event
-               </div>
-               <div class='external-event' style="background: #790ead;">
-                   Scheduled for Event
-               </div>
-          </div>
-          
-          <div id='templates' class='templates left-bar leftMenu'>
-          </div>
-
-          <div id='options' class='left-bar leftMenu'>
-            <!-- all employees -->            
-             <div class="btn-group all">
-               <button type="button" class="btn btn-default btn-employee" onclick="toggleAll();">All Employees</button>
-               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  <span class="caret"></span>
+      <div class='slide'>
+         <div class='leftNavOuter'>
+            <div class='leftNav'>
+               <button class="menu-toggle" id='menu-toggle-outer' type="button" onclick='showLeftNav("admin");'>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
                </button>
-               <input type="checkbox" name="all_employees" id="all_employees" onclick="toggleAll(event);">
-               <ul class="dropdown-menu" role="menu">
-                  <li><a href="#" onclick="toggleAllCategory('available');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="all_available"  id="all_available" class='preventDefault' /></td></tr></table></a></li> 
-                  <li><a href="#" onclick="toggleAllCategory('busy');"     ><table><tr><td style='width: 100px;'>Busy</td><td><input      type="checkbox" name="all_busy"       id="all_busy"      class='preventDefault' /></td></tr></table></a></li> 
-                  <li><a href="#" onclick="toggleAllCategory('scheduled');"><table><tr><td style='width: 100px;'>Schedule</td><td><input  type="checkbox" name="all_scheduled"  id="all_scheduled" class='preventDefault' /></td></tr></table></a></li> 
-               </ul>
-            </div>
-            <!-- allow for employee groups and list them here... -->
-            <!-- sfl employees -->
-            <? foreach (json_decode($groups) as $group): ?> 
-             <div class="btn-group <? echo $group->abbr ?>">
-               <button type="button" class="btn btn-default btn-employee" onclick="toggleGroup('<? echo $group->abbr ?>', 'employees');"><? echo $group->name ?></button>
-               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  <span class="caret"></span>
+               <button class="menu-toggle" id='menu-toggle-inner' type="button" onclick='showLeftNav("admin");'>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
                </button>
-               <input type="checkbox" name="<? echo $group->abbr ?>_employees" id="<? echo $group->abbr ?>_employees" class="group <? echo $group->abbr ?> group_all" onclick="toggleGroup('<? echo $group->abbr ?>', 'employees', event);">
-               <ul class="dropdown-menu" role="menu">
-                  <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'available');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="<? echo $group->abbr ?>_available"  class="preventDefault group <? echo $group->abbr ?> available" id="<? echo $group->abbr ?>_available"  /></td></tr></table></a></li> 
-                  <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'busy');"     ><table><tr><td style='width: 100px;'>Busy</td><td><input      type="checkbox" name="<? echo $group->abbr ?>_busy"       class="preventDefault group <? echo $group->abbr ?> busy"      id="<? echo $group->abbr ?>_busy"       /></td></tr></table></a></li> 
-                  <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'scheduled');"><table><tr><td style='width: 100px;'>Scheduled</td><td><input type="checkbox" name="<? echo $group->abbr ?>_scheduled"  class="preventDefault group <? echo $group->abbr ?> scheduled" id="<? echo $group->abbr ?>_scheduled"  /></td></tr></table></a></li> 
-               </ul>
-            </div>
-       <? endforeach ?>
-            <div>
-               <button type="button" class="btn btn-default btn-menu" onclick='toggleEvents();'>Events</button>
-               <input type="checkbox" name="event" id="event_all" class="event" onclick="toggleEvents(event);">
-            </div>
-            <div>
-               <button type="button" class="btn btn-default btn-menu" onclick='toggleDelete();'>Click to Delete</button>
-               <input type='checkbox' name="deleteOption" id='deleteOption' onclick='toggleDelete(event);'>
-            </div>
-            <div id='selectTimeSlot' class='styled-select'>
-                Slot:
-                <select id='selectTime' class='styled-select'>
-                     <option value='60'>Hour</option>
-                     <option value='30' selected='selected'>Half Hour</option>
-                     <option value='15'>15 Minute</option>
-                </select>
-            </div>
-         <!-- end options -->
-         </div>
-        <!-- statistics -->
-         <div id='statistics' class='left-bar leftMenu'>
-            <div id="expanded" style='width: 100%;'></div>
-            <div id="summary" style='width: 100%;'></div>
-         </div>
+               <br>
+               <div class="nav nav-pills">
+                  <li class='active' onclick="showLeftMenuItem('employees', this);"><a><small>Employees</small></a></li>
+                  <li onclick="showLeftMenuItem('options', this);"><a><small>Options</small></a></li>
+                  <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
+                  <li onclick="showLeftMenuItem('templates', this);"><a><small>Templates</small></a></li>
+                  <li onclick="initStatistics(this);"><a><small>Statistics</small></a></li>
+                  <li onclick="initGraphs(this);"><a><small>Graphs</small></a></li>
+               </div>
+               <div id='employees' class='leftMenu'>
+               <? foreach(json_decode($names) as $employee): ?>
+                  <!-- Split button -->
+                  <div class="btn-group employee_list">
+                     <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->employeeId ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
+                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                     </button>
+                     <input type="checkbox" class="all_employees<? foreach($employee->groups as $group): echo " " . $group->abbr . "_employees"; endforeach; ?>" name="employee_<? echo $employee->employeeId ?>" id="employee_<? echo $employee->employeeId ?>" onclick="toggleEmployee('<? echo $employee->employeeId ?>', event);">
+                     <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" onclick="toggleAvailability('<? echo $employee->employeeId ?>');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="available" class="preventDefault all_available<? foreach($employee->groups as $group): echo " " . $group->abbr . "_available"; endforeach; ?>" id="available_<? echo $employee->employeeId ?>" /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleBusy('<? echo $employee->employeeId ?>');"        ><table><tr><td style='width: 100px;'>Busy</td>     <td><input type="checkbox" name="busy"      class="preventDefault all_busy<? foreach($employee->groups as $group): echo " " . $group->abbr . "_busy"; endforeach; ?>"           id="busy_<? echo $employee->employeeId ?>"      /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleScheduled('<? echo $employee->employeeId ?>');"   ><table><tr><td style='width: 100px;'>Schedule</td> <td><input type="checkbox" name="scheduled" class="preventDefault all_scheduled<? foreach($employee->groups as $group): echo " " . $group->abbr . "_scheduled"; endforeach; ?>" id="scheduled_<? echo $employee->employeeId ?>" /></td></tr></table></a></li> 
+                     </ul>
+                  </div>
+               <? endforeach; ?>
+               </div>
+               <div id='colorCode' class='leftMenu'>
+                  <div class='external-event' style="background: #32CD32;">Available</div>
+                  <div class='external-event' style="background: #000000;">Busy</div>
+                  <div class='external-event' style="background: #3366CC;">Floor Staff Scheduled</div>
+                  <div class='external-event' style="background: #B81900;">SFL Staff Scheduled</div>
+                  <div class='external-event' style="background: #EB8F00;">Support Staff Scheduled</div>
+                  <div class='external-event' style="background: #480091;">Event</div>
+                  <div class='external-event' style="background: #790ead;">Scheduled for Event</div>
+               </div>
+                
+               <div id='templates' class='templates left-bar leftMenu'>
+               </div>
 
-         <!-- graphs -->
-         <div id='graphs' class='left-bar leftMenu'>
-          <div id="sparkline-title"></div>
-          <div id="sparkline">&nbsp</div>
+               <div id='options' class='left-bar leftMenu'>
+                  <!-- all employees -->            
+                  <div class="btn-group all">
+                     <button type="button" class="btn btn-default btn-employee" onclick="toggleAll();">All Employees</button>
+                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                     </button>
+                     <input type="checkbox" name="all_employees" id="all_employees" onclick="toggleAll(event);">
+                     <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" onclick="toggleAllCategory('available');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="all_available"  id="all_available" class='preventDefault' /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleAllCategory('busy');"     ><table><tr><td style='width: 100px;'>Busy</td><td><input      type="checkbox" name="all_busy"       id="all_busy"      class='preventDefault' /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleAllCategory('scheduled');"><table><tr><td style='width: 100px;'>Schedule</td><td><input  type="checkbox" name="all_scheduled"  id="all_scheduled" class='preventDefault' /></td></tr></table></a></li> 
+                     </ul>
+                  </div>
+                  <!-- allow for employee groups and list them here... -->
+                  <!-- sfl employees -->
+                  <? foreach (json_decode($groups) as $group): ?> 
+                   <div class="btn-group <? echo $group->abbr ?>">
+                     <button type="button" class="btn btn-default btn-employee" onclick="toggleGroup('<? echo $group->abbr ?>', 'employees');"><? echo $group->name ?></button>
+                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                     </button>
+                     <input type="checkbox" name="<? echo $group->abbr ?>_employees" id="<? echo $group->abbr ?>_employees" class="group <? echo $group->abbr ?> group_all" onclick="toggleGroup('<? echo $group->abbr ?>', 'employees', event);">
+                     <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'available');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="<? echo $group->abbr ?>_available"  class="preventDefault group <? echo $group->abbr ?> available" id="<? echo $group->abbr ?>_available"  /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'busy');"     ><table><tr><td style='width: 100px;'>Busy</td><td><input      type="checkbox" name="<? echo $group->abbr ?>_busy"       class="preventDefault group <? echo $group->abbr ?> busy"      id="<? echo $group->abbr ?>_busy"       /></td></tr></table></a></li> 
+                        <li><a href="#" onclick="toggleGroup('<? echo $group->abbr ?>', 'scheduled');"><table><tr><td style='width: 100px;'>Scheduled</td><td><input type="checkbox" name="<? echo $group->abbr ?>_scheduled"  class="preventDefault group <? echo $group->abbr ?> scheduled" id="<? echo $group->abbr ?>_scheduled"  /></td></tr></table></a></li> 
+                     </ul>
+                  </div>
+             <? endforeach ?>
+                  <div>
+                     <button type="button" class="btn btn-default btn-menu" onclick='toggleEvents();'>Events</button>
+                     <input type="checkbox" name="event" id="event_all" class="event" onclick="toggleEvents(event);">
+                  </div>
+                  <div>
+                     <button type="button" class="btn btn-default btn-menu" onclick='toggleDelete();'>Click to Delete</button>
+                     <input type='checkbox' name="deleteOption" id='deleteOption' onclick='toggleDelete(event);'>
+                  </div>
+                  <div id='selectTimeSlot' class='styled-select'>
+                     Slot:
+                     <select id='selectTime' class='styled-select'>
+                        <option value='60'>Hour</option>
+                        <option value='30' selected='selected'>Half Hour</option>
+                        <option value='15'>15 Minute</option>
+                     </select>
+                  </div>
+               <!-- end options -->
+               </div>
+               <!-- statistics -->
+               <div id='statistics' class='left-bar leftMenu'>
+                  <div id="expanded" style='width: 100%;'></div>
+                  <div id="summary" style='width: 100%;'></div>
+               </div>
 
-          <div><h5>Employees By Group</h5></div>
-          <div id="sparkline-2">&nbsp</div>
-        </div>
-      <!-- end left menu -->
+               <!-- graphs -->
+               <div id='graphs' class='left-bar leftMenu'>
+                  <div id="sparkline-title"></div>
+                  <div id="sparkline">&nbsp</div>
+
+                  <div><h5>Employees By Group</h5></div>
+                  <div id="sparkline-2">&nbsp</div>
+               </div>
+            <!-- end left menu -->
+            </div>
+         </div>
       </div>
-
-      <img src="/images/ajax-loader.gif" id='loading' class='loading'/>
 
       <!-- Dropdowns -->
       <div class="dropdown">
@@ -276,10 +271,10 @@
    {
       $("input:checked").prop("checked", false);
       // Sets the calendar size based on the page size
-      $("#calendar").css("width", $(document).width() - $("#options").width() - 100);
-      $("#coEventRepeatEnd").attr("disabled", "disabled");
        var templates;
        loadTemplates();
+       resizeCalendar();
+       $("#calendar").fullCalendar("render");
     });
 
 </script>

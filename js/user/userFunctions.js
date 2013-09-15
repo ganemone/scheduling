@@ -1,3 +1,10 @@
+if(resize == true)
+{
+   resizeCalendar();
+   $(window).resize(function() {
+      resizeCalendar();
+   });
+}
 function setDate(start) {
    selectedDate = new Date(start);
 }
@@ -5,6 +12,15 @@ function setDate(start) {
 function incrementDate() {
    selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 1, 0, 0, 0);
    $('#calendar').fullCalendar('select', selectedDate, selectedDate, 'true');
+}
+function resizeCalendar () {
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 90;
+   
+   $("#calendar").css("width", $(document).width() - calendar_width);
+
+   if(String(window.location).indexOf("printable") == -1) {
+      $(".leftNav").css("height", $(window).height() - 40);
+   }
 }
 
 function customEvent(date, increment) {

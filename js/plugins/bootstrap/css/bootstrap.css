@@ -4063,6 +4063,9 @@ a.thumbnail:focus {
   background-color: #999999;
   border-radius: .25em;
 }
+.label-big {
+  font-size: 1em;
+}
 
 .label[href]:hover,
 .label[href]:focus {

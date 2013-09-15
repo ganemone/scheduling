@@ -19,18 +19,18 @@
                  echo "<ul class='dropdown-menu'>\n";
                  foreach ($text as $action => $_text) 
                  {
-                   echo "<li class='text-left'><a $action>$_text</a></li>\n";
+                   echo "<li onclick='slideUpMenu();'><a $action>$_text</a></li>\n";
                  }
                  echo "</ul>\n</li>\n";
                }
                else
-       	        echo "<li class='text-left'><a $action>$text</a></li>\n";
+       	        echo "<li onclick='slideUpMenu();'><a $action>$text</a></li>\n";
              }
             ?>
           </ul>
           <ul class='nav navbar-nav pull-right'>
            <li>
-             <a href='http://giancarloanemone.nfshost.com' id='copy_brand'>[G]enius Development &copy 2013</a>
+             <a href='http://giancarloanemone.nfshost.com' id='copy_brand'>Gazelle Scheduling &copy 2013</a>
            </li>  
     		</ul>
          <br class='clear'>

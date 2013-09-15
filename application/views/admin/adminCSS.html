@@ -1,20 +1,14 @@
 <html>
 	<style type='text/css'>
 	    #calendar {
-	    	height: 85%;
-	        position: absolute;
-	        right: 5px;
-	        top: 50px;
+			position: absolute;
+         	right: 5px;
+	        top: 10%;
+	        margin: 10px;
+	        padding-bottom: 20px;
+	        height: 87%;
 	        overflow-x: hidden;
 	        overflow-y: scroll;
-	    }
-		#calendar {
-			position: absolute;
-			right: 10px;
-			top: 5em;
-			margin: 0 auto;
-			white-space: nowrap;
-			z-index: -1;
 		}
 		#deleteConfirmation, #finalizeConfirmation, #hiddenRadio, #customTimes, #weekInformation {
 			display: none;
@@ -22,12 +16,29 @@
 		.employeeName {
 			width: 10em;
 		}
+		.leftNav {
+			width: 300px !important;
+		}
+		.leftNavOuter {
+   			position: absolute;
+   			left: -300px;
+   			top: 0px;
+		}
+		.leftNav .nav {
+			width: 250px;
+		}
+		#menu-toggle-inner {
+			display:none;
+			position: absolute !important;
+			top: 25px !important;
+			right: 20px !important;
+		}
 		.leftMenu
 		{
 			display:none;
-			width: 190px;
+			width: 90%;
 			padding: 0 10px 10px 0px;
-			margin: 10px 0 0 10px;
+			margin: 10px 5px 5px 10px;
 			border: 1px solid #ccc;
 	        background: #eee;
 	        text-align: left;
@@ -69,14 +80,14 @@
 			position: relative;
 			top: 0px;
 		}
-		#statistics, #graphs {
-			width: 101%;
+		/*#statistics, #graphs {
+			width: 100%;
 			height: 75%;
-			margin: 10px 0 0 0;
+			margin: 10px 5px 5px 10px;
 			padding: 0px;
 			overflow-y: scroll;
 			overflow-x: hidden;
-		}
+		}*/
 		#graphs div {
 			margin-left: 20px;
 		}
@@ -84,114 +95,14 @@
 			width: 50px;
 			background: #000000;
 		}
-
-		.adminNav {
-   			width: 250px;
-   			padding: 20px 5px 5px 5px;
-		}
 		.employeeInfo {
 			display: none;
 			text-align: left;
-		}
-		.loading {
-			display: none;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			text-align: center;
-			z-index: 9999;
-			overflow: auto;
-		}
-		.table {
-			font: inherit;
-			font-size: inherit;
-			margin: 0px;
-		}
-		li {
-			display: inline;
-			list-style-type: none;
-		}
-		#middleContainer {
-			position: fixed;
-			top: 25%;
-			left: 50%;
-		}
-		#title {
-			margin-left: 20px;
 		}
 		.templateDescription {
 			display: none;
 			width: 20%;
 			height: 20%;
-		}
-		html {
-			height: 150%;
-		}
-		table tr td {
-			padding: 0px;
-			margin: 0px;	
-		}
-		#viewInfo {
-			position:absolute; left:0.5em; top:5em;
-			width:10em;
-			z-index:-1;
-		}
-		table th {
-		   text-align: left;
-		}
-		.ui-icon {
-		   text-align:right;
-		}
-		/*.ui-dialog-titlebar-close {
-		   float:right;
-		}
-		span.ui-icon.ui-icon-closethick {
-		   display:none;
-		}*/
-		#editEventPopup {
-		   display:none;
-		   position:absolute;
-		}
-		#overrideAvailability {
-		   display:none;
-		   position:absolute;
-		}
-		.contextMenu {
-		   background-color: rgb(100,100,100);
-           background-color: rgba(100,100,100,0.5);
-		   font:white;
-		   margin:5px;
-		   padding:5px;
-		   text-align:left;
-		}
-		
-		#editEventPopup table tr:hover {
-		   background:#2E629D;
-		}
-		#editEventPopup table tr {
-		   width:100%;
-		}
-		#list li button {
-		   height:2.5em;
-		}
-
-		#addCoEvent input,
-		#addCoEvent label,
-		#addCoEvent select {
-		   float:left;
-		   margin:5px;
-		}
-		#employeeRightClickDiv 
-		{
-		   display:none;
-		   background:rbg(0,0,0);
-		   background:rgba(0,0,0,0.5);
-		   width:150px;
-		   color:white;
-		   margin:5px;
-		}
-		.highlighted {
-		   border: 2px dotted #F1D031;
 		}
 	</style>
 </html>

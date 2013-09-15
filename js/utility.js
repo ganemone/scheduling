@@ -1,4 +1,7 @@
 var global_ajax_requests = 0;
+function slideUpMenu () {
+   $("button.navbar-toggle").trigger("click");
+}
 function sendRequest(method, url, data, callback, showProgress)
 {
    $.ajax({
@@ -24,8 +27,7 @@ function sendRequest(method, url, data, callback, showProgress)
       },
       complete: function(jqXHR, textStatus) {
          global_ajax_requests--;
-         if(showProgress)
-            hideLoading();
+         hideLoading();
       }
    })
 }
@@ -77,7 +79,24 @@ function errorMessage(msg)
       fadeOut: { enabled: true, delay: 3000 }
    }).show();
 }
+function showLeftNav (admin) 
+{
+   var left = ($(".leftNavOuter").position().left == 0) ? -$(".leftNavOuter").outerWidth() : 0;
+   var calendar_width = $(document).width();
+   var calendar_subtract = (left == 0) ? 340 : 90;
+   $("#calendar").css("width", calendar_width - calendar_subtract + "px");
+   $("#calendar").fullCalendar("render");
+   $(".leftNavOuter").animate({ left: left });
 
+   if(left == 0) {
+      $("#menu-toggle-outer").hide();
+      $("#menu-toggle-inner").show();   
+   }
+   else {
+      $("#menu-toggle-outer").show();
+      $("#menu-toggle-inner").hide();
+   }
+}
 function showLeftMenuItem(show_element_id, nav_element)
 {
    $(".leftMenu").each(function()

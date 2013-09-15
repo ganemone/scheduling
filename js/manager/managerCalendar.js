@@ -10,6 +10,7 @@ var availabilityEventSource = {
    beforeSend: function()
    {
       global_ajax_requests++;
+      showLoading();
    },
    error : function(msg, textStatus, errorThrown) {
       alert(textStatus + "/manager/eventSource");
@@ -29,6 +30,7 @@ var scheduledEventSource = {
    beforeSend: function()
    {
       global_ajax_requests++;
+      showLoading();
    },
    error : function(msg, textStatus, errorThrown) {
       alert(textStatus + "/manager/scheduledEventSource");
@@ -49,6 +51,7 @@ var coEventSource = {
    beforeSend: function()
    {
       global_ajax_requests++;
+      showLoading();
    },
    error : function(msg, textStatus, errorThrown) {
       alert(textStatus + "coEventSource");
@@ -157,14 +160,6 @@ function renderCalendar(slotMinutes, view, date) {
                }, true);
             }
          });
-      }, 
-      loading : function(bool) {
-         if (bool) {
-            $('#loading').show();
-         }
-         else {
-            $('#loading').fadeOut();
-         }
       }, 
       eventRender : function(event, element) {
          if (event.category == 'scheduled') {

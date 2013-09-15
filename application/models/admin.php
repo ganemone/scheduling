@@ -162,7 +162,7 @@ class admin extends CI_Model
          $graph_data = [$emp_met, $emp_under, $emp_over];
          $graph_obj = array(
             "type"        => "pie",
-            "sliceColors" => ['#468847','#c09853','#b94a48'],
+            "sliceColors" => array('#468847','#c09853','#b94a48'),
             "height"      => 120,
             "borderColor" => "#000000");
       }
@@ -173,7 +173,7 @@ class admin extends CI_Model
          "barWidth" => 15,
          "chartRangeMin" => 0);
 
-      return [$graph_data, $graph_obj, $graph_data_two, $graph_obj_two];
+      return array($graph_data, $graph_obj, $graph_data_two, $graph_obj_two);
    }
    function getGroups()
    {
@@ -915,32 +915,6 @@ class admin extends CI_Model
       }
       return $array;
    }
-
-   /*
-    function getEmptyShifts()
-    {
-    $query = $this->db->query("SELECT * FROM emptyShifts");
-    $array = array();
-    foreach ($query->result() as $row)
-    {
-    $prettyStart = Date("g:i a", strtotime($row->start));
-    $prettyEnd = Date("g:i a", strtotime($row->end));
-    $array[] = json_encode(array(
-    "title" => "Empty Shift ($row->category)",
-    "description" => "We need more hours on $row->date.  Would you like to pick up a shift from $prettyStart until $prettyEnd on $row->date?",
-    "start" => $row->date . ' ' . $row->start,
-    "end" => $row->date . ' ' . $row->end,
-    "allDay" => false,
-    "tip" => "We need more hours on this date. Click on the shift to help out!",
-    "color" => "RED",
-    "category" => "emptyShifts",
-    "position" => "$row->category",
-    "id" => md5("emptyShifts$row->id"),
-    "rowId" => $row->id
-    ));
-    }
-    return $array;
-    }*/
 
    function getPositionName($abbreviation)
    {

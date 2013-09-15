@@ -35,6 +35,7 @@ class Manager extends CI_Controller
    function settings()
    {
       $this->load->view("includes.php");
+      $this->load->view("/admin/settings.php");
    }
    function toggleOption()
    {
