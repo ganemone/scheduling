@@ -62,7 +62,7 @@ $('#calendar').fullCalendar(
          element.css("height", "200px");
       element.css("font-size", "15pt");
    },
-   viewDisplay : function(view)
+   viewRender : function(view)
    {
       if(view.name == "basicWeek")
       {

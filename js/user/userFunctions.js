@@ -5,6 +5,131 @@ if(resize == true)
       resizeCalendar();
    });
 }
+function calSelect (start, end, allDay, jsEvent, view) {
+   if(allDay === true || view.name == 'month') {
+      setDate(start);
+   }
+   else {
+      updateEvent("Custom", start, false, start.toTimeString().split(" ")[0], end.toTimeString().split(" ")[0]);
+      $("#calendar").fullCalendar('unselect');
+   }
+}
+function cal_eventRender (event, element, view) {
+   var position;
+   switch(event.start.getDay())
+   {
+      case 6 : position = "left"; break;
+      case 0 : position = "right"; break;
+      default: position = "top"; break;
+   }
+   element.tooltip({
+      animation: false,
+      title: event.tip,
+      container: 'body',
+      placement: position      
+   });
+   if (event.category == 'scheduled')
+   {
+      event.editable = false;
+   }
+}
+function cal_viewRender (view) {
+   if(view.name == "agendaWeek")
+   {
+      $("#copyWeek").removeClass("disabled");
+      $("#pasteWeek").removeClass("disabled");
+   }
+   else
+   {
+      $("#copyWeek").addClass("disabled", "disabled");
+      $("#pasteWeek").addClass("disabled", "disabled");
+   }
+   var _month = view.start.getFullYear() + "-" + (view.start.getMonth() + 1);
+   $.ajax(
+   {
+      type : "POST",
+      url : url + "index.php/user/populateMonthInfoForm",
+      data :
+      {
+         employeeId : employeeId,
+         month : _month
+      },
+      success : function(msg)
+      {
+         var json = JSON.parse(msg);
+         monthInfo.minHours = (typeof json["minHours"] !== "undefined") ? json["minHours"] : "";
+         monthInfo.maxHours = (typeof json["maxHours"] !== "undefined") ? json["maxHours"] : "";
+         monthInfo.notes = (typeof json["notes"] !== "undefined") ? json["notes"] : "";
+      },
+      error : function()
+      {
+         alert("ERROR!!!");
+      }
+   });
+}
+function cal_eventClick (event, jsEvent, view) {
+   var start, end, states;
+   if (event.category == 'scheduled-cover' || event.category == 'scheduled-pickup' && coverRequest === false || event.category == 'emptyShifts')
+   {
+      start = event.start.toTimeString().split(" ")[0];
+      end = event.end.toTimeString().split(" ")[0];
+      var form = initializeForm(start, end);
+
+      bootbox.dialog({
+         message : event.description, 
+         title : "Shift Cover",
+         buttons : {
+            partial : {
+               label : "Partial Shift",
+               className : "btn-primary",
+               callback : function()
+               {
+                  partialShiftPickupDialog(event, employeeId, form);
+               }
+            },
+            entire : {
+               label : "Entire Shift",
+               className : "btn-primary",
+               callback : function()
+               {
+                  pickUpShift(null, null, employeeId, event.employeeId, event.id);
+               }
+            }
+         }
+      });   
+   }
+   if (coverRequest === true && event.category == 'scheduled')
+   {
+      coverRequest = false;
+
+      cancelCoverRequest();
+
+      bootbox.dialog({
+         message : "Are you sure you would like to request a cover for this shift? (Note: the shift will remain on your schedule, and you will still be responsible for it until someone claims it). ",
+         title : "Shift Cover",
+         buttons : {
+            entire : {
+               label: "Full Shift",
+               className : "btn-primary",
+               callback : function() {
+                  fullShiftCoverRequest(event);
+               }
+            },
+            partial : {
+               label: "Partial Shift",
+               className : "btn-primary",
+               callback: function() {
+                  partialShiftCoverRequest(event);
+               }
+            },
+            cancel : {
+               label: "Cancel",
+               className : "btn-danger"
+            }
+         }
+      });
+   }
+}
 function setDate(start) {
    selectedDate = new Date(start);
 }
