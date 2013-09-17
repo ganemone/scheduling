@@ -1,7 +1,7 @@
 <title>Gazelle Scheduling - <? echo $brand ?></title>
 <body>
-	<div class="navbar navbar-inverse navbar-fixed-top" id="navbar">
-      <div class="container" style='width: 100%; position: absolute; left: 10px;'>
+	<div class="navbar navbar-inverse navbar-fixed-top" id="navbar" style='z-index: 2000;'>
+      <div class="container" style='width: 100%;'>
         	<a class="navbar-brand"><? echo $brand ?></a>
          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
            <span class="icon-bar"></span>

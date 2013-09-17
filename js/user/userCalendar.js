@@ -71,14 +71,36 @@ var allStaffEventSource = {
       hideLoading();
    }
 }
-$('#calendar').fullCalendar(
+var header = {};
+var title_format = {};
+if(mobile === true)
 {
-   header :
-   {
+   header = {
+      left : 'prev,next',
+      center : 'title',
+      right : "basicWeek,basicDay"
+   };
+   title_format = {
+      week: "MMM yyyy",
+      day: "MMM yyyy"
+   };
+} 
+else {
+   header = {
       left : 'prev,next today',
       center : 'title',
       right : "month,agendaWeek,agendaDay"
-   },
+   };
+   title_format = {
+      month: 'MMMM yyyy',                             
+      week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}", 
+      day: 'dddd, MMM d, yyyy'                  
+   }
+}
+$('#calendar').fullCalendar(
+{
+   header : header,
+   defaultView : (mobile == true) ? "basicWeek" : "month",
    editable : true,
    droppable : true,
    draggable : true,
@@ -92,6 +114,7 @@ $('#calendar').fullCalendar(
    {
       '' : 'h:mm{ - h:mm}'
    },
+   titleFormat : title_format,
    eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view)
    {
       if(dayDelta > 0)
@@ -117,7 +140,7 @@ $('#calendar').fullCalendar(
    eventRender : function(event, element, view)
    {
       if(mobile) {
-         cal_eventRenderMobile(event, element, view);   
+         return true;
       }
       else {
          cal_eventRender(event, element, view);

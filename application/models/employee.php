@@ -322,7 +322,7 @@ class employee extends CI_Model
 
    function coEventSource($start, $end, $array = array())
    {
-      $query = $this->db->query("SELECT * FROM events && date >= '" . date("Y-m-d", $start) . "' && date <= '" . date("Y-m-d", $end) . "'");
+      $query = $this->db->query("SELECT * FROM events WHERE date >= '" . date("Y-m-d", $start) . "' && date <= '" . date("Y-m-d", $end) . "'");
       foreach ($query->result() as $row)
       {
          $array[] = json_encode(array(

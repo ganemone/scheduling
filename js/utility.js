@@ -4,13 +4,6 @@ function slideUpMenu () {
       $("button.navbar-toggle").trigger("click");
    }
 }
-function getBootBoxWidth () {
-   var doc_width = $(document).width();
-   var width_ret = (doc_width >= 800) ? doc_width/2 : (doc_width >= 500) ? 375 : doc_width;
-   var position_left = doc_width/2 - width_ret/2;
-   return "position: absolute; left: " + position_left + "px; top: 10%; width: " + width_ret + "px;";0
-
-}
 function sendRequest(method, url, data, callback, showProgress)
 {
    $.ajax({
@@ -91,10 +84,11 @@ function errorMessage(msg)
 function showLeftNav (admin) 
 {
    var left = ($(".leftNavOuter").position().left == 0) ? -$(".leftNavOuter").outerWidth() : 0;
-   var calendar_width = $(document).width();
+   /*var calendar_width = $(document).width();
    var calendar_subtract = (left == 0) ? 340 : 90;
+
    $("#calendar").css("width", calendar_width - calendar_subtract + "px");
-   $("#calendar").fullCalendar("render");
+   $("#calendar").fullCalendar("render");*/
    $(".leftNavOuter").animate({ left: left });
 
    if(left == 0) {

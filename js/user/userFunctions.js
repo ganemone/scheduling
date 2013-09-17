@@ -139,7 +139,7 @@ function incrementDate() {
    $('#calendar').fullCalendar('select', selectedDate, selectedDate, 'true');
 }
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 90;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 20;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 

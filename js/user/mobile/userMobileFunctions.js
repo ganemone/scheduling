@@ -29,7 +29,7 @@ function cal_selectMobile (start, end, allDay, jsEvent, view) {
             "name" : "availability",
             "value" : "Custom",
             "id"   : "custom_radio",
-            "label": "Custom All Day",
+            "label": "Custom",
             "input_class" : "col-1",
             "label_class" : "col-9 control-label label-custom radio-label"
          }]
@@ -64,10 +64,4 @@ function cal_selectMobile (start, end, allDay, jsEvent, view) {
          }
       });
    }
-}
-function cal_eventRenderMobile(event, element, view) {
-   if (event.category == 'scheduled-pickup' || event.category == 'scheduled-cover') {
-      element.css("height", "200px");
-   }
-   element.css("font-size", "15pt");
 }

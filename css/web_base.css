@@ -3,7 +3,6 @@ body {
    margin-left: 0px;
    margin-right: 0px;
    text-align: center;
-   font-size: 14px;
    overflow:hidden;
    height: 100%;
    width: 100%;
@@ -11,8 +10,8 @@ body {
  #calendar {
    position: absolute;
    right: 5px;
-   top: 10%;
-   margin: 10px;
+   top: 80px;
+   margin: 10px 0 10px 0;
    padding-bottom: 20px;
    height: 87%;
    overflow-x: hidden;
@@ -80,7 +79,7 @@ footer #bottomSpan {
    margin: 10px;
 }
 #external-events h4 {
-   font-size: 16px;
+   font-size: 1.25em;
    margin-top: 0;
    padding-top: 1em;
 }
@@ -106,7 +105,7 @@ footer #bottomSpan {
    display: none;
 }
 #colorCode h4 {
-   font-size: 16px;
+   font-size: 1.25em;
    margin-top: 0;
    padding-top: 1em;
 }
@@ -141,7 +140,7 @@ footer #bottomSpan {
 #external-events p
 {
    margin: 1.5em 0;
-   font-size: 11px;
+   font-size: 1em;
    color: #666;
 }
 
@@ -153,7 +152,6 @@ footer #bottomSpan {
 #copy_brand  {
    color: #000;
    font-weight: bold;
-   font-size:10pt;
    position: fixed; right: 5px;
    text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.4);
 
@@ -172,15 +170,16 @@ footer #bottomSpan {
 }
 .slide {
    position: relative;
+   z-index: 1030;
 }
 .leftNavOuter {
    position: absolute;
    left: -310px;
-   top: 0px;
+   top: 10px;
 }
 .leftNavOuter #menu-toggle-outer {
    position: absolute;
-   top: 25px;
+   top: 5px;
    right: -60px;
 }
 .leftNavOuter .leftNav #menu-toggle-inner {
@@ -238,9 +237,9 @@ footer #bottomSpan {
    display:none;
    background: #CCC;
    z-index: 2001;
-   width: 25%;
+   width: 50%;
    position: fixed;
-   left: 40%;
+   left: 25%;
    top: 30%;
    padding: 10px;
    -webkit-border-radius: 4px;
@@ -272,7 +271,8 @@ footer #bottomSpan {
    padding-left: 0px;
    padding-right: 10px;
 }
-@media only screen and (max-width: 767px)  {
+
+@media only screen and (max-width: 770px)  {
    #employeeLoginForm .form-inline {
       width: 90%;
       margin-left: 40px;
@@ -299,6 +299,13 @@ footer #bottomSpan {
 @media only screen and (max-width: 400px)  {
    .calendar-button {
       width: 100%;
+   }
+   .fc-header-center h2 {
+      font-size: 18pt;
+   }
+   .fc-day-header {
+      font-size: 14px;
+      font-weight: normal;
    }
 }
 .calendar-button {

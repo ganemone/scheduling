@@ -368,7 +368,7 @@ p {
   line-height: 1.4;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 770px) {
   .lead {
     font-size: 21px;
   }
@@ -761,7 +761,7 @@ pre code {
   clear: both;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 770px) {
   .row {
     margin-right: -15px;
     margin-left: -15px;
@@ -878,7 +878,7 @@ pre code {
   width: 100%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 770px) {
   .container {
     max-width: 728px;
   }
@@ -2044,7 +2044,7 @@ input[type="button"].btn-block {
   clear: both;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 770px) {
   .form-horizontal .form-group {
     margin-right: -15px;
     margin-left: -15px;
@@ -2056,7 +2056,7 @@ input[type="button"].btn-block {
   margin-left: -15px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 770px) {
   .form-horizontal .control-label {
     text-align: left;
   }
@@ -2953,7 +2953,7 @@ button.close {
   border-bottom-color: #ffffff;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 770px) {
   .navbar-brand {
     float: left;
     margin-right: 5px;
@@ -3500,7 +3500,7 @@ button.close {
   margin-left: 0;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 770px) {
   .modal-dialog {
     right: auto;
     left: 50%;
@@ -4369,7 +4369,7 @@ a.list-group-item.active > .badge,
   text-shadow: none;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 770px) {
   .carousel-control .glyphicon,
   .carousel-control .icon-prev,
   .carousel-control .icon-next {
@@ -4408,7 +4408,7 @@ a.list-group-item.active > .badge,
   line-height: 1.4;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 770px) {
   .jumbotron {
     padding: 50px 60px;
     border-radius: 6px;
@@ -4553,7 +4553,7 @@ td.hidden-lg {
   display: table-cell !important;
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 770px) and (max-width: 991px) {
   .visible-sm {
     display: none !important;
   }
