@@ -11,7 +11,8 @@ class Manager extends CI_Controller
       $this->load->model('admin');
       $this->load->model('validator');
       $this->load->library('email');
-
+      $this->load->library('user_agent');
+      $this->companyInfo['mobile'] = $this->agent->is_mobile();
    }
 
    function index()
@@ -135,12 +136,25 @@ class Manager extends CI_Controller
 
    function initialize()
    {
-      $this->companyInfo['menu_items'] = array("id='home'" => "Home", 
-         "id='template'"   => "Make Template",
-         /*"id='tutorial'"   => "Tutorial",*/
-         "onclick='addExternalEvent();'" => "Add Event",
-         "id='finalize'"   => "Finalize Schedule",
-         "id='logOut'"     => "Log Out");
+      if($this->companyInfo['mobile'] || true) {
+         $this->companyInfo["menu_items"] = array(
+            "Shift Manipulation" => array(
+               "onclick='mobile_addShift()'" => "Add Shift",
+               "onclick='mobile_promptEditShiftCategory()'" => "Edit Shift Category",
+               "onclick='mobile_promptEditShiftTime()'" => "Edit Shift Time"),
+            "id='home'" => "Home", 
+            "id='template'"   => "Make Template",
+            "onclick='addExternalEvent();'" => "Add Event",
+            "id='finalize'"   => "Finalize Schedule",
+            "id='logOut'"     => "Log Out");
+      }
+      else {
+         $this->companyInfo['menu_items'] = array("id='home'" => "Home", 
+            "id='template'"   => "Make Template",
+            "onclick='addExternalEvent();'" => "Add Event",
+            "id='finalize'"   => "Finalize Schedule",
+            "id='logOut'"     => "Log Out");
+      }
       $this->companyInfo['brand'] = "Admin Home";
    }
 

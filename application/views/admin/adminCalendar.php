@@ -178,7 +178,8 @@
     
     var global_options_obj = {
          "events"  : false,
-         "delete"  : false
+         "delete"  : false,
+         "eventClick" : "standard"
     };       
 
     var global_categories_obj = {
@@ -281,6 +282,9 @@
 </script>
 
 <script src="<? echo base_url() ?>js/utility.js"></script>
+<? if ($mobile == true || true): ?>
+<script src="<? echo base_url() ?>js/manager/managerMobileFunctions.js"></script>
+<? endif; ?>
 <script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerFunctions.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>

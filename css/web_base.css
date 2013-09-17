@@ -216,8 +216,9 @@ footer #bottomSpan {
    height: 100%;
    width: 310px;
    background: #EEE;
+}
+.leftMenu {
    overflow-y: scroll;
-   overflow-x: none;
 }
 /* -------- */
 /* Loading  */

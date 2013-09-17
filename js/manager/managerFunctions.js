@@ -1,23 +1,9 @@
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 90;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 30;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 
-   if(String(window.location).indexOf("printable") == -1) {
-      $(".leftNav").css("height", $(window).height() - 40);
-   }
-}
-
-function setTutorial(bool) {
-   tutorial = bool;
-}
-
-function selectHidden() {
-   $("#hiddenRadio").prop("checked", true);
-}
-
-function initSelectMenu() {
-   $("#firstOption").prop("selected", true);
+   $(".leftMenu").css("height", $(window).height() - 160);
 }
 
 function stringToTime(string) {

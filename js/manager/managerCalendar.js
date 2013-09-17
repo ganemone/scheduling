@@ -251,30 +251,63 @@ function renderCalendar(slotMinutes, view, date) {
        */
       eventClick : function(calEvent, jsEvent, view) {
          console.log(calEvent);
-         $("#editEventPopup").hide();
-         $("#employeeRightClickDiv").hide();
-         $("#overrideAvailability").hide();
-         if (calEvent.category != 'scheduled') {
-            if (jsEvent.shiftKey) {
-               if (calEvent.category == "emptyShifts")
-                  fillEmptyShift(calEvent);
-               else if (!(calEvent.category == 'Busy')) {
-                  scheduleShiftClick(calEvent);
+         if(global_options_obj["eventClick"] == "standard") {
+            if (calEvent.category != 'scheduled') {
+               if (jsEvent.shiftKey) {
+                  if (calEvent.category == "emptyShifts")
+                     fillEmptyShift(calEvent);
+                  else if (!(calEvent.category == 'Busy')) {
+                     scheduleShiftClick(calEvent);
+                  }
+               }
+            }
+            if (calEvent.category == "scheduled" || calEvent.category == "events" || calEvent.category == 'emptyShifts') {
+               if (jsEvent.shiftKey && calEvent.category == "scheduled") {
+                  promptEmployeeHPW(calEvent);
+               }
+               else if (global_options_obj["delete"] == true && !jsEvent.shiftKey) {
+                  $(".fc-event").tooltip("hide");
+                  bootbox.confirm("Are you sure you want to delete this event?", function(result) {
+                     if (result) {
+                        deleteEvent(calEvent.category, calEvent.rowId, calEvent.id);
+                     }
+                  });
                }
             }
          }
-         if (calEvent.category == "scheduled" || calEvent.category == "events" || calEvent.category == 'emptyShifts') {
-            if (jsEvent.shiftKey && calEvent.category == "scheduled") {
-               promptEmployeeHPW(calEvent);
+         else if(global_options_obj["eventClick"] == "editTime") {
+            cancelShiftEdit();
+            return mobile_editShiftTime(calEvent);
+         }
+         else if(global_options_obj["eventClick"] == "editCategory") {
+            cancelShiftEdit();
+            var that = $(this);
+            $("input.rightClickMenuItem").each(function() {
+               if ($(this).val() == calEvent.area) {
+                  $(this).prop("checked", true);
+               }
+               else {
+                  $(this).prop("checked", false);
+               }
+               $(this).data("element", that);
+               $(this).data("event", calEvent);
+            });
+
+            $("#sflRightClickItem").data("element", that).data("event", calEvent);
+
+            if (calEvent.sfl == 1) {
+               $("#sflRightClickItem").prop("checked", true);
             }
-            else if (global_options_obj["delete"] == true && !jsEvent.shiftKey) {
-               $(".fc-event").tooltip("hide");
-               bootbox.confirm("Are you sure you want to delete this event?", function(result) {
-                  if (result) {
-                     deleteEvent(calEvent.category, calEvent.rowId, calEvent.id);
-                  }
-               });
+            else {
+               $("#sflRightClickItem").prop("checked", false);
             }
+            $("#editEventPopup").show().offset({
+                 top : jsEvent.pageY, left : jsEvent.pageX
+            }).dropdown();
+         }
+         else if(global_options_obj["eventClick"] == "addShift" && calEvent.category == "Available" || calEvent.category == "Custom" || calEvent.category == "events") {
+            cancelShiftEdit();
+            scheduleShiftClick(calEvent);
          }
       },
       /* Function called when an event is droped onto the calendar. Simply calls the eventMove function.
