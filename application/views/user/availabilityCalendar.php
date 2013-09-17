@@ -1,6 +1,12 @@
 <html>
    <head></head>
    <body>
+      <div id='overlay' class='overlay'></div> 
+      <div class='overlay-container'><h4>Loading... Please Wait</h4>  
+         <div class='progress progress-striped active'>  
+            <div class='progress-bar progress-bar-info' style='width: 100%;'></div>  
+         </div>
+      </div>
       <div class='notifications top-right'></div>
       <div id='calendar'></div>
       <div class='slide'>
@@ -69,7 +75,6 @@
          </div>
       </div>
 
-      <img src='/images/ajax-loader.gif' id='loading' class='loading'/>
       <br class='clearLeft clearRight'>
       <br class='clearLeft clearRight'>
    </body>
@@ -79,19 +84,23 @@
          var employeeId = <?php echo $employeeId ?>;
          var coverRequest = false;
          var events = !<? echo $events ?>;
-         var selectedDate;
          var staff = !<? echo $staff ?>;
          var availability = <? echo $availability ?>;
          var resize = <? echo $resize ?>;
+         var mobile = true;
          var clipboard = null;
+         var selectedDate;
+
          //var timeout_id;
    </script>
-   <link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
    <script src="<? echo base_url() ?>js/utility.js"></script>
+   <? if($mobile == true || true): ?>
+   <script src="<? echo base_url() ?>js/user/mobile/userMobileFunctions.js"></script>
+   <? endif; ?>
    <script src="<? echo base_url() ?>js/user/userFunctions.js"></script>
    <script src="<? echo base_url() ?>js/user/userTutorial.js"></script>
    <script src="<? echo base_url() ?>js/user/userKeyPress.js"></script>
    <script src="<? echo base_url() ?>js/user/userCalendar.js"></script>
-   <script src="<? echo base_url() ?>js/user/userEventHandlerFunctions.js"></script>
+   <script src="<? echo base_url() ?>js/user/userEventHandlerFunctions.js"></script>   
 
 </html>

@@ -205,7 +205,7 @@ class employee extends CI_Model
       return Date('Y-m', mktime(0, 0, 0, Date('m') + 2, 1, Date('Y')));
    }
 
-   function getScheduledEvents($employeeId)
+   function getScheduledEvents($start, $end, $employeeId)
    {
       $finalizedDate = $this->getFinalizedDate();
       $json = array();
@@ -251,7 +251,7 @@ class employee extends CI_Model
             )));
          }
       }
-      $_query = $this->db->query("SELECT scheduled.* FROM scheduled LEFT JOIN requests ON scheduled.id = requests.shiftId WHERE requests.shiftId IS Null && scheduled.day < '$finalizedDate' && scheduled.employeeId = '$employeeId'");
+      $_query = $this->db->query("SELECT scheduled.* FROM scheduled LEFT JOIN requests ON scheduled.id = requests.shiftId WHERE requests.shiftId IS Null && scheduled.day < '$finalizedDate' && scheduled.day <= '" . date("Y-m-d", $end) . "' && scheduled.day >= '" . date("Y-m-d", strtotime($start)) ."' && scheduled.employeeId = '$employeeId'");
       foreach ($_query->result() as $row)
       {
          $title = ($row->category != "SF") ? "($row->category)" : "Floor";
@@ -271,11 +271,11 @@ class employee extends CI_Model
       return $json;
    }
 
-   function getAvailableEvents($employeeId)
+   function getAvailableEvents($start, $end, $employeeId)
    {
       $finalizedMonth = $this->getFinalizedDate();
       $json = array();
-      $query = $this->db->query("SELECT * FROM hours WHERE employeeId='$employeeId'");
+      $query = $this->db->query("SELECT * FROM hours WHERE employeeId='$employeeId' && day >= '" . date("Y-m-d", $start) . "' && day <= '" . date("Y-m-d", $end) . "'");
       foreach ($query->result() as $row)
       {
          if ($row->available == "Custom")
@@ -320,9 +320,9 @@ class employee extends CI_Model
       return $json;
    }
 
-   function coEventSource($array = array())
+   function coEventSource($start, $end, $array = array())
    {
-      $query = $this->db->query("SELECT * FROM events");
+      $query = $this->db->query("SELECT * FROM events && date >= '" . date("Y-m-d", $start) . "' && date <= '" . date("Y-m-d", $end) . "'");
       foreach ($query->result() as $row)
       {
          $array[] = json_encode(array(

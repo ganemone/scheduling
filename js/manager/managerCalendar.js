@@ -1,4 +1,3 @@
-bootbox.animate(false);
 showLoading();
 var availabilityEventSource = {
    url : url + "index.php/manager/eventSource", 

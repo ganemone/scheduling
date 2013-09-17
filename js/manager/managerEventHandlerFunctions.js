@@ -125,7 +125,7 @@ $("#template").click(function() {
 
       buildTemplateEmployeeSelectObj(startDate, endDate, form_obj);
 
-      bootbox.confirm(buildForm(form_obj), "Cancel", "Submit", function(result)
+      bootbox.confirm(buildForm(form_obj), function(result)
       {
          if(result)
          {

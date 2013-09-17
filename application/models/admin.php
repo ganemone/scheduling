@@ -159,7 +159,7 @@ class admin extends CI_Model
             "height" => 120);
       }
       else {
-         $graph_data = [$emp_met, $emp_under, $emp_over];
+         $graph_data = array($emp_met, $emp_under, $emp_over);
          $graph_obj = array(
             "type"        => "pie",
             "sliceColors" => array('#468847','#c09853','#b94a48'),
@@ -198,7 +198,7 @@ class admin extends CI_Model
 
       foreach ($query->result() as $row)
       {
-         if($employee_obj[$row->employeeId]->scheduled)
+         if($employee_obj->{$row->employeeId}->scheduled)
          {
             $name = $row->firstName . " " . $row->lastName[0];
             $sfl = ($row->sfl == 1) ? "(SFL)" : "";
@@ -262,7 +262,7 @@ class admin extends CI_Model
          $end = $row->end;
          $availability = $row->available;
          $title = $name;
-         if ($availability == 'Available' && $employee_obj[$row->employeeId]->available)
+         if ($availability == 'Available' && $employee_obj->{$row->employeeId}->available)
          {
             $color = "#32CD32";
             array_push($json, json_encode(array(
@@ -277,7 +277,7 @@ class admin extends CI_Model
                "position" => $row->position,
             )));
          }
-         else if ($availability == 'Busy' && $employee_obj[$row->employeeId]->busy)
+         else if ($availability == 'Busy' && $employee_obj->{$row->employeeId}->busy)
          {
             $color = "BLACK";
             array_push($json, json_encode(array(
@@ -292,7 +292,7 @@ class admin extends CI_Model
                "position" => $row->position
             )));
          }
-         else if ($availability == "Custom" && $employee_obj[$row->employeeId]->available)
+         else if ($availability == "Custom" && $employee_obj->{$row->employeeId}->available)
          {
             $color = '#32CD32';
             $startTime = Date("g:i a", strtotime($begin));

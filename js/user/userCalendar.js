@@ -1,10 +1,76 @@
-bootbox.animate(false);
 var monthInfo = {
    "minHours": null,
    "maxHours": null,
    "notes": null
 };
-
+var scheduledEventSource = {
+   url : url + "index.php/user/scheduledEventSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(errorThrown);
+   },
+   complete: function()
+   {
+      global_ajax_requests--;
+      hideLoading();
+   }
+};
+var availabilityEventSource = {
+   url : url + "index.php/user/availabilityEventSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(errorThrown);
+   },
+   complete: function()
+   {  
+      global_ajax_requests--;
+      hideLoading();
+   }
+};
+var coEventSource = {
+   url : url + "index.php/user/coEventSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(errorThrown);
+   },
+   complete: function()
+   {  
+      global_ajax_requests--;
+      hideLoading();
+   }
+}
+var allStaffEventSource = {
+   url : url + "index.php/user/allStaffSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      alert(errorThrown);
+   },
+   complete: function()
+   {  
+      global_ajax_requests--;
+      hideLoading();
+   }
+}
 $('#calendar').fullCalendar(
 {
    header :
@@ -19,13 +85,6 @@ $('#calendar').fullCalendar(
    minTime : 8,
    maxTime : 21,
    dropAccept : '.external-event, .fc-event',
-   loading : function(bool)
-   {
-      if (bool)
-         $('#loading').show();
-      else
-         $('#loading').fadeOut();
-   },
    selectable : true,
    selectHelper : true,
    snapMinutes : 15,
@@ -41,77 +100,32 @@ $('#calendar').fullCalendar(
    },
    select : function(start, end, allDay, jsEvent, view)
    {
-      if(!isLockedOut(start))
-      {
-         if(allDay === true || view.name == 'month')
-            setDate(start);
-         else
-         {
-            updateEvent("Custom", start, false, start.toTimeString().split(" ")[0], end.toTimeString().split(" ")[0]);
-            $("#calendar").fullCalendar('unselect');
-         }
-      }
-      else
-      {
+      if(isLockedOut(start)) {
          $("#calendar").fullCalendar('unselect');
          selectedDate = null;
          bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
+      else {
+         if(mobile) {
+            cal_selectMobile(start, end, allDay, jsEvent, view);
+         }
+         else {
+            cal_select(steart, end, allDay, jsEvent, view);
+         }
+      }
    },
    eventRender : function(event, element, view)
    {
-      var position;
-      switch(event.start.getDay())
-      {
-         case 6 : position = "left"; break;
-         case 0 : position = "right"; break;
-         default: position = "top"; break;
+      if(mobile) {
+         cal_eventRenderMobile(event, element, view);   
       }
-      element.tooltip({
-         animation: false,
-         title: event.tip,
-         container: 'body',
-         placement: position      
-      });
-      if (event.category == 'scheduled')
-      {
-         event.editable = false;
+      else {
+         cal_eventRender(event, element, view);
       }
    },
    viewRender : function(view)
    {
-      if(view.name == "agendaWeek")
-      {
-         $("#copyWeek").removeClass("disabled");
-         $("#pasteWeek").removeClass("disabled");
-      }
-      else
-      {
-         $("#copyWeek").addClass("disabled", "disabled");
-         $("#pasteWeek").addClass("disabled", "disabled");
-      }
-      var _month = view.start.getFullYear() + "-" + (view.start.getMonth() + 1);
-      $.ajax(
-      {
-         type : "POST",
-         url : url + "index.php/user/populateMonthInfoForm",
-         data :
-         {
-            employeeId : employeeId,
-            month : _month
-         },
-         success : function(msg)
-         {
-            var json = JSON.parse(msg);
-            monthInfo.minHours = (typeof json["minHours"] !== "undefined") ? json["minHours"] : "";
-            monthInfo.maxHours = (typeof json["maxHours"] !== "undefined") ? json["maxHours"] : "";
-            monthInfo.notes = (typeof json["notes"] !== "undefined") ? json["notes"] : "";
-         },
-         error : function()
-         {
-            alert("ERROR!!!");
-         }
-      });
+      cal_viewRender(view);
    },
    drop : function(date, allDay)
    {
@@ -178,79 +192,7 @@ $('#calendar').fullCalendar(
    eventClick : function(event, jsEvent, view)
    {
       console.log(event);
-      var start, end, states;
-      if (event.category == 'scheduled-cover' || event.category == 'scheduled-pickup' && coverRequest === false || event.category == 'emptyShifts')
-      {
-         start = event.start.toTimeString().split(" ")[0];
-         end = event.end.toTimeString().split(" ")[0];
-         var form = initializeForm(start, end);
-
-         bootbox.dialog(event.description, [
-         {
-            "label" : "Partial Shift",
-            "class" : "btn-primary",
-            "callback" : function()
-            {
-               partialShiftPickupDialog(event, employeeId, form);
-            }
-         },
-         {
-            "label" : "Entire Shift",
-            "class" : "btn-primary",
-            "callback" : function()
-            {
-               pickUpShift(null, null, employeeId, event.employeeId, event.id);
-            }
-         },   
-         {
-            "label" : "Cancel",
-            "class" : "btn-danger"
-         }  
-         ]);
-      }
-      if (coverRequest === true && event.category == 'scheduled')
-      {
-         coverRequest = false;
-
-         cancelCoverRequest();
-
-         bootbox.dialog("Are you sure you would like to request a cover for this shift? (Note: the shift will remain on your schedule, and you will still be responsible for it until someone claims it). ", [
-            {
-               "label": "Full Shift",
-               "class": "btn-primary",
-               "callback" : function() {
-                  fullShiftCoverRequest(event);
-               }
-            },
-            {
-               "label": "Partial Shift",
-               "class": "btn-primary",
-               "callback": function() {
-                  partialShiftCoverRequest(event);
-               }
-            },
-            {
-               "label": "Cancel",
-               "class": "btn-danger"
-            }
-         ]);
-      }
+      cal_eventClick(event, jsEvent, view);
    },
-   eventSources :
-   [
-      {
-         url : url + "index.php/user/scheduledEventSource",
-         error : function(msg, textStatus, errorThrown)
-         {
-            alert(errorThrown);
-         }
-      },
-      {
-         url : url + "index.php/user/availabilityEventSource",
-         error : function(msg, textStatus, errorThrown)
-         {
-            alert(errorThrown);
-         }
-      }
-   ]
+   eventSources : [availabilityEventSource, scheduledEventSource]
 });

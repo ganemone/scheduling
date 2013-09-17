@@ -1,6 +1,15 @@
 var global_ajax_requests = 0;
 function slideUpMenu () {
-   $("button.navbar-toggle").trigger("click");
+   if($("button.navbar-toggle").is(":visible")) {
+      $("button.navbar-toggle").trigger("click");
+   }
+}
+function getBootBoxWidth () {
+   var doc_width = $(document).width();
+   var width_ret = (doc_width >= 800) ? doc_width/2 : (doc_width >= 500) ? 375 : doc_width;
+   var position_left = doc_width/2 - width_ret/2;
+   return "position: absolute; left: " + position_left + "px; top: 10%; width: " + width_ret + "px;";0
+
 }
 function sendRequest(method, url, data, callback, showProgress)
 {
@@ -138,7 +147,7 @@ function buildForm(form_obj)
       form += "<h4>" + form_obj["title"] + "</h4>";
       form += "<hr>";
    }
-   form += "<form class='form-horizontal' id='" + form_obj.id + "' name='" + form_obj.name + "' style='" + form_obj.style + ";'>";
+   form += "<form class='form-horizontal' id='" + form_obj.id + "' name='" + form_obj.name + "'>"; //style='" + form_obj.style + ";'>";
    for (var i = 0; i < form_obj.elements.length; i++) 
    {
       if(form_obj.elements[i].type == "header")
@@ -195,9 +204,17 @@ function buildForm(form_obj)
       else 
       {
          form += "<div class='form-group'>";
-         form += "<label for='" + form_obj.elements[i].id + "' class='col-3 control-label'>" + form_obj.elements[i].label + "</label>";
-         form += "<div class='col-9'>";
-         form += "   <input type='" + form_obj.elements[i].type + "' class='form-control' placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'";
+         form += "<label for='" + form_obj.elements[i].id + "' class='";
+         form += (typeof form_obj.elements[i]["label_class"] != "undefined") ? form_obj.elements[i]["label_class"] : "col-3 control-label";
+         form += "'>" + form_obj.elements[i].label + "</label>";
+         form += "<div class='";
+         form += (typeof form_obj.elements[i]["input_class"] != "undefined") ? form_obj.elements[i]["input_class"] : "col-9";
+         form += "'>";
+         form += "   <input type='" + form_obj.elements[i].type + "'";
+         if(form_obj.elements[i].type != "radio") {
+            form += "class='form-control'";
+         }
+         form += "placeholder='" + form_obj.elements[i].placeholder + "' name='" + form_obj.elements[i].name + "' id='" + form_obj.elements[i].id + "'";
          if(typeof form_obj.elements[i].value != "undefined") {
             form += "value='" + form_obj.elements[i].value + "'";
          }
@@ -442,9 +459,9 @@ function buildStartEndInputs(form_obj, start_selected, end_selected, start_allow
    }
    form_obj["elements"].push({
       "type" : "group", "data" : [{
-         "type" : "select", "label" : "Start: ", "name" : "start_time", "id" : "start_time", "data" : start_end_obj["start"], "label_class" : "control-label col-1", "input_class" : "col-5"
+         "type" : "select", "label" : "Start: ", "name" : "start_time", "id" : "start_time", "data" : start_end_obj["start"], "label_class" : "control-label col-1", "input_class" : "col-4"
       }, {
-         "type" : "select", "name" : "end_time", "id" : "end_time", "label" : "End: ", "data" : start_end_obj["end"], "label_class" : "control-label col-1", "input_class" : "col-5"
+         "type" : "select", "name" : "end_time", "id" : "end_time", "label" : "End: ", "data" : start_end_obj["end"], "label_class" : "control-label col-1", "input_class" : "col-4"
       }]
    });
 }

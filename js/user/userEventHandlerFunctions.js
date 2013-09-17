@@ -65,33 +65,33 @@ $("#tutorial").click(function() {
 
 $("#showEvents").click(function() {
    if (events === true) {
-      $("#calendar").fullCalendar("removeEventSource", url + "index.php/user/coEventSource");
+      $("#calendar").fullCalendar("removeEventSource", coEventSource);
       events = false;
    }
    else {
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/coEventSource");
+      $("#calendar").fullCalendar("addEventSource", coEventSource);
       events = true;
    }
 });
 
 $("#showAllStaff").click(function() {
    if (staff === true) {
-      $("#calendar").fullCalendar("removeEventSource", url + "index.php/user/allStaffSource");
+      $("#calendar").fullCalendar("removeEventSource", allStaffEventSource);
       staff = false;
    }
    else {
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/allStaffSource");
+      $("#calendar").fullCalendar("addEventSource", allStaffEventSource);
       staff = true;
    }
 });
 
 $("#toggleAvailability").click(function() {
    if (availability == true) {
-      $("#calendar").fullCalendar("removeEventSource", url + "index.php/user/availabilityEventSource");
+      $("#calendar").fullCalendar("removeEventSource", availabilityEventSource);
       availability = false;
    }
    else {
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/availabilityEventSource");
+      $("#calendar").fullCalendar("addEventSource", availabilityEventSource);
       availability = true;
    }
 });
@@ -101,11 +101,11 @@ $("#printableSchedule").click(function() {
 
 $(window).load(function() {
    if (availability === true)
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/availabilityEventSource");
+      $("#calendar").fullCalendar("addEventSource", availabilityEventSource);
    if (staff === true)
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/allStaffSource");
+      $("#calendar").fullCalendar("addEventSource", allStaffEventSource);
    if (events === true)
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/user/coEventSource");
+      $("#calendar").fullCalendar("addEventSource", coEventSource);
    if (String(window.location).indexOf("printable") == -1)
       $(".leftNav").css("height", $(window).height() - 40);
    else

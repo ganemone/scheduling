@@ -31,7 +31,6 @@ class User extends CI_Controller
       $this->employeeInfo['menu_items'] = array("href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->load->view("header.php", $this->employeeInfo);
       $this->load->view("home.php", $this->employeeInfo);
-      //$this->load->view('footer.php');
       
    }
    function initializeEmployeeInfo($info)
@@ -77,20 +76,8 @@ class User extends CI_Controller
          "href='logout'" => "Log Out");
 
       $this->load->view("includes.php");
-      $this->load->view("/user/userDialogs.html");
-      if ($this->agent->is_mobile())
-      {
-         $this->load->view("/user/mobile/availabilityCalCSSMobile.html");
-         $this->load->view('/user/userMenu.php', $this->employeeInfo);
-         $this->load->view("/user/mobile/availabilityCalendarMobile.php", $this->employeeInfo);
-      }
-      else
-      {
-         $this->load->view("header.php", $this->employeeInfo);
-         $this->load->view("/user/availabilityCalCSS.html");
-         $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);
-      }
-      
+      $this->load->view("header.php", $this->employeeInfo);
+      $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);
    }
 
    function printable()
@@ -109,14 +96,13 @@ class User extends CI_Controller
       $this->employeeInfo['employeeId'] = $this->input->cookie('EmployeeId');
       $this->load->view("includes.php");
       $this->load->view("/sfl/print.php");
-      $this->load->view('/user/userMenu.php', $this->employeeInfo);
       $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);
    }
 
    function availabilityEventSource()
    {
       $this->employeeInfo['employeeId'] = $this->input->cookie('EmployeeId');
-      $json = $this->employee->getAvailableEvents($this->employeeInfo['employeeId']);
+      $json = $this->employee->getAvailableEvents($this->input->get("start"), $this->input->get("end"), $this->employeeInfo['employeeId']);
 
       echo "[";
       while (count($json) > 0)
@@ -132,7 +118,7 @@ class User extends CI_Controller
 
    function scheduledEventSource()
    {
-      $json = $this->employee->getScheduledEvents($this->input->cookie("EmployeeId"));
+      $json = $this->employee->getScheduledEvents($this->input->get("start"), $this->input->get("end"), $this->input->cookie("EmployeeId"));
       echo "[";
       while (count($json) > 0)
       {
@@ -257,7 +243,7 @@ class User extends CI_Controller
 
    function coEventSource()
    {
-      $json = $this->employee->coEventSource();
+      $json = $this->employee->coEventSource($this->input->get("start"), $this->input->get("end"));
       echo "[";
       while (count($json) > 0)
       {

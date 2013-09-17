@@ -1,6 +1,40 @@
 var global_goal_arr;
 initializeGoals();
-bootbox.animate(false);
+//bootbox.animate(false);
+var coEventSource = {
+   url : url + "index.php/sfl/coEventSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      error_handler(textStatus, errorThrown, "CO Event Sourcer");
+   },
+   complete: function()
+   {
+      global_ajax_requests--;
+      hideLoading();
+   }
+};
+var supportEventSource = {
+   url : url + "index.php/sfl/supportEventSource",
+   beforeSend: function()
+   {
+      global_ajax_requests++;
+      showLoading();
+   },
+   error : function(msg, textStatus, errorThrown)
+   {
+      error_handler(textStatus, errorThrown, "SFL Support Event Source");
+   },
+   complete: function()
+   {
+      global_ajax_requests--;
+      hideLoading();
+   }
+}; 
 $(window).resize(function()
 {
    resizeCalendar();   
@@ -47,7 +81,7 @@ $("#calendar").fullCalendar(
       $("span.fc-header-title h2").hide();
 
       $('#calendar').fullCalendar('option', 'contentHeight', h);
-      //var result = showGoals(view);
+      showGoals(view);
    },
    eventSources : [
    {
@@ -55,10 +89,11 @@ $("#calendar").fullCalendar(
       beforeSend: function()
       {
          global_ajax_requests++;
+         showLoading();
       },
       error : function(msg, textStatus, errorThrown)
       {
-         alert(textStatus + "/manager/floorEventSource");
+         error_handler(textStatus, errorThrown, "SFL Floor Event Source");
       },
       complete: function()
       {
@@ -171,12 +206,12 @@ $("#toggleSupportStaff").click(function()
 {
    if (support == true)
    {
-      $("#calendar").fullCalendar("removeEventSource", url + "index.php/sfl/supportEventSource");
+      $("#calendar").fullCalendar("removeEventSource", supportEventSource);
       support = false;
    }
    else
    {
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/sfl/supportEventSource");
+      $("#calendar").fullCalendar("addEventSource", supportEventSource);
       support = true;
    }
 });
@@ -184,12 +219,12 @@ $("#toggleStoreEvents").click(function()
 {
    if (events == true)
    {
-      $("#calendar").fullCalendar("removeEventSource", url + "index.php/manager/coEventSource");
+      $("#calendar").fullCalendar("removeEventSource", coEventSource);
       events = false
    }
    else
    {
-      $("#calendar").fullCalendar("addEventSource", url + "index.php/manager/coEventSource");
+      $("#calendar").fullCalendar("addEventSource", coEventSource); 
       events = true;
    }
 });
@@ -303,7 +338,6 @@ function addMissedSale()
    var form_obj = {
       name     : "missedSaleForm",
       id       : "missedSaleForm",
-      style    : "width: 500px;",
       elements : [{
          id          : "miss_description",
          name        : "description",
@@ -312,11 +346,18 @@ function addMissedSale()
          placeholder : "Enter description here"
       },
       {
+         id          : "miss_size",
+         name        : "size",
+         label       : "Size: ",
+         type        : "text",
+         placeholder : "Enter size here"
+      },
+      {
          id          : "miss_style",
          name        : "style",  
          label       : "Style",
          type        : "text",
-         placeholder : "Enter size here"
+         placeholder : "Enter style number here (without color code)"
       },
       {
          id          : "miss_color",
@@ -335,26 +376,58 @@ function addMissedSale()
    };
 
    var form = buildForm(form_obj);
-
-   bootbox.confirm(form, function(results)
-   {
-      if (results === true)
-      {
-         var form = $("#missedSaleForm");
-         var data = {
-            description : $("#miss_description").val(),
-            style       : $("#miss_style").val(),
-            color       : $("#miss_color").val(),
-            size        : $("#miss_size").val(),
-            price       : $("#miss_price").val() 
-         };
-              
-         sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
-         function(msg) {
-            successMessage("Missed sale added");
-         }, true);    
+   bootbox.dialog({ 
+      message : "Is it a specific product we carry?",
+      title : "Missed Sale",
+      buttons : {
+         No : {
+            label: "No",
+            className : "btn-danger",
+            callback : function() {
+               bootbox.prompt("Enter a description of the product.", function(result) {
+                  if(result) {
+                     var data = {
+                        description : result,
+                        style       : "NA",
+                        color       : "NA",
+                        size        : "NA",
+                        price       : "0.00"
+                     }
+                     sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
+                     function(msg) {
+                        successMessage("Missed sale added");
+                     }, true);  
+                  }
+               });
+            }
+         },
+         Yes : {
+            label : "Yes",
+            className : "btn-primary",
+            callback : function() {
+               bootbox.confirm(form, function(results)
+               {
+                  if (results === true)
+                  {
+                     var form = $("#missedSaleForm");
+                     var data = {
+                        description : $("#miss_description").val(),
+                        style       : $("#miss_style").val(),
+                        color       : $("#miss_color").val(),
+                        size        : $("#miss_size").val(),
+                        price       : $("#miss_price").val() 
+                     };
+                          
+                     sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
+                     function(msg) {
+                        successMessage("Missed sale added");
+                     }, true);    
+                  }
+                  return true;
+               });
+            }
+         }
       }
-      return true;
    });
 }
 
@@ -388,7 +461,6 @@ function addStory()
    var form_obj = {
       name : "story_form",
       id   : "story_form",
-      style : "width: 500px;",
       elements : [
       {
          id          : "story_employeeId",
@@ -467,8 +539,6 @@ function getEmailTemplate()
       message = "<h3>Nightly Email for " + new Date().toDateString() + "</h3><br>";
       bootbox.alert(message + msg);
       
-      selectText("emailTemplate");
-
    }, true);
 }
 

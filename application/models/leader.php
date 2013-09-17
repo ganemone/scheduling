@@ -25,58 +25,110 @@ class Leader extends CI_Model
       return false;
    }
 
-   function floorEventSource()
+   function floorEventSource($start, $end)
    {
-      return $this->getJSONArray("category != 'SP'");
+      $finalizedDate = $this->input->cookie('finalized');
+      if($end > strtotime($finalizedDate)) {
+         $end_date = date("Y-m-d", strtotime($finalizedDate));
+      }
+      else {
+         $end_date = date("Y-m-d", $end);
+      }
+
+      if($start > strtotime($finalizedDate)) {
+         return array();
+      }
+      $start_date = date("Y-m-d", $start);
+      return $this->getJSONArray("WHERE scheduled.category != 'SP' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
    }
 
-   function supportEventSource()
+   function supportEventSource($start, $end)
    {
-      return $this->getJSONArray("category = 'SP'");
+      $finalizedDate = $this->input->cookie('finalized');
+      if($end > strtotime($finalizedDate)) {
+         $end_date = date("Y-m-d", strtotime($finalizedDate));
+      }
+      else {
+         $end_date = date("Y-m-d", $end);
+      }
+
+      if($start > strtotime($finalizedDate)) {
+         return array();
+      }
+      $start_date = date("Y-m-d", $start);
+      return $this->getJSONArray("WHERE scheduled.category = 'SP' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
+   }
+   function coEventSource($start, $end)
+   {
+      $finalizedDate = $this->input->cookie('finalized');
+      if($end > strtotime($finalizedDate)) {
+         $end_date = date("Y-m-d", strtotime($finalizedDate));
+      }
+      else {
+         $end_date = date("Y-m-d", $end);
+      }
+
+      if($start > strtotime($finalizedDate)) {
+         return array();
+      }
+      $start_date = date("Y-m-d", $start);
+      $query = $this->db->query("SELECT * FROM events WHERE date >= '$start_date' && date <= '$end_date'");
+      $array = array();
+      foreach ($query->result() as $row)
+      {
+         $array[] = json_encode(array(
+            "id" => md5("events$row->id"),
+            "rowId" => $row->id,
+            "title" => $row->title . " (" . date("g:i a", strtotime($row->start)) . "-" . date("g:i a", strtotime($row->end)) . ")",
+            "allDay" => true,
+            "start" => $row->date . " " . $row->start,
+            "end" => $row->date . " " . $row->end,
+            "category" => "events",
+            "color" => "#480091",
+            "location" => $row->location,
+            "repeating" => $row->repeating
+         ));
+      }
+      return $array;
    }
 
    function getJSONArray($where)
    {
       $_json = array();
-      $query = $this->db->query("SELECT id, firstName, lastName, position FROM employees");
-      $finalizedDate = $this->input->cookie('finalized');
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.* FROM scheduled LEFT JOIN employees ON scheduled.employeeId = employees.id $where");
       foreach ($query->result() as $row)
       {
          $name = "$row->firstName " . $row->lastName[0];
-         $_query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$row->id' && day <= '$finalizedDate' && $where");
-         foreach ($_query->result() as $_row)
-         {
-            $sfl = ($_row->sfl == 1) ? "(SFL)" : "";
-            $border = ($_row->sfl == 1) ? "BLACK" : "";
-            $begin = $_row->begin;
-            $end = $_row->end;
-            $start = Date('Y-m-d H:i:s', strtotime("$_row->day $begin"));
-            $_end = Date('Y-m-d H:i:s', strtotime("$_row->day $end"));
-            $cat = "";
-            if ($_row->category != "SF" && $_row->category != null && strpos($_row->category, "event") == false)
-               $cat = "($_row->category)";
-            if ($_row->category == "SP")
-               $color = "#EB8F00";
-            else if ($_row->sfl == 1)
-               $color = "#B81900";
-            else
-               $color = "#3366CC";
+         $sfl = ($row->sfl == 1) ? "(SFL)" : "";
+         $border = ($row->sfl == 1) ? "BLACK" : "";
+         $begin = $row->begin;
+         $end = $row->end;
+         $start = Date('Y-m-d H:i:s', strtotime("$row->day $begin"));
+         $_end = Date('Y-m-d H:i:s', strtotime("$row->day $end"));
+         $cat = "";
+         if ($row->category != "SF" && $row->category != null && strpos($row->category, "event") == false)
+            $cat = "($row->category)";
+         if ($row->category == "SP")
+            $color = "#EB8F00";
+         else if ($row->sfl == 1)
+            $color = "#B81900";
+         else
+            $color = "#3366CC";
 
-            array_push($_json, json_encode(array(
-               "title" => " $name $cat $sfl",
-               "start" => $start,
-               "end" => $_end,
-               "allDay" => false,
-               'color' => "$color",
-               "employeeId" => $row->id,
-               'category' => 'scheduled',
-               'id' => $_row->id,
-               'position' => $row->position,
-               'area' => $_row->category,
-               'borderColor' => $border,
-               'sfl' => $sfl
-            )));
-         }
+         $_json[] = json_encode(array(
+            "title" => " $name $cat $sfl",
+            "start" => $start,
+            "end" => $_end,
+            "allDay" => false,
+            'color' => "$color",
+            "employeeId" => $row->id,
+            'category' => 'scheduled',
+            'id' => $row->id,
+            'position' => $row->position,
+            'area' => $row->category,
+            'borderColor' => $border,
+            'sfl' => $sfl
+         ));
       }
       return $_json;
    }

@@ -38,7 +38,7 @@ class sfl extends CI_Controller
       $this->info['menu_items'] = array(
       "Calendar Actions" => array(
          "id='missedSale' onclick='addMissedSale()'" => "Missed Sale",
-         "id='story' onclick='addStory()'" => "Employee Actions",
+         "id='story' onclick='addStory()'" => "Note for Email",
          "id='nightlyEmail' onclick='getEmailTemplate()'" => "Nightly Email",
          "id='printSchedule'" => "Printable Schedule"
       ),
@@ -81,7 +81,7 @@ class sfl extends CI_Controller
 
    function floorEventSource()
    {
-      $json = $this->leader->floorEventSource();
+      $json = $this->leader->floorEventSource($this->input->get("start"), $this->input->get("end"));
       $this->echoJSON($json);
    }
 
@@ -101,7 +101,12 @@ class sfl extends CI_Controller
 
    function supportEventSource()
    {
-      $json = $this->leader->supportEventSource();
+      $json = $this->leader->supportEventSource($this->input->get("start"), $this->input->get("end"));
+      $this->echoJSON($json);
+   }
+   function coEventSource()
+   {
+      $json = $this->leader->coEventSource($this->input->get("start"), $this->input->get("end"));
       $this->echoJSON($json);
    }
    

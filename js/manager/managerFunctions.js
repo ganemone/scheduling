@@ -399,7 +399,7 @@ function continueScheduling(start, end, employeeInfo) {
    form_obj["title"] = "Date: " + (start.getMonth() + 1) + "/" + start.getDate() + "/" + start.getFullYear() + "<br>Time: " + timeToString(start) + " - " + timeToString(end);
 
    $(".fc-event").tooltip("hide");
-   bootbox.confirm(buildForm(form_obj), "Cancel", "Submit", function(result) {
+   bootbox.confirm(buildForm(form_obj), function(result) {
       if(result) {
          var data = buildPostDataObj("#schedule_employee");
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
@@ -574,7 +574,7 @@ function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end) {
    form_obj["title"] = title;
    var form = buildForm(form_obj);
    $(".fc-event").tooltip("hide");
-   bootbox.confirm(form, "Cancel", "Submit", function(result) {
+   bootbox.confirm(form, function(result) {
       if (result) {
          var id = (calEvent.category == "events") ? $("#employee_select_list").val() : calEvent.employeeId;
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
@@ -715,7 +715,7 @@ function fillEmptyShift(calEvent) {
    form_obj["title"] = title;
    var form = buildForm(form_obj);
    $(".fc-event").tooltip("hide");
-   bootbox.confirm(form, "Cancel", "Submit", function(result) {
+   bootbox.confirm(form, function(result) {
       if (result) {
          var id = $("#employee_select_list").val();
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
@@ -1303,7 +1303,7 @@ function addExternalEvent ()
             "name"        : "event_date",
             "id"          : "event_date",
             "type"        : "text",
-            "placeholder" : "Enter starting date here",
+            "placeholder" : "YYYY-MM-DD",
             "label"       : "Date: "
          },
          {
@@ -1336,7 +1336,7 @@ function addExternalEvent ()
             "name"        : "repeat_end_date",
             "id"          : "repeat_end_date",
             "type"        : "text",
-            "placeholder" : "Enter repeat ending date here",
+            "placeholder" : "YYYY-MM-DD",
             "label"       : "Repeat Until: ",
          }
       ]
@@ -1344,7 +1344,7 @@ function addExternalEvent ()
 
    buildStartEndInputs(form_obj, "06:00:00", "21:00:00", "06:00:00", "21:00:00");
 
-   bootbox.confirm(buildForm(form_obj), "Cancel", "Submit", function(result)
+   bootbox.confirm(buildForm(form_obj), function(result)
    {
       if(result)
       {
@@ -1377,10 +1377,6 @@ function addExternalEvent ()
          }, false);
       }
       return true;
-   }, function()
-   {
-      $("#event_date").datepicker({ dateFormat: 'yy-mm-dd'});
-      $("#repeat_end_date").datepicker({dateFormat: 'yy-mm-dd'});
    });
 }
 function updateStatistics () {

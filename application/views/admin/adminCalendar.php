@@ -174,7 +174,7 @@
 
     var global_employee_id_arr = new Array();
     
-    var global_employee_obj = new Array(); 
+    var global_employee_obj = {};
     
     var global_options_obj = {
          "events"  : false,
@@ -267,6 +267,7 @@
              }  
          };
     }
+    console.log(global_employee_obj);
    $(document).ready(function()
    {
       $("input:checked").prop("checked", false);
