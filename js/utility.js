@@ -1,4 +1,5 @@
 var global_ajax_requests = 0;
+
 function slideUpMenu () {
    if($("button.navbar-toggle").is(":visible")) {
       $("button.navbar-toggle").trigger("click");
@@ -34,10 +35,12 @@ function sendRequest(method, url, data, callback, showProgress)
    })
 }
 function showLoading() {
-   if(!$(".overlay").is(":visible"))
-      $(".overlay").fadeIn();
-   if(!$(".overlay-container").is(":visible"))
-      $(".overlay-container").show();   
+   if(global_ajax_requests > 0) {
+      if(!$(".overlay").is(":visible"))
+         $(".overlay").fadeIn();
+      if(!$(".overlay-container").is(":visible"))
+         $(".overlay-container").show();   
+   }
 }
 function hideLoading() {
    if(global_ajax_requests == 0) {
@@ -84,11 +87,13 @@ function errorMessage(msg)
 function showLeftNav (admin) 
 {
    var left = ($(".leftNavOuter").position().left == 0) ? -$(".leftNavOuter").outerWidth() : 0;
-   /*var calendar_width = $(document).width();
-   var calendar_subtract = (left == 0) ? 340 : 90;
+   if(typeof admin != "undefined" && mobile == false) {
+      var calendar_width = $(document).width();
+      var calendar_subtract = (left == 0) ? 340 : 15;
 
-   $("#calendar").css("width", calendar_width - calendar_subtract + "px");
-   $("#calendar").fullCalendar("render");*/
+      $("#calendar").css("width", calendar_width - calendar_subtract + "px");
+      $("#calendar").fullCalendar("render");
+   }
    $(".leftNavOuter").animate({ left: left });
 
    if(left == 0) {
@@ -275,7 +280,7 @@ function validateStartEndDates (start, end)
 
 function buildPostDataObj(form_selector) {
    var data = {};
-   $(form_selector + " input:checked, " + form_selector + " select, " + form_selector + " input[type=hidden], " + form_selector + " input[type=text]").each(function() {
+   $(form_selector + " input:checked, " + form_selector + " select, " + form_selector + " input[type=hidden], " + form_selector + " input[type=text], " + form_selector + " textarea").each(function() {
       if ($(this).val() != "NA") {
          if ($(this).prop("name").indexOf("[]") > 0) {
             if ( typeof data[$(this).prop("name")] == "undefined") {
@@ -451,11 +456,17 @@ function buildStartEndInputs(form_obj, start_selected, end_selected, start_allow
          };
       }
    }
-   form_obj["elements"].push({
-      "type" : "group", "data" : [{
-         "type" : "select", "label" : "Start: ", "name" : "start_time", "id" : "start_time", "data" : start_end_obj["start"], "label_class" : "control-label col-1", "input_class" : "col-4"
-      }, {
-         "type" : "select", "name" : "end_time", "id" : "end_time", "label" : "End: ", "data" : start_end_obj["end"], "label_class" : "control-label col-1", "input_class" : "col-4"
-      }]
-   });
+   if(mobile == true) {
+      form_obj["elements"].push({"type" : "select", "label" : "Start: ", "name" : "start_time", "id" : "start_time", "data" : start_end_obj["start"], "label_class" : "control-label col-5", "input_class" : "col-6"});
+      form_obj["elements"].push({"type" : "select", "name" : "end_time", "id" : "end_time", "label" : "End: ", "data" : start_end_obj["end"], "label_class" : "control-label col-5", "input_class" : "col-6"});
+   }
+   else {
+      form_obj["elements"].push({
+         "type" : "group", "data" : [{
+            "type" : "select", "label" : "Start: ", "name" : "start_time", "id" : "start_time", "data" : start_end_obj["start"], "label_class" : "control-label col-1", "input_class" : "col-4"
+         }, {
+            "type" : "select", "name" : "end_time", "id" : "end_time", "label" : "End: ", "data" : start_end_obj["end"], "label_class" : "control-label col-1", "input_class" : "col-4"
+         }]
+      });
+   }
 }

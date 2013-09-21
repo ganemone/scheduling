@@ -1,6 +1,6 @@
 <title>Gazelle Scheduling - <? echo $brand ?></title>
 <body>
-	<div class="navbar navbar-inverse navbar-fixed-top" id="navbar" style='z-index: 2000;'>
+	<div class="navbar navbar-inverse navbar-fixed-top" id="navbar" style='z-index: 500;'>
       <div class="container" style='width: 100%;'>
         	<a class="navbar-brand"><? echo $brand ?></a>
          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
@@ -39,3 +39,7 @@
   	</div>
   	<br>
   	<br>
+    <script type='text/javascript'>
+      var url = "<? echo base_url(); ?>";
+    </script>
+

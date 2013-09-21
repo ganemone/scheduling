@@ -5,7 +5,7 @@ if(resize == true)
       resizeCalendar();
    });
 }
-function calSelect (start, end, allDay, jsEvent, view) {
+function cal_select (start, end, allDay, jsEvent, view) {
    if(allDay === true || view.name == 'month') {
       setDate(start);
    }
@@ -139,7 +139,7 @@ function incrementDate() {
    $('#calendar').fullCalendar('select', selectedDate, selectedDate, 'true');
 }
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 20;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 10;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 

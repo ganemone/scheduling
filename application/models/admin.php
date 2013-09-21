@@ -37,7 +37,7 @@ class admin extends CI_Model
     */
    function getEmployeeList()
    {
-      $sql = "SELECT * FROM employees ORDER BY permissions";
+      $sql = "SELECT * FROM employees ORDER BY permissions, firstName";
 
       $query = $this->db->query($sql);
       $employees = array();
@@ -188,12 +188,13 @@ class admin extends CI_Model
    /*
     * 	Gets the scheduled events for the manager calendar
     */
-   function getScheduledEventFeed($employee_obj)
+   function getScheduledEventFeed($employee_obj, $start_date, $end_date)
    {
       $json = array();
       $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.*
       FROM scheduled 
       LEFT JOIN employees ON scheduled.employeeId = employees.id
+      WHERE scheduled.day >= '$start_date' && scheduled.day <= '$end_date'
       ORDER BY employees.firstName");
 
       foreach ($query->result() as $row)
@@ -673,9 +674,9 @@ class admin extends CI_Model
       ));
    }
 
-   function coEventSource($array = array())
+   function coEventSource($start_date, $end_date, $array = array())
    {
-      $query = $this->db->query("SELECT * FROM events");
+      $query = $this->db->query("SELECT * FROM events WHERE date >= '$start_date' && date <= '$end_date'");
       foreach ($query->result() as $row)
       {
          $array[] = json_encode(array(

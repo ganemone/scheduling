@@ -80,21 +80,24 @@
    </body>
    <script type = 'text/javascript'>
       // All global scope variables
-         var url = "<? echo base_url() ?>";
          var employeeId = <?php echo $employeeId ?>;
          var coverRequest = false;
          var events = !<? echo $events ?>;
          var staff = !<? echo $staff ?>;
          var availability = <? echo $availability ?>;
          var resize = <? echo $resize ?>;
-         var mobile = true;
+         var mobile = false;
+         <? if($mobile == true): ?>
+            mobile = true; 
+         <? endif; ?>
+      
          var clipboard = null;
          var selectedDate;
 
          //var timeout_id;
    </script>
    <script src="<? echo base_url() ?>js/utility.js"></script>
-   <? if($mobile == true || true): ?>
+   <? if($mobile == true): ?>
    <script src="<? echo base_url() ?>js/user/mobile/userMobileFunctions.js"></script>
    <? endif; ?>
    <script src="<? echo base_url() ?>js/user/userFunctions.js"></script>

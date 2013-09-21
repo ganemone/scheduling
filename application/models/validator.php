@@ -49,5 +49,24 @@ class validator extends CI_Model
    {
       return ($this->db->query("SELECT permissions FROM employees WHERE id = '$employee_id'")->row()->permissions >= 2) ? true : false;
    }
-   
+   function valid_name($name)
+   {
+      return preg_match("/^(a-z){2-30}#/", $name);
+   }
+   function valid_email($email)
+   {
+      return preg_match("/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/", $email);
+   }
+   function valid_permissions($permissions)
+   {
+      return ($permissions == '1' || $permissions == '2' || $permissions == '3') ? true : false;
+   }
+   function valid_position($position)
+   {
+      return ($position == "SA" || $position == "SFL" || $position == "SP") ? true : false;
+   }
+   function valid_wage($wage)
+   {
+      return preg_match("/^([0-9]+)\.([0-9]+)$/", $wage);
+   }
 }

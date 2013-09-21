@@ -61,13 +61,39 @@ var coEventSource = {
       hideLoading();
    }
 }
+var header = {};
+var title_format = {};
+if(mobile == true)
+{
+   header = {
+      left : 'prev,next',
+      center : 'title',
+      right : "month,basicWeek"
+   };
+   title_format = {
+      month: "MMM yyyy",
+      week: "MMM yyyy",
+      day: "MMM yyyy"
+   };
+} 
+else {
+   header = {
+      left : 'prev,next today',
+      center : 'title',
+      right : "month,basicWeek,agendaDay"
+   };
+   title_format = {
+      month: 'MMMM yyyy',                             
+      week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}", 
+      day: 'dddd, MMM d, yyyy'                  
+   }
+}
 function renderCalendar(slotMinutes, view, date) {
    $("#calendar").fullCalendar('destroy');
    $("#calendar").css("width", $(document).width() - 290);
    var options = {
-      header : {
-         left : 'prev,next', center : 'title', right : 'month,basicWeek,agendaDay'
-      },
+      header : header,
+      titleFormat : title_format,
       allowCalEventOverlap : false,
       selectable : true,
       slotMinutes : slotMinutes,
@@ -87,14 +113,17 @@ function renderCalendar(slotMinutes, view, date) {
        */
       viewRender : function(view) {
          showLoading();
-         initializeGoalTips(view);
+         if(mobile == false) {
+           $("span.fc-header-title h2").hide();
+           initializeGoalTips(view);
+         }
          if (view.name == 'month') {
             h = NaN;
          }
          else {
             h = 6000;
          }
-         $("span.fc-header-title h2").hide();
+         
             
          if($("#statistics").is(":visible")) {
             updateStatistics();
@@ -250,7 +279,6 @@ function renderCalendar(slotMinutes, view, date) {
        *    view = the view in which the action was executed.
        */
       eventClick : function(calEvent, jsEvent, view) {
-         console.log(calEvent);
          if(global_options_obj["eventClick"] == "standard") {
             if (calEvent.category != 'scheduled') {
                if (jsEvent.shiftKey) {
@@ -302,7 +330,7 @@ function renderCalendar(slotMinutes, view, date) {
                $("#sflRightClickItem").prop("checked", false);
             }
             $("#editEventPopup").show().offset({
-                 top : jsEvent.pageY, left : jsEvent.pageX
+                 top : 100, left : 100
             }).dropdown();
          }
          else if(global_options_obj["eventClick"] == "addShift" && calEvent.category == "Available" || calEvent.category == "Custom" || calEvent.category == "events") {

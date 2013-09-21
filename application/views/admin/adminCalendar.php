@@ -163,13 +163,16 @@
 </html>
 <script type='text/javascript'>
     var tutorial = false;
-    var url = "<? echo base_url(); ?>";
     var employees = false;
     var busy = false;
     var names =  <? echo $names ?>;
     var unstoredEvents = [];
     var removedEmployees = [-1];
-    
+    var mobile = false;
+    <? if($mobile == true): ?>
+      mobile = true; 
+    <? endif; ?>
+      
     var global_groups_obj = {}
 
     var global_employee_id_arr = new Array();
@@ -179,7 +182,7 @@
     var global_options_obj = {
          "events"  : false,
          "delete"  : false,
-         "eventClick" : "standard"
+         "eventClick" : "standard",
     };       
 
     var global_categories_obj = {
@@ -268,7 +271,6 @@
              }  
          };
     }
-    console.log(global_employee_obj);
    $(document).ready(function()
    {
       $("input:checked").prop("checked", false);
@@ -282,7 +284,7 @@
 </script>
 
 <script src="<? echo base_url() ?>js/utility.js"></script>
-<? if ($mobile == true || true): ?>
+<? if ($mobile == true): ?>
 <script src="<? echo base_url() ?>js/manager/managerMobileFunctions.js"></script>
 <? endif; ?>
 <script src="<? echo base_url() ?>js/manager/managerEventHandlerFunctions.js"></script>
@@ -290,5 +292,3 @@
 <script src="<? echo base_url() ?>js/manager/managerKeypress.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerTutorial.js"></script>
 <script src="<? echo base_url() ?>js/manager/managerCalendar.js"></script>
-<!--<script src="<? echo base_url() ?>jsMin/manager/manager.min.js"></script>-->
-

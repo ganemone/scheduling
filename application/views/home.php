@@ -1,7 +1,7 @@
 <body>
 	<br>
 	<div class='jumbotron'>
-		<h2 class='text-center'>Choose a calendar</h2>
+		<h2 class='text-center'>Menu</h2>
 		<hr>
 	<? 
 	if($permissions == 0)
@@ -22,15 +22,18 @@
 	<? elseif($permissions > 2): ?>
 	<div class='container'>
 		<div class='row'>
-			<div class='col-lg-4 col-md-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-primary btn-large calendar-button'>User Calendar</a>
+			<div class='col-lg-3 col-md-3 text-center'>
+	   			<a href='<? echo base_url() . "index.php/user/userCalendar" ?>' class='btn btn-primary btn-large calendar-button'>User Calendar</a>
 	   		</div>
-	   		<div class='col-lg-4 col-md-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-primary btn-large calendar-button'>SFL Calendar</a>
+	   		<div class='col-lg-3 col-md-3 text-center'>
+	   			<a href='<? echo base_url() . "index.php/sfl" ?>' class='btn btn-primary btn-large calendar-button'>SFL Calendar</a>
 	   		</div>
-	   		<div class='col-lg-4 col-md-4 text-center'>
-	   		<a href='<? echo base_url() . "index.php/manager" ?>' class='btn btn-primary btn-large calendar-button'>Manager Calendar</a>
-	   		</div>	
+	   		<div class='col-lg-3 col-md-3 text-center'>
+	   			<a href='<? echo base_url() . "index.php/manager" ?>' class='btn btn-primary btn-large calendar-button'>Manager Calendar</a>
+	   		</div>
+	   		<div class='col-lg-3 col-md-3 text-center'>
+	   			<a href='<? echo base_url() . "index.php/settings/" ?>' class='btn btn-primary btn-large calendar-button'>Settings</a>
+	   		</div>
 	   	</div>
 	</div>
 	<? endif; ?>

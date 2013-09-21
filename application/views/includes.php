@@ -2,6 +2,7 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
+
 <script src="<? echo base_url() ?>js/plugins/jquery-ui-1.10.3.custom/js/jquery-1.9.1.js"></script>
 <script src="<? echo base_url() ?>js/plugins/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js"></script>
 <!--<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>-->

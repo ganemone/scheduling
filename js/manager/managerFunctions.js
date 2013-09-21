@@ -1,5 +1,5 @@
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 30;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 15;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 
@@ -74,6 +74,10 @@ function getStartAndEndDates(view, selectedDate) {
 }
 
 function initializeGoalTips(view) {
+   if(mobile == true) {
+      $("span.fc-header-title h2").fadeIn();
+      return false;
+   }
    var dateObj = getStartAndEndDates(view.name, $("#calendar").fullCalendar("getDate"));
    sendRequest("GET", url + "index.php/manager/getGoal", {
       startDate : dateObj.startDate.toDateString(),
@@ -287,6 +291,9 @@ function scheduleEmployee(start, end, startTime, endTime) {
    for (var i = 0; i < employees.length; i++) {
       employees[i] = employees[i].employeeId;
    }
+   if(employees.length == 0) {
+      return continueScheduling(start, end, null);
+   }
    sendRequest("POST", url + "index.php/manager/getHoursLeft", {
       start : weekStart,
       end : weekEnd,
@@ -372,7 +379,9 @@ function continueScheduling(start, end, employeeInfo) {
       "name" : "day", "label" : "", "type" : "hidden", "id" : "day", "value" : start.toDateString()
    });
 
-   buildEmployeeChecklistObj(form_obj, employeeInfo);
+   if(employeeInfo != null) {
+      buildEmployeeChecklistObj(form_obj, employeeInfo);
+   }
 
    buildEmployeeSelectObj(form_obj);
 
@@ -1297,7 +1306,7 @@ function addExternalEvent ()
             "id"          : "event_repeat",
             "type"        : "select",
             "label"       : "Repeat: ",
-            "label_class" : "control-label, col-3",
+            "label_class" : "control-label col-3",
             "input_class" : "col-9",
             "data"        : {
                "0" : { 

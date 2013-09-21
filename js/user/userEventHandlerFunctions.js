@@ -48,19 +48,7 @@ function cancelCoverRequest() {
 
 
 $("#showMonthInfoForm").click(function() {
-   /*hideClass('.mainButton');
-    $("#external-events").hide();
-    $("#monthInfo").slideDown();*/
    updateInfo();
-});
-
-$("#cancelMonthForm").click(function() {
-   /*$("#monthInfo").slideUp();
-    showClass(".mainButton");*/
-});
-
-$("#tutorial").click(function() {
-   $.prompt(tutorialStates);
 });
 
 $("#showEvents").click(function() {

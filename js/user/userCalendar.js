@@ -133,7 +133,7 @@ $('#calendar').fullCalendar(
             cal_selectMobile(start, end, allDay, jsEvent, view);
          }
          else {
-            cal_select(steart, end, allDay, jsEvent, view);
+            cal_select(start, end, allDay, jsEvent, view);
          }
       }
    },
@@ -214,7 +214,6 @@ $('#calendar').fullCalendar(
    },
    eventClick : function(event, jsEvent, view)
    {
-      console.log(event);
       cal_eventClick(event, jsEvent, view);
    },
    eventSources : [availabilityEventSource, scheduledEventSource]

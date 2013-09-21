@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-//$config['base_url']	= 'http://gazellescheduling.nfshost.com';
+//$config['base_url']	= 'http://www.gazellescheduling.com';
 $config['base_url']  = 'http://localhost/scheduleRepo';  
 
 /*

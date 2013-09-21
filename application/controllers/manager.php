@@ -12,11 +12,8 @@ class Manager extends CI_Controller
       $this->load->model('validator');
       $this->load->library('email');
       $this->load->library('user_agent');
-      $this->companyInfo['mobile'] = $this->agent->is_mobile();
-   }
+      $this->companyInfo['mobile'] = ($this->agent->is_mobile()) ? true : false;
 
-   function index()
-   {
       $employee_id = $this->input->cookie("EmployeeId");
       if(!$this->validator->valid_employee_id($employee_id)) {
          header("location: " . base_url() . "index.php/site");
@@ -24,6 +21,10 @@ class Manager extends CI_Controller
       if(!$this->validator->valid_manager($employee_id)) {
          header("location: " . base_url() . "index.php/site");
       }
+   }
+
+   function index()
+   {
       $this->companyInfo["groups"] = json_encode($this->admin->getGroups());
       $this->companyInfo['names'] = json_encode($this->admin->getEmployeeList());
       $this->initialize();
@@ -87,7 +88,9 @@ class Manager extends CI_Controller
    function scheduledEventSource()
    {
       $employee_obj = json_decode($this->input->get("employee_obj"));
-      $_json = $this->admin->getScheduledEventFeed($employee_obj);
+      $start_date = date("Y-m-d", $this->input->get("start"));
+      $end_date = date("Y-m-d", $this->input->get("end"));
+      $_json = $this->admin->getScheduledEventFeed($employee_obj, $start_date, $end_date);
       echo "[";
       while (count($_json) > 0)
       {
@@ -114,9 +117,11 @@ class Manager extends CI_Controller
    }
    function coEventSource()
    {
+      $start_date = date("Y-m-d", $this->input->get("start"));
+      $end_date = date("Y-m-d", $this->input->get("end"));
       if(json_decode($this->input->get("options_obj"))->events)
       {
-         $json = $this->admin->coEventSource();
+         $json = $this->admin->coEventSource($start_date, $end_date);
          echo "[";
          while (count($json) > 0)
          {
@@ -136,7 +141,7 @@ class Manager extends CI_Controller
 
    function initialize()
    {
-      if($this->companyInfo['mobile'] || true) {
+      if($this->companyInfo['mobile']) {
          $this->companyInfo["menu_items"] = array(
             "Shift Manipulation" => array(
                "onclick='mobile_addShift()'" => "Add Shift",
@@ -386,7 +391,7 @@ class Manager extends CI_Controller
 
       $result = "error";
       if($this->validator->valid_date($startDate) && $this->validator->valid_date($endDate)) {
-         $result = $this->admin->getGoal($startDate, $endDate, false);
+         $result = $this->admin->getGoal($startDate, $endDate, true);
       }
       echo $result;
    }

@@ -157,7 +157,7 @@ class User extends CI_Controller
       $employeeId = $_POST['employeeId'];
       $date = $_POST['date'];
       $_date = Date('Y-m', strtotime($date));
-      $_date_ = $_date . "-1";
+      $_date_ = $_date . "-01";
       $min = $_POST['min'];
       $max = $_POST['max'];
       $notes = mysql_real_escape_string($_POST['notes']);
