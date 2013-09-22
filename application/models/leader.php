@@ -32,14 +32,14 @@ class Leader extends CI_Model
          $end_date = date("Y-m-d", strtotime($finalizedDate));
       }
       else {
-         $end_date = date("Y-m-d", $end);
+         $end_date = date("Y-m-d", $end); 
       }
 
       if($start > strtotime($finalizedDate)) {
          return array();
       }
       $start_date = date("Y-m-d", $start);
-      return $this->getJSONArray("WHERE scheduled.category != 'SP' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
+      return $this->getJSONArray("WHERE scheduled.category != 'SP' && scheduled.event = '0' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
    }
 
    function supportEventSource($start, $end)
@@ -56,7 +56,7 @@ class Leader extends CI_Model
          return array();
       }
       $start_date = date("Y-m-d", $start);
-      return $this->getJSONArray("WHERE scheduled.category = 'SP' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
+      return $this->getJSONArray("WHERE scheduled.category = 'SP' || scheduled.event = '1' && scheduled.day >= '$start_date' && scheduled.day <= '$end_date'");
    }
    function coEventSource($start, $end)
    {
@@ -95,7 +95,12 @@ class Leader extends CI_Model
    function getJSONArray($where)
    {
       $_json = array();
-      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.* FROM scheduled LEFT JOIN employees ON scheduled.employeeId = employees.id $where");
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, event_settings.color, event_settings.border, scheduled.* 
+         FROM scheduled 
+         LEFT JOIN employees 
+         ON scheduled.employeeId = employees.id 
+         LEFT JOIN event_settings
+         ON scheduled.category = event_settings.category_abbr $where");
       foreach ($query->result() as $row)
       {
          $name = "$row->firstName " . $row->lastName[0];
@@ -105,22 +110,17 @@ class Leader extends CI_Model
          $end = $row->end;
          $start = Date('Y-m-d H:i:s', strtotime("$row->day $begin"));
          $_end = Date('Y-m-d H:i:s', strtotime("$row->day $end"));
-         $cat = "";
-         if ($row->category != "SF" && $row->category != null && strpos($row->category, "event") == false)
-            $cat = "($row->category)";
-         if ($row->category == "SP")
-            $color = "#EB8F00";
-         else if ($row->sfl == 1)
-            $color = "#B81900";
-         else
-            $color = "#3366CC";
+         $cat = ($row->category == "SF" || $row->category == "SP") ? "" : "({$row->category})";
+         
+         $color = ($row->color == null) ? "#790ead" : "#" . $row->color;
+         $border = ($row->sfl == 1) ? "#000000" : ($row->border == null) ? "#790ead" : "#" . $row->border;
 
          $_json[] = json_encode(array(
             "title" => " $name $cat $sfl",
             "start" => $start,
             "end" => $_end,
             "allDay" => false,
-            'color' => "$color",
+            'color' => $color,
             "employeeId" => $row->id,
             'category' => 'scheduled',
             'id' => $row->id,

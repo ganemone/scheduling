@@ -5,6 +5,7 @@
 					<th>Employee Id</th>
 					<th>First Name</th>
 					<th>Last Name</th>
+					<th>Password</th>
 					<th>Position</th>
 					<th>Permissions</th>
 					<th>Email</th>

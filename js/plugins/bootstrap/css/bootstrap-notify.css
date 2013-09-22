@@ -6,12 +6,12 @@
 /* Positioning */ 
 .notifications.top-right {
   right: 10px;
-  top: 25px;
+  top: 45px;
 }
 
 .notifications.top-left {
-  left: 10px;
-  top: 25px;
+  left: 70px;
+  top: 45px;
 }
 
 .notifications.bottom-left {

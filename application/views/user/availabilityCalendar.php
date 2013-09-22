@@ -8,6 +8,7 @@
          </div>
       </div>
       <div class='notifications top-right'></div>
+      <div class='notifications top-left'></div>
       <div id='calendar'></div>
       <div class='slide'>
          <div class='leftNavOuter'>
@@ -86,6 +87,8 @@
          var staff = !<? echo $staff ?>;
          var availability = <? echo $availability ?>;
          var resize = <? echo $resize ?>;
+         var editable_date = "<? echo $editable_date ?>";
+
          var mobile = false;
          <? if($mobile == true): ?>
             mobile = true; 
@@ -93,6 +96,32 @@
       
          var clipboard = null;
          var selectedDate;
+
+         var availability_due = new Date();
+         availability_due.setMonth(availability_due.getMonth() + 3);
+         availability_due.setDate(-1);
+         availability_due.setDate(6 - availability_due.getDay() + availability_due.getDate());
+
+         var alerts = "<? echo $alerts ?>";
+         if(alerts != "none") {
+            bootbox.alert(alerts, function() {
+               $('.top-left').notify({
+                  type: "important",
+                  message: { text: "Availability is due until " + availability_due.toDateString() + " at the end of the month." },
+                  fadeOut: { enabled: false }
+               }).show();
+            });
+         }
+         else {
+            $('.top-left').notify({
+               type: "important",
+               message: { text: "Availability is due until " + availability_due.toDateString() + " at the end of the month." },
+               fadeOut: { enabled: false }
+               }).show();
+         }
+
+         
+
 
          //var timeout_id;
    </script>

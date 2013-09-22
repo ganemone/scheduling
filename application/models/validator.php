@@ -51,11 +51,27 @@ class validator extends CI_Model
    }
    function valid_name($name)
    {
-      return preg_match("/^(a-z){2-30}#/", $name);
+      $result = preg_match("/^[a-zA-Z]{2,30}$/", $name);
+      if($result == false) {
+         error_log("valid_name");
+      }
+      return $result;
+   }
+   function valid_group_name($name)
+   {
+      $result = preg_match("/^[a-zA-Z\ \-_]{2,30}$/", $name);
+      if($result == false) {
+         error_log("valid_group_name");
+      }
+      return $result;
    }
    function valid_email($email)
    {
-      return preg_match("/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/", $email);
+      $result = preg_match("/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/", $email);
+      if($result == false) {
+         error_log("valid_email");
+      }
+      return $result;
    }
    function valid_permissions($permissions)
    {
@@ -67,6 +83,26 @@ class validator extends CI_Model
    }
    function valid_wage($wage)
    {
-      return preg_match("/^([0-9]+)\.([0-9]+)$/", $wage);
+      $result = preg_match("/^([0-9]+)((\.[0-9])*)$/", $wage);
+      if($result == false) {
+         error_log("valid_wage");
+      }
+      return $result;
+   }
+   function valid_password($password)
+   {
+      $result = preg_match("/^[0-9a-zA-Z\-_]{3,40}$/", $password);
+      if($result == false) {
+         error_log("valid_password");
+      }
+      return $result;
+   }
+   function valid_group_id($group_id)
+   {
+      return ($this->db->query("SELECT COUNT(*) AS count FROM groups WHERE group_id = '$group_id'")->row()->count > 0) ? true : false;
+   }
+   function valid_shift_category($category_abbr)
+   {
+      return ($this->db->query("SELECT Count(*) AS count FROM event_settings WHERE category_abbr = '$category_abbr'")->row()->count > 0 ? true : false);
    }
 }

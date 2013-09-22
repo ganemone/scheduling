@@ -196,13 +196,22 @@ class employee extends CI_Model
          "id"     => $row->id
       );
    }
-
+   function hasEmployeeEnteredNotes($employeeId)
+   {
+      if($this->db->query("SELECT Count(*) as count FROM weekInfo WHERE employeeId = '$employeeId' && month > '" . date("Y-m-d", strtotime("next month")) . "'")->row()->count > 0)
+         return true;
+      return false;
+   }
    function getFinalizedDate()
    {
       $query = $this->db->query("SELECT viewable FROM settings");
       if ($query->num_rows() > 0)
          return Date('Y-m-d', strtotime($query->row()->viewable));
       return Date('Y-m', mktime(0, 0, 0, Date('m') + 2, 1, Date('Y')));
+   }
+   function getLockedDate()
+   {
+      return $this->db->query("SELECT editable FROM settings")->row()->editable;
    }
 
    function getScheduledEvents($start, $end, $employeeId)

@@ -26,7 +26,7 @@ function sendRequest(method, url, data, callback, showProgress)
          }
       },
       error: function(jqXHR, textStatus, errorThrown) {
-         error_handler(textStatus, errorThrown, url);
+         error_handler(jqXHR.responseText, JSON.stringify(data), url);
       },
       complete: function(jqXHR, textStatus) {
          global_ajax_requests--;
@@ -51,18 +51,19 @@ function hideLoading() {
 //--------------------------
 // Error Handling Functions
 //--------------------------
-function error_handler(textStatus, errorThrown, origin)
+function error_handler(responseText, data_posted, origin)
 {
    $(".top-right").notify({
       type: "danger",
       message: { text: "Oops, something went wrong... Please refresh the page and try again." },
+      fadeOut: { enabled: true, delay: 6000 }
    }).show();
 
    $.ajax({
       type: "POST",
       url: url + "index.php/user/error_handler",
       data: {
-         message: textStatus + " " + errorThrown + " " + origin
+         message: origin + "\r\n" + responseText + "\r\n" + data_posted 
       },
    });
 }
@@ -81,7 +82,7 @@ function errorMessage(msg)
    $('.top-right').notify({
       type: "danger",
       message: { text: msg },
-      fadeOut: { enabled: true, delay: 3000 }
+      fadeOut: { enabled: true, delay: 6000 }
    }).show();
 }
 function showLeftNav (admin) 

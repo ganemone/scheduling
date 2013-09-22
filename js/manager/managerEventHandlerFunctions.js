@@ -81,7 +81,6 @@ $("#finalize").click(function() {
    // This is where we set the editable dates for the employees!
    var dates = getStartAndEndDates($("#calendar").fullCalendar('getView').name, date);
    var endDate = dates.endDate;
-   endDate.setDate(endDate.getDate() + 1);
    bootbox.confirm("Are you sure you would like to finalize the schedule until " + dates.endDate.toDateString(), function(result) {
       if(result) {
          sendRequest("POST", url + "index.php/manager/finalize", {

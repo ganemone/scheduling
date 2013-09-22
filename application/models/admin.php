@@ -37,7 +37,7 @@ class admin extends CI_Model
     */
    function getEmployeeList()
    {
-      $sql = "SELECT * FROM employees ORDER BY permissions, firstName";
+      $sql = "SELECT * FROM employees ORDER BY CASE position WHEN 'SFL' THEN 1 WHEN 'SA' THEN 2 WHEN 'SP' THEN 3 END, firstName ASC";
 
       $query = $this->db->query($sql);
       $employees = array();
@@ -55,6 +55,20 @@ class admin extends CI_Model
          $employee["lastName"] = $row->lastName;
          $employee["position"] = $row->position;
          $employee["employeeId"] = $row->id;
+
+         if($row->position == "SFL") {
+            $employee["button_class"] = "btn-danger";
+         }
+         else if($row->position == "SP") {
+            $employee["button_class"] = "btn-primary";
+         }
+         else if($row->position == "SA") {
+            $employee["button_class"] = "btn-default";
+         }
+         else {
+            $employee["button_class"] = "btn-info";
+         }
+
 
          $_query = $this->db->query("SELECT * FROM groups 
             LEFT JOIN employee_groups 
@@ -144,7 +158,7 @@ class admin extends CI_Model
       {
          $graph_data = array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
-         $query = $this->db->query("SELECT begin, end FROM scheduled WHERE day = '$start' && category != 'SP'");
+         $query = $this->db->query("SELECT begin, end FROM scheduled WHERE day = '$start' && category != 'SP' && event = 0");
          foreach ($query->result() as $row) {
             $start_num = date("H", strtotime($row->begin));
             $end_num = date("H", strtotime($row->end));
@@ -374,11 +388,17 @@ class admin extends CI_Model
     */
    function finalizeSchedule($date)
    {
-      $this->db->query("DELETE FROM settings WHERE id > 0");
-      $this->db->query("INSERT INTO settings (viewable) VALUES ('$date')");
-      return $date;
+      return $this->db->query("UPDATE settings SET viewable = '$date'");
    }
 
+   function lockSchedule($date)
+   {
+      return $this->db->query("UPDATE settings SET editable = '$date'");
+   }
+   function getSettings()
+   {
+      return $this->db->query("SELECT viewable, editable FROM SETTINGS")->row();
+   }
    function createTemplate($employeeId, $title, $date)
    {
       $split = explode("-", $date);
@@ -456,13 +476,16 @@ class admin extends CI_Model
          ON scheduled.employeeId = employees.id 
          WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
       $result = $query->row_array();
-
+      $settings = $this->db->query("SELECT editable, viewable FROM settings")->row();
       $goal = $this->getGoal($start, $end, false);
 
-      $str = "<table><tr><th>Total Hours:</th><th> " . number_format($result['hours'], 1, '.', ',') . "</th></tr>";
-      $str .= "<tr><th>Total Wages:</th><th>$" . number_format($result['wages'], 1, '.', ',') . "</th></tr>";
-      $str .= "<tr><th>Sales Goal:</th><th>$" . number_format($goal, 1, '.', ',') . "</th></tr>";
-      $str .= "<tr><th>Labor Percentage:</th><th>";
+      $str = "<table class='table table-condensed'><tr><td>Finalized Date: </td><td>" . Date("M d, Y", strtotime($settings->viewable)) . "</td>";
+      $str .= "<tr><td>Locked Date: </td><td>" . Date("M d, Y", strtotime($settings->editable)) . "</td>";
+      $str .= "<tr><td>Total Hours:</td><td> " . number_format($result['hours'], 1, '.', ',') . "</td></tr>";
+      $str .= "<tr><td>Total Wages:</td><td>$" . number_format($result['wages'], 1, '.', ',') . "</td></tr>";
+      $str .= "<tr><td>Sales Goal:</td><td>$" . number_format($goal, 1, '.', ',') . "</td></tr>";
+      $str .= "<tr><td>Labor Percentage:</td><td>";
+
       if($goal > 0)
       {
          $str .= number_format(($result['wages'] / $goal) * 100, 1, '.', ',');
@@ -471,7 +494,7 @@ class admin extends CI_Model
       {
          $str .= "0";
       }
-      $str .= "%</th></tr></table>";
+      $str .= "%</td></tr></table>";
       return $str;
    }
 
@@ -493,20 +516,25 @@ class admin extends CI_Model
       foreach ($q->result() as $row)
       {
          $min = $max = 0;
-         if ($row->minHours && $row->maxHours)
+         if($row->minHours == null && $row->maxHours == null)
          {
+            $result = $this->db->query("SELECT MAX(month), minHours, maxHours FROM weekInfo WHERE employeeId = '{$row->employeeId}'")->row();
+            $min = $result->minHours;
+            $max = $result->maxHours;
+         }
+         else {
             $min = $row->minHours;
             $max = $row->maxHours;
-            if ($view == 'month')
-            {
-               $min *= 4;
-               $max *= 4;
-            }
-            else if ($view == 'agendaDay')
-            {
-               if($min > 0) $min /= 4;
-               if($max > 0) $max /= 4;
-            }
+         }
+         if ($view == 'month')
+         {
+            $min *= 4;
+            $max *= 4;
+         }
+         else if ($view == 'agendaDay')
+         {
+            if($min > 0) $min /= 4;
+            if($max > 0) $max /= 4;
          }
          $class = "";
          if($row->sum > $max)
@@ -1024,6 +1052,10 @@ class admin extends CI_Model
       }
       
       return $ret_arr;
+   }
+   function getShiftCategories()
+   {
+      return $this->db->query("SELECT category_name, category_abbr FROM event_settings WHERE category_abbr != 'SF' && category_abbr != 'SP' && category_abbr != 'SFL' && category_abbr != 'A' && category_abbr != 'B' && category_abbr != 'C'");
    }
 
 }

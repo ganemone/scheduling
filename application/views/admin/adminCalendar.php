@@ -5,6 +5,7 @@
          </div>  
       </div>
       <div class='notifications top-right'></div>
+      <div class='notifications top-left'></div>
       <div class='slide'>
          <div class='leftNavOuter'>
             <div class='leftNav'>
@@ -31,11 +32,11 @@
                <? foreach(json_decode($names) as $employee): ?>
                   <!-- Split button -->
                   <div class="btn-group employee_list">
-                     <button type="button" class="btn btn-default btn-employee" onclick="toggleEmployee('<? echo $employee->employeeId ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
-                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                     <button type="button" class="btn <? echo $employee->button_class ?> btn-employee" onclick="toggleEmployee('<? echo $employee->employeeId ?>');"><?= $employee->firstName . " " . $employee->lastName[0] ?></button>
+                     <button type="button" class="btn <? echo $employee->button_class ?> dropdown-toggle" data-toggle="dropdown">
                         <span class="caret"></span>
                      </button>
-                     <input type="checkbox" class="all_employees<? foreach($employee->groups as $group): echo " " . $group->abbr . "_employees"; endforeach; ?>" name="employee_<? echo $employee->employeeId ?>" id="employee_<? echo $employee->employeeId ?>" onclick="toggleEmployee('<? echo $employee->employeeId ?>', event);">
+                     <input type="checkbox" class="all_employees<? foreach($employee->groups as $group): echo " " . $group->abbr . "_employees"; endforeach; ?>" name="employee_<? echo $employee->employeeId ?>" id="employee_<? echo $employee->employeeId ?>" onclick="toggleEmployee('<? echo $employee->employeeId ?>', event);" />
                      <ul class="dropdown-menu" role="menu">
                         <li><a href="#" onclick="toggleAvailability('<? echo $employee->employeeId ?>');"><table><tr><td style='width: 100px;'>Available</td><td><input type="checkbox" name="available" class="preventDefault all_available<? foreach($employee->groups as $group): echo " " . $group->abbr . "_available"; endforeach; ?>" id="available_<? echo $employee->employeeId ?>" /></td></tr></table></a></li> 
                         <li><a href="#" onclick="toggleBusy('<? echo $employee->employeeId ?>');"        ><table><tr><td style='width: 100px;'>Busy</td>     <td><input type="checkbox" name="busy"      class="preventDefault all_busy<? foreach($employee->groups as $group): echo " " . $group->abbr . "_busy"; endforeach; ?>"           id="busy_<? echo $employee->employeeId ?>"      /></td></tr></table></a></li> 
@@ -128,15 +129,12 @@
       <div class="dropdown">
           <a href="#"></a>
           <ul id="editEventPopup" class="dropdown-menu" role="menu" aria-labelledby="dropdownmenu2">
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Floor<input       type="radio"    name="category" value="SF" class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Mens<input        type="radio"    name="category" value="M"  class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Womens<input      type="radio"    name="category" value="W"  class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Cash<input        type="radio"    name="category" value="C"  class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Greeter<input     type="radio"    name="category" value="G"  class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Soccer<input      type="radio"    name="category" value="S"  class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Shoe Sherpa<input type="radio"    name="category" value="SS" class="rightClickMenuItem" /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input         type="checkbox" name="SFL"      value="1"  id="sflRightClickItem"     /></a></li>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Support<input     type="radio"    name="category" value="SP" class="rightClickMenuItem" onclick="clearEditEventPopup();" /></a></li>
+            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Floor<input type="radio" name="category" value="SF" class="rightClickMenuItem" /></a></li>
+            <? foreach ($shift_categories->result() as $row): ?>
+              <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'><? echo $row->category_name ?><input type="radio" name="category" value="<? echo $row->category_abbr ?>" class="rightClickMenuItem" /></a></li>
+            <? endforeach; ?>
+            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input type="checkbox" name="SFL" value="1" id="sflRightClickItem" /></a></li>
+            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Support<input type="radio" name="category" value="SP" class="rightClickMenuItem" onclick="clearEditEventPopup();" /></a></li>
          </ul>
       </div>
 
@@ -183,6 +181,7 @@
          "events"  : false,
          "delete"  : false,
          "eventClick" : "standard",
+         "prevView" : "month"
     };       
 
     var global_categories_obj = {
@@ -279,6 +278,7 @@
        loadTemplates();
        resizeCalendar();
        $("#calendar").fullCalendar("render");
+      
     });
 
 </script>

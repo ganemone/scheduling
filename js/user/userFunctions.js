@@ -139,13 +139,11 @@ function incrementDate() {
    $('#calendar').fullCalendar('select', selectedDate, selectedDate, 'true');
 }
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 10;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 15;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 
-   if(String(window.location).indexOf("printable") == -1) {
-      $(".leftNav").css("height", $(window).height() - 40);
-   }
+   $(".leftNav").css("height", $(window).height() - 40);
 }
 
 function customEvent(date, increment) {
@@ -482,10 +480,9 @@ function validateStartEndDates(start, end) {
 }
 
 function isLockedOut(date) {
-   var editableDate = new Date();
-   editableDate.setDate(1);
-   editableDate.setMonth(editableDate.getMonth() + 0);
-   return (date < editableDate) ? true : false;
+   var editable_date_split = editable_date.split("-");
+   var edit_date = new Date(editable_date_split[0], Number(editable_date_split[1]) - 1, Number(editable_date_split[2]) + 1);
+   return (date < edit_date) ? true : false;
 }
 
 function updateInfo() {

@@ -84,7 +84,7 @@ else {
    };
    title_format = {
       month: 'MMMM yyyy',                             
-      week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}", 
+      week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d, yyyy}", 
       day: 'dddd, MMM d, yyyy'                  
    }
 }
@@ -112,18 +112,20 @@ function renderCalendar(slotMinutes, view, date) {
        *
        */
       viewRender : function(view) {
+         if (view.name == 'month') {
+            h = NaN;
+            if(global_options_obj["prevView"] != "month" && numberEmployeesOn() > 3 ) {
+               removeAllEmployees();
+            }
+         }
+         else {
+            h = 6000;
+         }
          showLoading();
          if(mobile == false) {
            $("span.fc-header-title h2").hide();
            initializeGoalTips(view);
          }
-         if (view.name == 'month') {
-            h = NaN;
-         }
-         else {
-            h = 6000;
-         }
-         
             
          if($("#statistics").is(":visible")) {
             updateStatistics();
@@ -131,6 +133,7 @@ function renderCalendar(slotMinutes, view, date) {
          else if($("#graphs").is(":visible")) {
             updateGraphs();
          }
+         global_options_obj["prevView"] = view.name;
          $('#calendar').fullCalendar('option', 'contentHeight', h);
 
       },

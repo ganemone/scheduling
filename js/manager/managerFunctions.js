@@ -48,6 +48,21 @@ function showGoal(date, view) {
 
    }, false);
 }
+function finalizeAvailability () {
+   var date = $("#calendar").fullCalendar('getDate');
+   var dates = getStartAndEndDates($("#calendar").fullCalendar('getView').name, date);
+   var endDate = dates.endDate;
+   bootbox.confirm("Are you sure you would like to lock the schedule until " + dates.endDate.toDateString(), function(result) {
+      if(result) {
+         sendRequest("POST", url + "index.php/manager/lock", {
+            date : endDate.toDateString()
+         }, 
+         function(msg) {
+            successMessage("Locked schedule until " + endDate.toDateString());
+         }, false);
+      }
+   });
+}
 
 function getStartAndEndDates(view, selectedDate) {
    var ret = '';
@@ -818,6 +833,10 @@ function updateCategory(element) {
 
 /* Toggle Functions */
 function toggleAll(e) {
+   if($("#calendar").fullCalendar("getView").name == "month") {
+      $("#calendar").fullCalendar("changeView", "agendaDay");
+   }
+   
    $("#all_busy").prop("indeterminate", false);
    $("#all_scheduled").prop("indeterminate", false);
    $("#all_available").prop("indeterminate", false);
@@ -955,9 +974,13 @@ function toggleEvents(e) {
 
 }
 
-function toggleGroup(group, category) {
+function toggleGroup(group, category, event) {
    var element = $("#" + group + "_" + category);
    element.prop("indeterminate", false);
+
+   if(typeof event != "undefined") {
+      element.prop("checked", !element.prop("checked"));
+   }
    if (element.is(":checked")) {
       element.prop("checked", false);
       if (category == "employees") {
@@ -1009,9 +1032,13 @@ function toggleGroup(group, category) {
    setGroupCheckBoxes(group);
 }
 
-function toggleEmployee(employeeId) {
+function toggleEmployee(employeeId, event) {
+   
    var element = $("#employee_" + employeeId);
    element.prop("indeterminate", false);
+   if(typeof event != "undefined") {
+      element.prop("checked", !element.prop("checked"));
+   }
 
    if (element.is(":checked")) {
       element.prop("checked", false);
@@ -1485,4 +1512,35 @@ function getEmployeeObj() {
 
 function getOptionsObj() {
    return JSON.stringify(global_options_obj);
+}
+function numberEmployeesOn () {
+   var number = 0;
+   for(var employee_obj in global_employee_obj) {
+      if(global_employee_obj.hasOwnProperty(employee_obj)) {
+         if(global_employee_obj[employee_obj]["available"] == true) number+=1;
+         if(global_employee_obj[employee_obj]["busy"]      == true) number+=1;
+         if(global_employee_obj[employee_obj]["scheduled"] == true) number+=1;
+      }
+   }
+   return number;
+}
+function removeAllEmployees () {
+   $("input[type=checkbox]").prop("checked", false).prop("indeterminate", false);
+
+   for(var employee_obj in global_employee_obj) {
+      if(global_employee_obj.hasOwnProperty(employee_obj)) {
+         global_employee_obj[employee_obj]["available"] = false;
+         global_employee_obj[employee_obj]["busy"]      = false;
+         global_employee_obj[employee_obj]["scheduled"] = false;
+      }
+   }
+   for(var group_obj in global_groups_obj) {
+      if(global_groups_obj.hasOwnProperty(group_obj)) {
+         global_groups_obj[group_obj]["available"] = false;
+         global_groups_obj[group_obj]["busy"]      = false;
+         global_groups_obj[group_obj]["scheduled"] = false;     
+      }
+   }
+   global_options_obj["events"] = false;
+   $("#calendar").fullCalendar("removeEvents", function(e) { return true });
 }

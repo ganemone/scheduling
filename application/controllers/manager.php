@@ -150,17 +150,23 @@ class Manager extends CI_Controller
             "id='home'" => "Home", 
             "id='template'"   => "Make Template",
             "onclick='addExternalEvent();'" => "Add Event",
-            "id='finalize'"   => "Finalize Schedule",
+            "Finalize Dates" => array(
+               "id='finalize'"   => "Finalize Schedule",
+               "onclick='finalizeAvailability();'" => "Finalize Availability"),
             "id='logOut'"     => "Log Out");
       }
       else {
          $this->companyInfo['menu_items'] = array("id='home'" => "Home", 
             "id='template'"   => "Make Template",
             "onclick='addExternalEvent();'" => "Add Event",
-            "id='finalize'"   => "Finalize Schedule",
+            "Finalize Dates" => array(
+               "id='finalize'"   => "Finalize Schedule",
+               "onclick='finalizeAvailability();'" => "Lock Schedule"),
             "id='logOut'"     => "Log Out");
       }
       $this->companyInfo['brand'] = "Admin Home";
+      $this->companyInfo["shift_categories"] = $this->admin->getShiftCategories();
+
    }
 
    function deleteEvent()
@@ -326,6 +332,15 @@ class Manager extends CI_Controller
       $result = "error";
       if($this->validator->valid_date($start)) {
          $result = $this->admin->finalizeSchedule($start);
+      }
+      echo $result;
+   }
+   function lock()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      $result = "error";
+      if($this->validator->valid_date($date)) {
+         $result = $this->admin->lockSchedule($date);
       }
       echo $result;
    }

@@ -74,12 +74,21 @@ class User extends CI_Controller
          ),
          "href='" . base_url() . "index.php/user'" => "Home",
          "href='logout'" => "Log Out");
-
+      $this->employeeInfo['editable_date'] = $this->employee->getLockedDate();
+      $this->employeeInfo['alerts'] = $this->getAlerts();
       $this->load->view("includes.php");
       $this->load->view("header.php", $this->employeeInfo);
       $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);
    }
-
+   function getAlerts()
+   {
+      if($this->employee->hasEmployeeEnteredNotes($this->input->cookie('EmployeeId'))) {
+         return "none";
+      }
+      else {
+         return "Remember to update your desired hours for every month.  You can do this by selecting 'Calendar Actions' in the navigation bar, and clicking 'Update Info' from the drop down.";
+      }
+   }
    function printable()
    {
       $employeeId = $this->input->cookie('EmployeeId');

@@ -49,8 +49,10 @@ class Settings extends CI_Controller
       $this->load->view("header.php", $this->data);
       $this->data['groups'] = $this->settings_model->get_employee_groups();
       $this->load->view("includes.php");
+      $this->data['employee_select'] = $this->settings_model->get_employee_select();
       $this->load->view("settings/groups.php", $this->data);
    }
+
    function shifts()
    {
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
@@ -84,15 +86,35 @@ class Settings extends CI_Controller
    }
    function edit_employee()
    {
-      
+      if($this->validator->valid_name($this->input->post("firstName")) && 
+         $this->validator->valid_name($this->input->post("lastName")) &&
+         $this->validator->valid_email($this->input->post("email")) &&
+         $this->validator->valid_wage($this->input->post("wage")) &&
+         $this->validator->valid_position($this->input->post("position")) &&
+         $this->validator->valid_password($this->input->post("password")) &&
+         $this->validator->valid_permissions($this->input->post("permissions")) &&
+         $this->validator->valid_employee_id($this->input->post("employeeId"))) 
+      {
+         echo $this->settings_model->edit_employee(array("firstName" => $this->input->post("firstName"),
+            "lastName" => $this->input->post("lastName"),
+            "email" => $this->input->post("email"),
+            "wage" => $this->input->post("wage"),
+            "position" => $this->input->post("position"),
+            "permissions" => $this->input->post("permissions"),
+            "password" => $this->input->post("password")), $this->input->post("employeeId"));
+      }
+      else {
+         echo "error";
+      }
    }
    function add_employee()
    {
-      //$this->validator->valid_name($this->input->post("firstName")) && 
-         //$this->validator->valid_name($this->input->post("lastName")) &&
-      if($this->validator->valid_email($this->input->post("email")) &&
-         //$this->validator->valid_wage($this->input->post("wage")) &&
+      if($this->validator->valid_name($this->input->post("firstName")) && 
+         $this->validator->valid_name($this->input->post("lastName")) &&
+         $this->validator->valid_email($this->input->post("email")) &&
+         $this->validator->valid_wage($this->input->post("wage")) &&
          $this->validator->valid_position($this->input->post("position")) &&
+         $this->validator->valid_password($this->input->post("password")) &&
          $this->validator->valid_permissions($this->input->post("permissions"))) 
       {
          echo $this->settings_model->add_employee(array("firstName" => $this->input->post("firstName"),
@@ -100,10 +122,81 @@ class Settings extends CI_Controller
             "email" => $this->input->post("email"),
             "wage" => $this->input->post("wage"),
             "position" => $this->input->post("position"),
-            "permissions" => $this->input->post("permissions")));
+            "permissions" => $this->input->post("permissions"),
+            "password" => $this->input->post("password")));
       }
       else {
          echo "error";
       }
    }
+   function add_employee_to_group()
+   {
+      if($this->validator->valid_employee_id($this->input->post("id")) &&
+         $this->validator->valid_group_id($this->input->post("group_id"))) {
+         echo $this->settings_model->add_employee_to_group($this->input->post("id"), $this->input->post("group_id"));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function remove_employee_from_group()
+   {
+      if($this->validator->valid_employee_id($this->input->post("id")) &&
+         $this->validator->valid_group_id($this->input->post("group_id"))) {
+         echo $this->settings_model->remove_employee_from_group($this->input->post("id"), $this->input->post("group_id"));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function edit_group()
+   {
+      if($this->validator->valid_group_id($this->input->post("group_id")) && 
+         $this->validator->valid_group_name($this->input->post("name")) && 
+         $this->validator->valid_name($this->input->post("abbr"))) {
+         echo json_encode($this->settings_model->edit_employee_group(array("name" => $this->input->post("name"), "abbr" => $this->input->post("abbr")), $this->input->post("group_id")));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function delete_group()
+   {
+      if($this->validator->valid_group_id($this->input->post("group_id"))) {
+         echo $this->settings_model->delete_employee_group($this->input->post("group_id"));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function create_group()
+   {
+      if($this->validator->valid_group_name($this->input->post("name")) &&
+         $this->validator->valid_name($this->input->post("abbr"))) {
+         echo $this->settings_model->create_employee_group(array("name" => $this->input->post("name"), "abbr" => $this->input->post("abbr")));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function edit_shift_category()
+   {
+      if($this->validator->valid_shift_category($this->input->post("old_category")) &&
+         $this->validator->valid_group_name($this->input->post("category_name")) && 
+         $this->validator->valid_name($this->input->post("category_abbr"))) {
+         echo $this->settings_model->edit_shift_category(array("category_name" => $this->input->post("category_name"), "category_abbr" => $this->input->post("category_abbr")), $this->input->post("old_category"));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function add_shift_category()
+   {
+      
+   }
+   function delete_shift_category()
+   {
+         
+   }
+
 }

@@ -10,7 +10,7 @@ var coEventSource = {
    },
    error : function(msg, textStatus, errorThrown)
    {
-      error_handler(textStatus, errorThrown, "CO Event Sourcer");
+      error_handler(msg.responseText, errorThrown, "CO Event Sourcer");
    },
    complete: function()
    {
@@ -27,14 +27,15 @@ var supportEventSource = {
    },
    error : function(msg, textStatus, errorThrown)
    {
-      error_handler(textStatus, errorThrown, "SFL Support Event Source");
+      error_handler(msg.responseText, errorThrown, "SFL Support Event Source");
    },
    complete: function()
    {
       global_ajax_requests--;
       hideLoading();
    }
-}; 
+};
+resizeCalendar(); 
 $(window).resize(function()
 {
    resizeCalendar();   
@@ -93,7 +94,7 @@ $("#calendar").fullCalendar(
       },
       error : function(msg, textStatus, errorThrown)
       {
-         error_handler(textStatus, errorThrown, "SFL Floor Event Source");
+         error_handler(msg.responseText, errorThrown, "SFL Floor Event Source");
       },
       complete: function()
       {
@@ -103,12 +104,11 @@ $("#calendar").fullCalendar(
    }]
 });
 function resizeCalendar () {
-   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 90;
+   var calendar_width = ($(".leftNavOuter").position().left == 0) ? 340 : 15;
+
    $("#calendar").css("width", $(document).width() - calendar_width);
 
-   if(String(window.location).indexOf("printable") == -1) {
-      $(".leftNav").css("height", $(window).height() - 40);
-   }
+   $(".leftNav").css("height", $(window).height() - 40);
 }
 function initializeGoals()
 {

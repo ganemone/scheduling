@@ -1662,6 +1662,7 @@ fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .btn-primary.active {
   background-color: #428bca;
   border-color: #428bca;
+  border: 0px;
 }
 
 .btn-warning {
@@ -3827,7 +3828,19 @@ button.close {
 .alert-danger .alert-link {
   color: #953b39;
 }
+.alert-important {
+  color: #FFFFFF;
+  background-color: #428bca;
+  border-color: #428bca;
+}
 
+.alert-important hr {
+  border-top-color: #428bca;
+}
+
+.alert-important .alert-link {
+  color: #953b39;
+}
 .alert-info {
   color: #3a87ad;
   background-color: #d9edf7;
