@@ -710,12 +710,16 @@ class admin extends CI_Model
          $array[] = json_encode(array(
             "id" => md5("events$row->id"),
             "rowId" => $row->id,
+            "editTitle" => $row->title,
+            "editStart" => $row->start,
+            "editEnd" => $row->end,
             "title" => $row->title . " (" . date("g:i a", strtotime($row->start)) . "-" . date("g:i a", strtotime($row->end)) . ")",
             "allDay" => true,
             "start" => $row->date . " " . $row->start,
             "end" => $row->date . " " . $row->end,
             "category" => "events",
             "color" => "#480091",
+            "editDate" => $row->date,
             "location" => $row->location,
             "repeating" => $row->repeating
          ));
@@ -737,18 +741,23 @@ class admin extends CI_Model
          $_date = Date("Y-m-d", strtotime("$date + $increment days"));
          $counter = 1;
          $time = strtotime($date);
+         if($repeating == "1/7") {
+            $repeating = 1/7;
+         }
          while ($_date <= $finalDate && $counter <= 52)
          {
             $query = $this->db->query("INSERT INTO events (title, date, start, end, location, repeating) VALUES ('$title', '$_date', '$start', '$end', '$location', '$repeating')");
-            $increment += 7 * $repeating;
-            /*if ($repeating == 4)
-               $_date = Date("Y-m-d", strtotime("+$counter months", $time));
-            else */
-               $_date = Date("Y-m-d", strtotime("+$increment days", $time));
+            $increment += (7 * $repeating);
+            $_date = Date("Y-m-d", strtotime("+$increment days", $time));
             $counter++;
          }
       }
       return true;
+   }
+
+   function editExternalEvent($event_id, $update_arr)
+   {
+      return $this->db->where("id", $event_id)->update("events", $update_arr);
    }
    function scheduleEmployeeTemplate($employeeId_arr, $day_arr, $begin_arr, $end_arr, $category_arr)
    {

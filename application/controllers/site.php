@@ -70,6 +70,9 @@ class Site extends CI_Controller
          }
       }
    }
+   function test() {
+    echo "test";
+   }
 
    // Executed when an account is created
    /*

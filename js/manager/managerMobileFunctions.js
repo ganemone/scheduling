@@ -1,8 +1,3 @@
-function cancelShiftEdit () {
-   global_options_obj["eventClick"] = "standard";
-   $(".top-right").remove();
-   $("body").append("<div class='notifications top-right'></div>");
-}
 function mobile_addShift () {
    global_options_obj["eventClick"] = "addShift";
    $(".top-right").notify({

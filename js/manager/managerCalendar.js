@@ -336,9 +336,12 @@ function renderCalendar(slotMinutes, view, date) {
                  top : 100, left : 100
             }).dropdown();
          }
-         else if(global_options_obj["eventClick"] == "addShift" && calEvent.category == "Available" || calEvent.category == "Custom" || calEvent.category == "events") {
+         else if(global_options_obj["eventClick"] == "addShift" && (calEvent.category == "Available" || calEvent.category == "Custom" || calEvent.category == "events")) {
             cancelShiftEdit();
             scheduleShiftClick(calEvent);
+         }
+         else if(global_options_obj["eventClick"] == "editExternalEvent") {
+            editEvent(calEvent);
          }
       },
       /* Function called when an event is droped onto the calendar. Simply calls the eventMove function.

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$(".table-container").css("height", $(document).height() - 190 + "px");
+	$(".table-container").css("height", $(document).height() - 220 + "px");
 });
 
 // --------------------
@@ -364,7 +364,7 @@ function edit_shift_category (category_abbr, category_name) {
 	bootbox.confirm(buildForm(form_obj), function(result) {
 		if(result) {
 			sendRequest("POST", url + "index.php/settings/edit_shift_category", buildPostDataObj("#edit_shift_category"), function(msg) {
-				successMessage("Created Shift Category");
+				successMessage("Updated Shift Category");
 				$(".table.table-condensed > tbody > tr." + category_abbr).replaceWith(msg);
 			}, false);
 		}

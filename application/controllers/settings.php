@@ -192,11 +192,32 @@ class Settings extends CI_Controller
    }
    function add_shift_category()
    {
-      
+      if($this->validator->valid_group_name($this->input->post("category_name")) && 
+         $this->validator->valid_name($this->input->post("category_abbr"))) {
+         echo $this->settings_model->add_shift_category($this->input->post("category_name"), $this->input->post("category_abbr"));
+      }
+      else {
+         echo "error";
+      }
    }
    function delete_shift_category()
    {
-         
+      if($this->validator->valid_shift_category($this->input->post("category_abbr"))) {
+         echo $this->settings_model->delete_shift_category($this->input->post("category_abbr"));
+      }
+      else {
+         echo "error";
+      }
    }
+   function upload_goals()
+   {
+      if($this->validator->valid_csv($_FILES['file'])) {
+         $result = $this->settings_model->read_csv($_FILES['file']['tmp_name']);
+         print_r($result);//$final = $this->settings_model->upload_goals($result);
+      }
+      else {
+         print_r($_FILES);
+      }
 
+   }
 }

@@ -16,7 +16,10 @@
 				<? endforeach; ?>
 			</table>
 		</div>
-		<button class='btn btn-success'>Insert Goals</button>
+		<form method='post' action='<? echo base_url() ?>index.php/settings/upload_goals' enctype="multipart/form-data">
+			<input type='file' name='file' id='file' style='display: inline;' class='btn btn-primary' />
+			<input type='submit' value="Upload" class='btn btn-success'>
+		</form>
 	</body>
 </html>
 <script src="<? echo base_url() ?>js/utility.js"></script>

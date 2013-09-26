@@ -105,4 +105,12 @@ class validator extends CI_Model
    {
       return ($this->db->query("SELECT Count(*) AS count FROM event_settings WHERE category_abbr = '$category_abbr'")->row()->count > 0 ? true : false);
    }
+   function valid_csv($file)
+   {
+      return ($file['type'] == "text/csv") ? true : false;
+   }
+   function valid_external_event($event_id)
+   {
+      return ($this->db->query("SELECT COUNT(*) AS count FROM events WHERE id = '$event_id'")->row()->count > 0) ? true : false;
+   }
 }

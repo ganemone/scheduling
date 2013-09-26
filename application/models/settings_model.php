@@ -97,14 +97,22 @@ class settings_model extends CI_Model
    }
    function delete_shift_category($category_abbr)
    {
-      return $this->db->query("DELETE FROM event_settings WHERE category_abbr = '$category_abbr'");
+      $this->db->query("DELETE FROM event_settings WHERE category_abbr = '$category_abbr'");
+      return $this->db->query("UPDATE scheduled SET category = 'SF' WHERE category = '$category_abbr'");
    }
    function add_shift_category($category_name, $category_abbr)
    {
-      if($this->db->get_where("event_settings", array("category_abbr", $category_abbr))->count_all_results() > 0) {
+      if($this->db->query("SELECT COUNT(*) AS count FROM event_settings WHERE category_abbr = '$category_abbr'")->row()->count > 0) {
          return "error";
       }
-      return $this->db->insert("event_settings", array("category_name" => $category_name, "category_abbr" => $category_abbr, ""));
+      $this->db->insert("event_settings", array("category_name" => $category_name, "category_abbr" => $category_abbr));
+      $ret = "<tr class='$category_abbr'>";
+      $ret.= "<td>$category_name</td>";
+      $ret.= "<td>$category_abbr</td>";
+      $ret.= "<td><button class='btn btn-primary' onclick='edit_shift_category(\"$category_abbr\", \"$category_name\");'>Edit</button></td>";
+      $ret.= "<td><button class='btn btn-danger'  onclick='delete_shift_category(\"$category_abbr\");'>Delete</button></td>";
+      $ret.= "</tr>";
+      return $ret;
    }
    function edit_shift_category($update_arr, $old_abbr)
    {
@@ -112,11 +120,14 @@ class settings_model extends CI_Model
          return "error";
       }
       $this->db->where("category_abbr", $old_abbr)->update("event_settings", $update_arr);
+      $this->db->query("UPDATE scheduled SET category = '" . $update_arr["category_abbr"] . "' WHERE category = '$old_abbr'");
       $ret = "<tr class='" .  $update_arr["category_abbr"] . "'>";
       $ret.= "<td>" . $update_arr["category_name"] . "</td>";
       $ret.= "<td>" . $update_arr["category_abbr"] . "</td>";
-      $ret.= "<td><button class='btn btn-primary' onclick='edit_shift_category('" . $update_arr["category_abbr"] . "', '" . $update_arr["category_name"] . "');'>Edit</button></td>";
-      $ret.= "<td><button class='btn btn-danger'  onclick='delete_shift_category('" . $update_arr["category_abbr"] . "');'>Delete</button></td>";
+      $ret.= "<td><button class='btn btn-primary' onclick='edit_shift_category(\"" . $update_arr["category_abbr"] . "\", \"" . $update_arr["category_name"] . "\");'>Edit</button></td>";
+      $ret.= "<td><button class='btn btn-danger'  onclick='delete_shift_category(\"" . $update_arr["category_abbr"] . "\");'>Delete</button></td>";
+      $ret.= "</tr>";
+      return $ret;
    }
    function reset_employee_group_values()
    {
@@ -175,5 +186,21 @@ class settings_model extends CI_Model
          $ret .= "<option value='{$row->id}'>{$row->firstName} {$row->lastName[0]}</option>";
       }
       return $ret;
+   }
+   function read_csv($csvFile) 
+   {
+      $file_handle = fopen($csvFile, 'r');
+
+      while (!feof($file_handle) ) {
+
+         $line_of_text[] = fgetcsv($file_handle, 1024);
+      }
+
+      fclose($file_handle);
+      return $line_of_text;
+   }
+   function upload_goals($array)
+   {
+      return $array;
    }
 }

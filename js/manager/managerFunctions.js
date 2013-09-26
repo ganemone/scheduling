@@ -28,6 +28,73 @@ function timeToString(time) {
    }
    return (hour + ":" + string[1] + " " + am_pm);
 }
+function editEvent(calEvent) {
+   var form_obj = {
+      name : "edit_event",
+      id : "edit_event",
+      elements : [{
+            type : "hidden",
+            id : "eventId",
+            name : "eventId",
+            value : calEvent.rowId
+         },
+         {
+            name        : "event_title",
+            id          : "event_title",
+            type        : "text",
+            placeholder : "Enter event title here...",
+            value       : calEvent.editTitle,
+            label       : "Event Title: "
+         },
+         {
+            name        : "event_location",
+            id          : "event_location",
+            type        : "text",
+            placeholder : "Enter event location here",
+            value       : calEvent.location,
+            label       : "Location: "
+         },
+         {
+            name        : "event_date",
+            id          : "event_date",
+            type        : "text",
+            placeholder : "YYYY-MM-DD",
+            value       : calEvent.editDate,
+            label       : "Date: "
+         }
+      ]
+   };
+   cancelShiftEdit();
+   
+   buildStartEndInputs(form_obj, calEvent.editStart, calEvent.editEnd, "06:00:00", "21:00:00");
+
+   bootbox.confirm(buildForm(form_obj), function(result) {
+      if(result) {
+         sendRequest("POST", url + "index.php/manager/editExternalEvent", buildPostDataObj("#edit_event"), function(msg) {
+            $("#calendar").fullCalendar("removeEventSource", coEventSource);
+            $("#calendar").fullCalendar("addEventSource", coEventSource);
+            successMessage("Updated Event");
+         }, false);
+      }
+   });
+}
+
+function promptEditEvent () {
+   global_options_obj["eventClick"] = "editExternalEvent";
+   $(".top-right").notify({
+      type : "bangTidy", 
+      message : {
+      html : "Select the shift you would like to edit. <button onclick='cancelShiftEdit()' class='btn btn-small btn-primary'>Cancel</button>"
+      },
+      closable : false,
+      fadeOut : {
+         enabled : false
+      }, 
+      onClose : function() {
+         global_options_obj["eventClick"] = "standard";
+      }
+   }).show();
+}
 
 function showGoal(date, view) {
    var finalDate;
@@ -1339,6 +1406,10 @@ function addExternalEvent ()
                "0" : { 
                   "name" : "No Repeat",
                   "selected" : true
+               },
+               "1/7" : {
+                  "name" : "Daily",
+                  "selected" : false
                },
                "1" : {
                   "name" : "Weekly",

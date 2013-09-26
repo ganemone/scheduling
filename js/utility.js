@@ -19,7 +19,7 @@ function sendRequest(method, url, data, callback, showProgress)
       success: function(msg) {
          $(".fc-event").tooltip("hide");
          if(msg == "error") {
-            error_handler("Error Occurred in Validation.", "Unsure of error thrown", url);
+            error_handler("Error Occurred in Validation.", "Unsure of error thrown", url, "Please check to make sure you typed in everything correctly and following the rules.");
          }
          else {
             return callback(msg);
@@ -37,25 +37,30 @@ function sendRequest(method, url, data, callback, showProgress)
 function showLoading() {
    if(global_ajax_requests > 0) {
       if(!$(".overlay").is(":visible"))
-         $(".overlay").fadeIn();
+         $(".overlay").show();
       if(!$(".overlay-container").is(":visible"))
          $(".overlay-container").show();   
+   }
+   else {
+      $(".overlay").fadeOut();
+      $(".overlay-container").fadeOut();
    }
 }
 function hideLoading() {
    if(global_ajax_requests == 0) {
-      $(".overlay").hide();
+      $(".overlay").fadeOut();
       $(".overlay-container").fadeOut();
    }
 }
 //--------------------------
 // Error Handling Functions
 //--------------------------
-function error_handler(responseText, data_posted, origin)
+function error_handler(responseText, data_posted, origin, message)
 {
+   var text = (typeof message == "undefined") ? "Oops, something went wrong... Please refresh the page and try again." : message;
    $(".top-right").notify({
       type: "danger",
-      message: { text: "Oops, something went wrong... Please refresh the page and try again." },
+      message: { text: text },
       fadeOut: { enabled: true, delay: 6000 }
    }).show();
 
@@ -67,7 +72,11 @@ function error_handler(responseText, data_posted, origin)
       },
    });
 }
-
+function cancelShiftEdit () {
+   global_options_obj["eventClick"] = "standard";
+   $(".top-right").remove();
+   $("body").append("<div class='notifications top-right'></div>");
+}
 function successMessage(msg)
 {
    $('.top-right').notify({

@@ -10,6 +10,7 @@ function cal_select (start, end, allDay, jsEvent, view) {
       setDate(start);
    }
    else {
+      alert("doing stuff here...");
       updateEvent("Custom", start, false, start.toTimeString().split(" ")[0], end.toTimeString().split(" ")[0]);
       $("#calendar").fullCalendar('unselect');
    }
@@ -136,14 +137,14 @@ function setDate(start) {
 
 function incrementDate() {
    selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 1, 0, 0, 0);
-   $('#calendar').fullCalendar('select', selectedDate, selectedDate, 'true');
+   $('#calendar').fullCalendar('select', selectedDate, selectedDate, true);
 }
 function resizeCalendar () {
    var calendar_width = ($(".leftNavOuter").position().left == 0) ? 200 : 15;
    
    $("#calendar").css("width", $(document).width() - calendar_width);
 
-   $(".leftNav").css("height", $(window).height() - 40);
+   $(".leftNav").css("height", $(window).height() - 100);
 }
 
 function customEvent(date, increment) {

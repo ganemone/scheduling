@@ -149,7 +149,9 @@ class Manager extends CI_Controller
                "onclick='mobile_promptEditShiftTime()'" => "Edit Shift Time"),
             "id='home'" => "Home", 
             "id='template'"   => "Make Template",
-            "onclick='addExternalEvent();'" => "Add Event",
+            "Events" => array(
+               "onclick='addExternalEvent();'" => "Add Event",
+               "onclick='promptEditEvent();'" => "Edit Event"),
             "Finalize Dates" => array(
                "id='finalize'"   => "Finalize Schedule",
                "onclick='finalizeAvailability();'" => "Finalize Availability"),
@@ -158,7 +160,9 @@ class Manager extends CI_Controller
       else {
          $this->companyInfo['menu_items'] = array("id='home'" => "Home", 
             "id='template'"   => "Make Template",
-            "onclick='addExternalEvent();'" => "Add Event",
+            "Events" => array(
+               "onclick='addExternalEvent();'" => "Add Event",
+               "onclick='promptEditEvent();'" => "Edit Event"),
             "Finalize Dates" => array(
                "id='finalize'"   => "Finalize Schedule",
                "onclick='finalizeAvailability();'" => "Lock Schedule"),
@@ -452,6 +456,21 @@ class Manager extends CI_Controller
          $result = json_encode($this->admin->addExternalEvent($title, $date, $start, $end, $location, $repeating, $endRepeat));
       }
 
+      echo $result;
+   }
+   function editExternalEvent()
+   {
+      $event_id = $this->input->post("eventId");
+      $title = $this->input->post("event_title");
+      $location = $this->input->post("event_location");
+      $start = $this->input->post("start_time");
+      $end = $this->input->post("end_time");
+      $date = $this->input->post("event_date");
+
+      $result = "error";
+      if($this->validator->valid_external_event($event_id) && $this->validator->valid_time($start) && $this->validator->valid_time($end)) {
+         $result = $this->admin->editExternalEvent($event_id, array("title" => $title, "location" => $location, "start" => $start, "end" => $end, "date" => $date));
+      }
       echo $result;
    }
 
