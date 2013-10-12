@@ -354,7 +354,7 @@ function makeTemplateForm(begin, end, type) {
          "id"          : "template_employee_" + employees[i].employeeId,
          "value"       : employees[i].employeeId,
          "label"       : global_employee_obj[employees[i].employeeId].firstName + " " + global_employee_obj[employees[i].employeeId].lastName[0],
-         "label_class" : "control-label border-label col-5 label-success",
+         "label_class" : "border-label col-5 label-success",
          "input_class" : "",
          "attr"        : "onchange='disableScheduleOptions(this);'"
       });
@@ -377,8 +377,8 @@ function scheduleEmployee(start, end, startTime, endTime) {
       return continueScheduling(start, end, null);
    }
    sendRequest("POST", url + "index.php/manager/getHoursLeft", {
-      start : weekStart,
-      end : weekEnd,
+      start : weekStart.toDateString(),
+      end : weekEnd.toDateString(),
       employees : employees
    }, function(msg) {
          var employeeInfo = jQuery.parseJSON(msg);
@@ -405,7 +405,7 @@ function buildEmployeeChecklistObj(form_obj, employeeInfo) {
 
             element_arr.push({
                "name"        : "employees[]",
-               "label_class" : "control-label border-label col-5 " + _class,
+               "label_class" : "border-label col-5 " + _class,
                "input_class" : "",
                "attr"        : "onchange='disableScheduleOptions(this);'",
                "id"          : "employee_schedule_" + employee_id,
@@ -434,7 +434,7 @@ function buildCategorySelectObj(form_obj, defaultTo) {
       }
    }
    form_obj["elements"].push({
-      "type" : "select", "label" : global_categories_obj["select_list"]["label"], "name" : global_categories_obj["select_list"]["name"], "id" : global_categories_obj["select_list"]["id"], "data" : data, "label_class" : "control-label col-3", "input_class" : "form_control col-9"
+      "type" : "select", "label" : global_categories_obj["select_list"]["label"], "name" : global_categories_obj["select_list"]["name"], "id" : global_categories_obj["select_list"]["id"], "data" : data, "label_class" : "col-3", "input_class" : "form_control col-9"
    });
 }
 
@@ -443,7 +443,7 @@ function buildCategoryAdditionsObj(form_obj, defaultTo) {
    for (var i = 0; i < global_categories_obj["additions"].length; i++) {
       var attr = (global_categories_obj["additions"][i]["abbr"] == defaultTo) ? "checked='checked'" : "";
       element_arr.push({
-         "type" : global_categories_obj["additions"][i]["type"], "label" : global_categories_obj["additions"][i]["label"], "label_class" : "control-label border-label col-5", "input_class" : "", "id" : global_categories_obj["additions"][i]["id"], "name" : global_categories_obj["additions"][i]["name"], "value" : global_categories_obj["additions"][i]["abbr"], "attr" : attr
+         "type" : global_categories_obj["additions"][i]["type"], "label" : global_categories_obj["additions"][i]["label"], "label_class" : "border-label col-5", "input_class" : "", "id" : global_categories_obj["additions"][i]["id"], "name" : global_categories_obj["additions"][i]["name"], "value" : global_categories_obj["additions"][i]["abbr"], "attr" : attr
       });
    }
    form_obj["elements"].push({
@@ -480,6 +480,7 @@ function continueScheduling(start, end, employeeInfo) {
       if(result) {
          var data = buildPostDataObj("#schedule_employee");
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
+         data['sfl'] = $("#SFL").is(":checked") ? 1 : 0;
          if(data.hasOwnProperty("employees[]") || data.hasOwnProperty("employee_select_list")) {
             sendRequest("POST", url + "index.php/manager/scheduleEmployee", data, function(msg) {
                var result_arr = jQuery.parseJSON(msg);
@@ -544,6 +545,7 @@ function scheduleShiftClick(calEvent) {
    var date = calEvent.start;
    var weekStart = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
    var weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
+
    if (calEvent.category == 'Custom' || calEvent.category == "events") {
       start = calEvent.start.toTimeString().split(" ")[0];
       end = calEvent.end.toTimeString().split(" ")[0];
@@ -564,8 +566,8 @@ function scheduleShiftClick(calEvent) {
    }
    if (calEvent.category != "events") {
       sendRequest("POST", url + "index.php/manager/getHoursLeft", {
-         start : weekStart,
-         end : weekEnd,
+         start : weekStart.toDateString(),
+         end : weekEnd.toDateString(),
          employees : employees
       }, function(msg) {
          var employeeInfo = jQuery.parseJSON(msg);
@@ -656,6 +658,7 @@ function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end) {
          var id = (calEvent.category == "events") ? $("#employee_select_list").val() : calEvent.employeeId;
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
          var sfl = ($("#SFL").is(":checked")) ? 1 : 0;
+         alert(sfl);
          if (validateStartEndTimes($("#start_time").val(), $("#end_time").val()) === false) {
             alert("The start time must come before the end time");
             return false;

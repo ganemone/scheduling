@@ -250,7 +250,7 @@ class admin extends CI_Model
                'area' => $row->category,
                'borderColor' => $border,
                'event' => $event,
-               'sfl' => $sfl
+               'sfl' => $row->sfl
             )));
          }
       }
@@ -267,7 +267,7 @@ class admin extends CI_Model
          LEFT JOIN employees 
          ON employees.id = hours.employeeId
          WHERE hours.day >= '$start_date'
-         AND hours.day <= '$end_date'");
+         AND hours.day <= '$end_date' ORDER BY firstName, lastName");
       $json = $this->getEmptyShifts();
       foreach ($query->result() as $row)
       {
@@ -903,11 +903,11 @@ class admin extends CI_Model
       $ids = array();
       foreach ($query->result() as $row)
       {
-         if($start >= $row->begin && $start <= $row->end)
+         if($start >= $row->begin && $start < $row->end)
          {
             $ids[] = $row->id;
          }
-         else if($row->begin >= $start && $row->begin <= $end)
+         else if($row->begin >= $start && $row->begin < $end)
          {
             $ids[] = $row->id;
          }
@@ -1062,6 +1062,7 @@ class admin extends CI_Model
       
       return $ret_arr;
    }
+   
    function getShiftCategories()
    {
       return $this->db->query("SELECT category_name, category_abbr FROM event_settings WHERE category_abbr != 'SF' && category_abbr != 'SP' && category_abbr != 'SFL' && category_abbr != 'A' && category_abbr != 'B' && category_abbr != 'C'");

@@ -13,7 +13,7 @@
       <div class='slide'>
          <div class='leftNavOuter'>
             <div class='leftNav'>
-               <button class="menu-toggle" id='menu-toggle-outer' type="button" onclick='showLeftNav();'>
+               <button class="menu-toggle" id='menu-toggle-outer' type="button" onclick="showLeftNav('resize');">
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
@@ -23,8 +23,8 @@
                   <li class='active' onclick="showLeftMenuItem('newsfeed', this);"><a><small>Newsfeed</small></a></li>
                   <li onclick="showLeftMenuItem('external-events', this);"><a><small>Drag Menu</small></a></li>   
                   <li onclick="showLeftMenuItem('colorCode', this);"><a><small>Color Code</small></a></li>
-                  <li onclick="showLeftNav();">
-                     <button class="menu-toggle" id='menu-toggle-inner' type="button" onclick='showLeftNav();'>
+                  <li onclick="showLeftNav('resize');">
+                     <button class="menu-toggle" id='menu-toggle-inner' type="button" onclick="showLeftNav('resize');">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>

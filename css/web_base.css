@@ -165,17 +165,24 @@ footer #bottomSpan {
 #copy_brand:hover  {
    color:#FAFAFA;
 }
-#employeeLoginForm .form-inline {
+#employeeLoginForm .form-horizontal {
    width: 50%;
 }
 .slide {
    position: relative;
    z-index: 400;
+   overflow-x: visible;
 }
 .leftNavOuter {
    position: absolute;
    left: -310px;
    top: 10px;
+
+   -webkit-transition: all .5s ease;  
+   -moz-transition:    all .5s ease;  
+   -o-transition:      all .5s ease;  
+   -ms-transition:     all .5s ease;  
+   transition:         all .5s ease;
 }
 .leftNavOuter #menu-toggle-outer {
    position: absolute;
@@ -216,7 +223,6 @@ footer #bottomSpan {
    height: 100%;
    width: 310px;
    background: #EEE;
-   overflow: hidden;
 }
 .leftMenu {
    overflow-y: scroll;
@@ -274,12 +280,9 @@ footer #bottomSpan {
    padding-left: 0px;
    padding-right: 10px;
 }
-.calendar-button {
-   min-width: 200px;
-}
 
 @media only screen and (max-width: 770px)  {
-   #employeeLoginForm .form-inline {
+   #employeeLoginForm .form-horizontal {
       width: 90%;
       margin-left: 40px;
    }
@@ -316,6 +319,7 @@ footer #bottomSpan {
 }
 .calendar-button {
    margin: 10px 0 10px 20px;
+   min-width: 200px;
 }
 /*------------ */
 /* Form Styles */

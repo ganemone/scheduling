@@ -25,55 +25,89 @@ class Settings extends CI_Controller
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/user'" => "Home", 
          "href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->data["brand"] = "Settings";
-      $this->load->view("includes.php");
+      $this->data["ignore_base"] = true;
+      $this->load->view("includes.php", $this->data);
       $this->load->view("header.php", $this->data);
       $this->load->view("settings/index.php");
    }
    function employees()
    {
+      $this->load->view("includes.php");
       $this->data['employees'] = $this->settings_model->get_employees();
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
          "href='" . base_url() . "index.php/user'" => "Home",
          "href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->data["brand"] = "Employees";
       $this->load->view("header.php", $this->data);
-      $this->load->view("includes.php");
       $this->load->view("settings/employees.php", $this->data);
    }
    function groups()
    {
+      $this->load->view("includes.php");
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
          "href='" . base_url() . "index.php/user'" => "Home",
          "href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->data["brand"] = "Employee Groups";
       $this->load->view("header.php", $this->data);
       $this->data['groups'] = $this->settings_model->get_employee_groups();
-      $this->load->view("includes.php");
       $this->data['employee_select'] = $this->settings_model->get_employee_select();
       $this->load->view("settings/groups.php", $this->data);
    }
 
    function shifts()
    {
+      $this->load->view("includes.php");
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
          "href='" . base_url() . "index.php/user'" => "Home",
          "href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->data["brand"] = "Shift Categories";
       $this->load->view("header.php", $this->data);
       $this->data['shifts'] = $this->settings_model->get_shift_categories();
-      $this->load->view("includes.php");
       $this->load->view("settings/shifts.php", $this->data);
    }
    function goals()
    {
+      $this->load->view("includes.php");
       $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
          "href='" . base_url() . "index.php/user'" => "Home",
          "href='" . base_url() . "index.php/user/logout'" => "Log Out");
       $this->data["brand"] = "Sales Goals";
       $this->load->view("header.php", $this->data);
       $this->data['goals'] = $this->settings_model->get_goals();
-      $this->load->view("includes.php");
       $this->load->view("settings/goals.php", $this->data);
+   }
+   function sales()
+   {
+      $this->load->view("includes.php");
+      $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
+         "href='" . base_url() . "index.php/user'" => "Home",
+         "href='" . base_url() . "index.php/user/logout'" => "Log Out");
+      $this->data["brand"] = "Missed Sales";
+      $this->load->view("header.php", $this->data);
+
+      $order_by = (isset($_GET['order_by'])) ? $_GET['order_by'] : 0;
+      $this->data['sales'] = $this->settings_model->get_missed_sales($order_by);
+      $this->load->view("settings/sales.php", $this->data);  
+   }
+   function stats()
+   {
+      $this->data["ignore_base"] = true;
+      $this->load->view("includes.php", $this->data);
+
+      $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
+         "href='" . base_url() . "index.php/user'" => "Home",
+         "href='" . base_url() . "index.php/user/logout'" => "Log Out");
+      $this->data["brand"] = "Statistics";
+      $this->load->view("header.php", $this->data);
+
+      $date = ($this->validator->valid_date($this->input->get("date"))) ? $this->input->get("date") : "2013-01-01";
+
+      $this->data["vendor"] = $this->settings_model->get_vendor_graph($date);
+      $this->data["time"] = $this->settings_model->get_time_graph($date);
+      $this->data["category"] = $this->settings_model->get_category_graph($date);
+      $this->data["gender"] = $this->settings_model->get_gender_graph($date);
+
+      $this->load->view("settings/stats.php", $this->data);
    }
    function delete_employee()
    {
@@ -209,15 +243,163 @@ class Settings extends CI_Controller
          echo "error";
       }
    }
+   function edit_goal()
+   {
+      if($this->validator->valid_goal_id($this->input->post("goal_id")) && $this->validator->valid_goal($this->input->post("goal"))) {
+         echo $this->settings_model->edit_goal($this->input->post("goal_id"), $this->input->post("goal"));
+      }
+      else {
+         echo "error";
+      }
+   }
+   function delete_goal()
+   {
+      if($this->validator->valid_goal_id($this->input->post("goal_id"))) {
+         echo $this->settings_model->delete_goal($this->input->post("goal_id"));
+      }
+      else {
+         echo "error";
+      }
+   }
+
    function upload_goals()
    {
       if($this->validator->valid_csv($_FILES['file'])) {
          $result = $this->settings_model->read_csv($_FILES['file']['tmp_name']);
-         print_r($result);//$final = $this->settings_model->upload_goals($result);
+         $final = $this->settings_model->upload_goals($result);
+         if($final) {
+            $this->data['message'] = "Uploaded Goals";
+            $this->data['message_type'] = "success";
+         }
+         else {
+            $this->data['message'] = "Failed to upload goals.";
+            $this->data['message_type'] = "danger";   
+         }
       }
       else {
-         print_r($_FILES);
+         $this->data['message'] = "Failed to upload goals.";
+         $this->data['message_type'] = "danger";
       }
+      
+      $this->load->view("includes.php");
+
+      $this->data["menu_items"] = array("href='" . base_url() . "index.php/settings'" => "Settings",
+         "href='" . base_url() . "index.php/user'" => "Home",
+         "href='" . base_url() . "index.php/user/logout'" => "Log Out");
+      $this->data["brand"] = "Sales Goals";
+      $this->load->view("header.php", $this->data);
+      $this->data['goals'] = $this->settings_model->get_goals();
+      $this->load->view("settings/goals.php", $this->data);
 
    }
+
+   function edit_missed_sale()
+   {
+      $result = "error";
+      if($this->validator->valid_missed_sale($this->input->post("sale_id"))) {
+         $result = $this->settings_model->edit_missed_sale($this->input->post("sale_id"), array(
+            "price" => $this->input->post("price"), 
+            "description" => $this->input->post("description"),
+            "vendor" => $this->input->post("vendor"),
+            "size" => $this->input->post("size"),
+            "category" => $this->input->post("category"),
+            "gender" => $this->input->post("gender"),
+            "quantity" => $this->input->post("quantity")));
+      }
+      echo $result;
+   }
+
+   function delete_missed_sale()
+   {
+      $result = "error";
+      if($this->validator->valid_missed_sale($this->input->post("sale_id"))) {
+         $result = $this->settings_model->delete_missed_sale($this->input->post("sale_id"));
+      }
+      echo $result;
+   }
+
+   function purge_all()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         $this->settings_model->purge_availability($date);
+         $this->settings_model->purge_scheduled($date);
+         $this->settings_model->purge_goals($date);
+         $this->settings_model->purge_missed_sales($date);
+         $this->settings_model->purge_events($date);
+         $this->settings_model->purge_stories($date);
+         echo "success";
+      }
+      else {
+         echo "error";
+      }
+      
+   }
+
+   function purge_availability()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_availability($date);
+      }
+      else {
+         echo "error";
+      }
+   }
+
+   function purge_scheduled()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_scheduled($date);
+      }
+      else {
+         echo "error";
+      }
+   }
+
+   function purge_goals()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_goals($date);
+      }
+      else {
+         echo "error";
+      }
+   }
+
+   function purge_missed_sales()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_missed_sales($date);
+      }
+      else {
+         echo "error";
+      }
+   }
+
+   function purge_events()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_events($date);
+      }
+      else {
+         echo "error";
+      }
+   }
+
+   function purge_stories()
+   {
+      $date = date("Y-m-d", strtotime($this->input->post("date")));
+      if($this->validator->valid_date($date)) {
+         echo $this->settings_model->purge_stories($date);
+      }
+      else {
+         echo "error";
+      }  
+   }
+
 }

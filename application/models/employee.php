@@ -336,7 +336,7 @@ class employee extends CI_Model
       {
          $array[] = json_encode(array(
             "id" => $row->id,
-            "title" => $row->title,
+            "title" => $row->title . " (" . date("g:i a", strtotime($row->start)) . "-" . date("g:i a", strtotime($row->end)) . ")",
             "allDay" => true,
             "start" => $row->date . " " . $row->start,
             "end" => $row->date . " " . $row->end,

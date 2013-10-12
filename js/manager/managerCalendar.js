@@ -97,6 +97,7 @@ function renderCalendar(slotMinutes, view, date) {
       allowCalEventOverlap : false,
       selectable : true,
       slotMinutes : slotMinutes,
+      slotEventOverlap : false,
       minTime : 6,
       maxTime : 21,
       editable : true,
@@ -208,7 +209,6 @@ function renderCalendar(slotMinutes, view, date) {
                });
 
                $("#sflRightClickItem").data("element", element).data("event", event);
-
                if (event.sfl == 1) {
                   $("#sflRightClickItem").prop("checked", true);
                }

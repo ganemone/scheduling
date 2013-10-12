@@ -2022,7 +2022,8 @@ input[type="button"].btn-block {
 }
 
 .form-horizontal .control-label {
-  padding-top: 9px;
+  padding-top: 11px;
+  text-align: right !important;
 }
 
 .form-horizontal .form-group:before,

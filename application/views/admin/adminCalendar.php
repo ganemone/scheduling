@@ -133,7 +133,7 @@
             <? foreach ($shift_categories->result() as $row): ?>
               <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'><? echo $row->category_name ?><input type="radio" name="category" value="<? echo $row->category_abbr ?>" class="rightClickMenuItem" /></a></li>
             <? endforeach; ?>
-            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input type="checkbox" name="SFL" value="1" id="sflRightClickItem" /></a></li>
+            <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input type="checkbox" name="SFL" value="1" id="sflRightClickItem" class='preventDefault' /></a></li>
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Support<input type="radio" name="category" value="SP" class="rightClickMenuItem" onclick="clearEditEventPopup();" /></a></li>
          </ul>
       </div>
@@ -228,6 +228,7 @@
              {
                   "type"  : "checkbox",
                   "name"  : "sfl",
+                  "id"    : "SFL",
                   "label" : "Sales Floor Leader: ",
                   "abbr"  : "SFL",
              },

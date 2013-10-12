@@ -4,6 +4,7 @@ class settings_model extends CI_Model
    function __construct()
    {
       date_default_timezone_set("UTC");
+      $this->load->model("validator");
    }
    function add_employee($insert_arr)
    {
@@ -143,13 +144,32 @@ class settings_model extends CI_Model
       $this->db->query("DELETE FROM goals WHERE date = '$date'");
       $this->db->insert("goals", array("date" => $date, "goal" => $goal));
    }
-   function delete_goal($date)
+   function edit_missed_sale($sale_id, $update_arr)
    {
-      $this->db->query("DELETE FROM goals WHERE date = '$date'");
+      return $this->db->where("id", $sale_id)->update("missedSales", $update_arr);
+   }
+   function delete_missed_sale($sale_id)
+   {
+      return $this->db->query("DELETE FROM missedSales WHERE id = '$sale_id'");
    }
    /* -------------- */
    /* Get Functions */
    /* -------------- */
+   function get_missed_sales($order)
+   {
+      switch ($order) {
+         case '1': $sql = "date, description"; break;
+         case '2': $sql = "price, date"; break;
+         case '3': $sql = "vendor, date"; break;
+         case '4': $sql = "description, date"; break;
+         case '5': $sql = "size, date"; break;
+         case '6': $sql = "category, date"; break;
+         case '7': $sql = "quantity, date"; break;
+         case '8': $sql = "gender, date"; break;
+         default: $sql = "date, description"; break;
+      }
+      return $this->db->query("SELECT id, description, date, size, price, quantity, category, vendor, gender FROM missedSales ORDER BY $sql")->result();
+   }
    function get_employees()
    {
       return $this->db->query("SELECT id, firstName, lastName, password, position, permissions, email, wage FROM employees ORDER BY firstName")->result();
@@ -176,7 +196,7 @@ class settings_model extends CI_Model
    }
    function get_goals()
    {
-      return $this->db->query("SELECT date, goal FROM goals ORDER BY date")->result();
+      return $this->db->query("SELECT * FROM goals ORDER BY date")->result();
    }
    function get_employee_select()
    {
@@ -187,20 +207,118 @@ class settings_model extends CI_Model
       }
       return $ret;
    }
+   function edit_goal($goal_id, $new_goal)
+   {
+      return $this->db->query("UPDATE goals SET goal = '$new_goal' WHERE id='$goal_id'");
+   }
+   function delete_goal($goal_id)
+   {
+      return $this->db->query("DELETE FROM goals WHERE id = '$goal_id'");
+   }
    function read_csv($csvFile) 
    {
       $file_handle = fopen($csvFile, 'r');
 
-      while (!feof($file_handle) ) {
-
-         $line_of_text[] = fgetcsv($file_handle, 1024);
+      $file = "";
+      while (!feof($file_handle)) {
+         $file .= fgets($file_handle);
       }
-
       fclose($file_handle);
-      return $line_of_text;
+      
+      $result = preg_split("/(\s|$|,)/", $file);
+      array_pop($result);
+
+      return $result;
    }
-   function upload_goals($array)
+   function upload_goals($goals_arr)
    {
-      return $array;
+      for ($i=0; $i < count($goals_arr); $i = $i + 2) { 
+         $date = date("Y-m-d", strtotime($goals_arr[$i]));
+         $goal = trim(intval($goals_arr[$i + 1]));
+         if($this->validator->valid_date($date) && $this->validator->valid_goal($goal)) {
+            if($this->db->query("SELECT COUNT(*) AS count FROM goals WHERE date = '$date'")->row()->count > 0) {
+               $this->db->query("UPDATE goals SET goal = '" . $goal . "' WHERE date = '$date'");
+            }
+            else {
+               $this->db->insert("goals", array("date" => $date, "goal" => $goal));
+            }
+         }
+         else {
+            return false;
+         }
+      }
+      return true;
+   }
+   function get_vendor_graph($date)
+   {
+      $query = $this->db->query("SELECT vendor, SUM(quantity * price) as amount FROM missedSales GROUP BY vendor");
+      $graph_data = array();
+      foreach ($query->result() as $row) {
+         $graph_data[] = array("vendor" => $row->vendor, "amount" => $row->amount);
+      }
+      return $graph_data;
+   }
+   function get_category_graph($date)
+   {
+      $query = $this->db->query("SELECT category, SUM(quantity * price) AS amount FROM missedSales GROUP BY category");
+      $graph_data = array();
+      foreach ($query->result() as $row) {
+         $graph_data[] = array("category" => $row->category, "amount" => $row->amount);
+      }
+      return $graph_data;
+   }
+
+   function get_time_graph($date)
+   {
+      $ret_arr = array();
+      while(strtotime($date) <= time()) {
+         $date = date("Y-m-01", strtotime($date));
+         $next_month = date("Y-m-01", strtotime($date . " next month"));
+         $row = $this->db->query("SELECT SUM(quantity * price) AS amount FROM missedSales WHERE date >= '$date' && date <= '$next_month'")->row();
+         $ret_arr[] = array("date" => $date, "amount" => $row->amount);
+         $date = $next_month;
+      }
+      return $ret_arr;
+   }
+
+   function get_gender_graph($date)
+   {
+      $query = $this->db->query("SELECT gender, SUM(quantity * price) AS amount FROM missedSales GROUP BY gender");
+      $graph_data = array();
+      foreach ($query->result() as $row) {
+         $graph_data[] = array("gender" => $row->gender, "amount" => $row->amount);
+      }
+      return $graph_data;
+   }
+
+   function purge_availability($date)
+   {
+      $this->db->query("DELETE FROM weekInfo WHERE month <= '$date'");
+      return $this->db->query("DELETE FROM hours WHERE day <= '$date'");
+   }
+
+   function purge_scheduled($date)
+   {
+      return $this->db->query("DELETE FROM scheduled WHERE day <= '$date'");
+   }
+
+   function purge_goals($date)
+   {
+      return $this->db->query("DELETE FROM goals WHERE date <= '$date'");
+   }
+
+   function purge_missed_sales($date)
+   {
+      return $this->db->query("DELETE FROM missedSales WHERE date <= '$date'");
+   }
+
+   function purge_events($date)
+   {
+      return $this->db->query("DELETE FROM events WHERE date <= '$date'");
+   }
+
+   function purge_stories($date)
+   {
+      return $this->db->query("DELETE FROM stories WHERE date <= '$date'");
    }
 }

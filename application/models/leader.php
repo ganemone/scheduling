@@ -25,6 +25,26 @@ class Leader extends CI_Model
       return false;
    }
 
+   function initializeGoals()
+   {
+      $start_date = Date("Y-m-d", strtotime("-3 months"));
+      $end_date = Date("Y-m-d", strtotime("+3 months"));
+      $ret_arr = array();
+      $query = $this->db->query("SELECT * FROM goals WHERE date >= '$start_date' && date <= '$end_date'");
+      foreach($query->result() as $row)
+      {
+         $ret_arr[$row->date] = '$' . number_format($row->goal, 0, '.', ',');
+      }
+      while ($start_date <= $end_date)
+      {
+         if(!isset($ret_arr[$start_date]))
+            $ret_arr[$start_date] = "$0";
+         $start_date = Date("Y-m-d", strtotime($start_date . " +1 day"));
+      }
+      
+      return $ret_arr;
+   }
+   
    function floorEventSource($start, $end)
    {
       $finalizedDate = $this->input->cookie('finalized');
@@ -133,15 +153,13 @@ class Leader extends CI_Model
       return $_json;
    }
 
-   function addMissedSale($style, $color, $desc, $size, $price, $date)
+   function addMissedSale($desc, $size, $price, $date, $cat, $gender)
    {
-      $style = ($style == "") ? "NA" : $style;
-      $color = ($color == "") ? "NA" : $color;
       $desc  = ($desc == "")  ? "NA" : $desc;
       $price = ($price == "") ? "NA" : $price;
       $size  = ($size == "")  ? "NA" : $size;
       
-      $query = $this->db->query("SELECT *, COUNT(*) as count FROM missedSales WHERE style = '$style' && color = '$color' && size = '$size' && date = '$date' && description = '$desc'" );
+      $query = $this->db->query("SELECT *, COUNT(*) as count FROM missedSales WHERE category = '$cat' && gender = '$gender' && size = '$size' && date = '$date' && description = '$desc'" );
       $row = $query->row();
       if($row->count > 0)
       {
@@ -150,12 +168,13 @@ class Leader extends CI_Model
       }
       else
       {
-         $result = $this->db->insert("missedSales", array('style' => $style, 
+         $result = $this->db->insert("missedSales", array(
             'date' => $date,
-            'color' => $color,
             'description' => $desc,
             'size' => $size,
-            'price' => $price));        
+            'price' => $price,
+            'category' => $cat,
+            'gender' => $gender));
       }
       return $result;
    }
@@ -166,14 +185,14 @@ class Leader extends CI_Model
       if ($query->num_rows() == 0)
          return "There were no missed sales recorded today.";
 
-      $str = "<table class='nightlyEmailTable'><tr><th>Style Number</th><th>Color-Code</th><th>Description</th><th>Size</th><th>Price</th><th>Quantity</th><th>Total</th></tr>";
+      $str = "<table class='nightlyEmailTable'><tr><th>Description</th><th>Size</th><th>Category</th><th>Gender</th><th>Price</th><th>Quantity</th><th>Total</th></tr>";
       //$_total = 0;
       foreach ($query->result() as $row)
       {
          //$_total += $row->price*$row->quantity;
          $total = '$' . number_format($row->price * $row->quantity, 2, ".", ",");
          $price = '$' . number_format($row->price, 2, '.', ',');
-         $str.= "<tr><td>$row->style</td><td>$row->color</td><td>$row->description</td><td>$row->size</td><td>$price</td><td>$row->quantity</td><td>$total</td></tr>";         
+         $str.= "<tr><td>$row->description</td><td>$row->size</td><td>$row->category</td><td>$row->gender</td><td>$price</td><td>$row->quantity</td><td>$total</td></tr>";         
       }
       //$_total = '$' . number_format($_total, 2, '.',',');
       //$str.= "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td>$_total</td></tr></table>";
@@ -269,7 +288,7 @@ class Leader extends CI_Model
    
    function getEmployeesWorking($date)
    {
-      $query = $this->db->query("SELECT employeeId FROM scheduled WHERE day = '$date'");
+      $query = $this->db->query("SELECT employeeId FROM scheduled WHERE day = '$date' && category != 'SP' && event = 0");
       $employees = array();
       $count = 0;
       foreach($query->result() as $row)

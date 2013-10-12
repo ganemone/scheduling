@@ -1,6 +1,5 @@
 var global_goal_arr;
 initializeGoals();
-//bootbox.animate(false);
 var coEventSource = {
    url : url + "index.php/sfl/coEventSource",
    beforeSend: function()
@@ -59,15 +58,19 @@ $("#calendar").fullCalendar(
    timeFormat : 'h:mm{ - h:mm}',
    dayClick : function(date, allDay, jsEvent, view)
    {
-      $("#calendar").fullCalendar("gotoDate", date);
-      $("#calendar").fullCalendar("changeView", 'agendaDay');
-      showGoals($("#calendar").fullCalendar("getView"));
+      if(view.name != "agendaDay") {
+         $("#calendar").fullCalendar("gotoDate", date);
+         $("#calendar").fullCalendar("changeView", 'agendaDay');
+         showGoals(view);
+      }
    },
-   eventClick : function(event, allDay, jsEvent, view)
+   eventClick : function(calEvent, jsEvent, view)
    {
-      $("#calendar").fullCalendar("gotoDate", event.start);
-      $("#calendar").fullCalendar("changeView", "agendaDay");
-      showGoals($("#calendar").fullCalendar("getView"));
+      if(view.name != "agendaDay") {
+         $("#calendar").fullCalendar("gotoDate", calEvent.start);
+         $("#calendar").fullCalendar("changeView", "agendaDay");
+         showGoals(view);
+      }
    },
    viewRender : function(view)
    {
@@ -112,7 +115,7 @@ function resizeCalendar () {
 }
 function initializeGoals()
 {
-   sendRequest("GET", url + "index.php/manager/initializeGoals", {}, function(msg) {
+   sendRequest("GET", url + "index.php/sfl/initializeGoals", {}, function(msg) {
       global_goal_arr = jQuery.parseJSON(msg);
       return showGoals($("#calendar").fullCalendar("getView"));
    }, true);
@@ -353,18 +356,11 @@ function addMissedSale()
          placeholder : "Enter size here"
       },
       {
-         id          : "miss_style",
-         name        : "style",  
-         label       : "Style",
+         id          : "miss_vendor",
+         name        : "vendor",  
+         label       : "Vendor: ",
          type        : "text",
-         placeholder : "Enter style number here (without color code)"
-      },
-      {
-         id          : "miss_color",
-         name        : "color",
-         label       : "Color Code: ",
-         type        : "text",
-         placeholder : "Enter color code here"
+         placeholder : "Enter vendor name here..."
       },
       {
          id          : "miss_price",
@@ -372,62 +368,93 @@ function addMissedSale()
          label       : "Price: ",
          type        : "text",
          placeholder : "Enter price here, ex: 0.00"
+      },
+      {
+         type : "select",
+         name : "category",
+         "label_class" : "control-label col-3",
+         "input_class" : "col-8",
+         id : "miss_category",
+         label : "Category: ",
+         data : {
+            "Accessories"    : {
+               "name" : "Accessories",
+               "selected" : true
+            },
+            "Casual Apparel" : {
+               "name" : "Casual Apparel",
+               "selected" : false
+            },
+            "Casual Shoes"   : {
+               "name" : "Casual Shoes",
+               "selected" : false
+            },
+            "Cross Training" : {
+               "name" : "Cross Training",
+               "selected" : false
+            },
+            "Nutrition"      : {
+               "name" : "Nutrition",
+               "selected" : false
+            },
+            "Run Apparel"    : {
+               "name" : "Run Apparel",
+               "selected" : false
+            },
+            "Road Shoes"     : {
+               "name" : "Road Shoes",
+               "selected" : false
+            },
+            "Soccer"         : {
+               "name" : "Soccer",
+               "selected" : false
+            },
+            "Swim/Tri"       : {
+               "name" : "Swim/Tri",
+               "selected" : false
+            },
+            "Trail Shoes"    : {
+               "name" : "Trail Shoes",
+               "selected" : false
+            },
+            "Other"          : {
+               "name" : "Other",
+               "selected" : false
+            }
+         }
+      },
+      {
+         type : "select",
+         name : "gender",
+         id : "miss_gender",
+         "label_class" : "control-label col-3",
+         "input_class" : "col-8",
+         label : "Gender: ",
+         data : {
+            "M" : {
+               "name" : "M",
+               "selected" : true
+            },
+            "W" : {
+               "name" : "W",
+               "selected" : false
+            },
+            "NA" : {
+               "name" : "NA",
+               "selected" : false
+            }
+         }
       }]
    };
 
    var form = buildForm(form_obj);
-   bootbox.dialog({ 
-      message : "Is it a specific product we carry?",
-      title : "Missed Sale",
-      buttons : {
-         No : {
-            label: "No",
-            className : "btn-danger",
-            callback : function() {
-               bootbox.prompt("Enter a description of the product.", function(result) {
-                  if(result) {
-                     var data = {
-                        description : result,
-                        style       : "NA",
-                        color       : "NA",
-                        size        : "NA",
-                        price       : "0.00"
-                     }
-                     sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
-                     function(msg) {
-                        successMessage("Missed sale added");
-                     }, true);  
-                  }
-               });
-            }
-         },
-         Yes : {
-            label : "Yes",
-            className : "btn-primary",
-            callback : function() {
-               bootbox.confirm(form, function(results)
-               {
-                  if (results === true)
-                  {
-                     var form = $("#missedSaleForm");
-                     var data = {
-                        description : $("#miss_description").val(),
-                        style       : $("#miss_style").val(),
-                        color       : $("#miss_color").val(),
-                        size        : $("#miss_size").val(),
-                        price       : $("#miss_price").val() 
-                     };
-                          
-                     sendRequest("POST", url + "index.php/sfl/addMissedSale", data, 
-                     function(msg) {
-                        successMessage("Missed sale added");
-                     }, true);    
-                  }
-                  return true;
-               });
-            }
-         }
-      }
+   bootbox.confirm(buildForm(form_obj), function(result) {
+      if(result) {
+         sendRequest("POST", url + "index.php/sfl/addMissedSale", buildPostDataObj("#missedSaleForm"), 
+         function(msg) {
+            successMessage("Missed sale added");
+         }, true);
+      }    
    });
 }
 

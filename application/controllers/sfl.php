@@ -118,17 +118,17 @@ class sfl extends CI_Controller
 
    function addMissedSale()
    {
-      $style = mysql_real_escape_string($this->input->post("style"));
-      $color = mysql_real_escape_string($this->input->post("color"));
       $desc = mysql_real_escape_string($this->input->post('description'));
       $size = mysql_real_escape_string($this->input->post('size'));
+      $cat = $this->input->post("category");
+      $gender = $this->input->post("gender");
       $date = Date("Y-m-d");
       $price = $this->input->post('price');
 
       $result = "error";
 
       if($this->validator->valid_date($date)) {
-         $result = $this->leader->addMissedSale($style, $color, $desc, $size, $price, $date);
+         $result = $this->leader->addMissedSale($desc, $size, $price, $date, $cat, $gender);
       }
       echo $result;
    }
@@ -149,6 +149,11 @@ class sfl extends CI_Controller
    function getEmailTemplate()
    {
       echo $this->leader->getEmailTemplate(Date("Y-m-d", strtotime($this->input->get("date"))));
+   }
+
+   function initializeGoals()
+   {
+      echo json_encode($this->leader->initializeGoals());
    }
 
 }

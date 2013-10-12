@@ -113,4 +113,16 @@ class validator extends CI_Model
    {
       return ($this->db->query("SELECT COUNT(*) AS count FROM events WHERE id = '$event_id'")->row()->count > 0) ? true : false;
    }
+   function valid_goal_id($goal_id)
+   {
+      return ($this->db->query("SELECT COUNT(*) AS count FROM goals WHERE id = '$goal_id'")->row()->count > 0) ? true : false;
+   }
+   function valid_missed_sale($sale_id)
+   {
+      return ($this->db->query("SELECT COUNT(*) AS count FROM missedSales WHERE id = '$sale_id'")->row()->count > 0) ? true : false;
+   }
+   function valid_goal($goal)
+   {
+      return preg_match("/^[0-9]+$/", $goal);
+   }
 }

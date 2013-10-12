@@ -19,7 +19,7 @@ function sendRequest(method, url, data, callback, showProgress)
       success: function(msg) {
          $(".fc-event").tooltip("hide");
          if(msg == "error") {
-            error_handler("Error Occurred in Validation.", "Unsure of error thrown", url, "Please check to make sure you typed in everything correctly and following the rules.");
+            error_handler("Error Occurred in Validation.", JSON.stringify(data), url, "Please check to make sure you typed in everything correctly and following the rules.");
          }
          else {
             return callback(msg);
@@ -104,7 +104,7 @@ function showLeftNav (admin)
       $("#calendar").css("width", calendar_width - calendar_subtract + "px");
       $("#calendar").fullCalendar("render");
    }
-   $(".leftNavOuter").animate({ left: left });
+   $(".leftNavOuter").css("left", left);
 
    if(left == 0) {
       $("#menu-toggle-outer").hide();
@@ -129,10 +129,14 @@ function showLeftMenuItem(show_element_id, nav_element)
    });
    $(nav_element).addClass("active");
 
-   if (show_element_id == "newsfeed")
-      $('.leftNav').css("overflow-y", "scroll");
-   else
-      $('.leftNav').css("overflow", "visible");
+   if (show_element_id == "newsfeed" || show_element_id == "employees" || show_element_id == "statistics" || show_element_id == "options") {
+      $('.leftMenu').css("overflow-y", "scroll");
+   }
+   else {
+      $('.leftMenu').css("overflow", "visible");
+      $('.leftMenu').css("overflow-y", "visible");
+      $('.leftMenu').css("overflow-x", "visible");
+   }
 }
 /*
 name     : "templateForm",
@@ -239,7 +243,7 @@ function buildSelectForm (form_obj)
 {
    var select_obj = form_obj.data;
    var form = "";
-   form += "   <label for='" + form_obj.id + "' class='" + form_obj["label_class"] + "'>" + form_obj.label + "</label>";
+   form += "   <label for='" + form_obj.id + "' class='control-label " + form_obj["label_class"] + "'>" + form_obj.label + "</label>";
    form += "   <div class='" + form_obj["input_class"] + "'>";
    form += "   <select class='form-control' name='" + form_obj.name + "' id='" + form_obj.id + "'>";
    var value;
