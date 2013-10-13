@@ -138,10 +138,6 @@ class admin extends CI_Model
             $min *= 4;
             $max *= 4;
          }
-         else if($view == "agendaDay") {
-            $min /= 4;
-            $max /= 4;
-         }
 
          if($row->sum < $min) {
             $emp_under++;
@@ -268,6 +264,7 @@ class admin extends CI_Model
          ON employees.id = hours.employeeId
          WHERE hours.day >= '$start_date'
          AND hours.day <= '$end_date' ORDER BY firstName, lastName");
+
       $json = $this->getEmptyShifts();
       foreach ($query->result() as $row)
       {
@@ -530,11 +527,6 @@ class admin extends CI_Model
          {
             $min *= 4;
             $max *= 4;
-         }
-         else if ($view == 'agendaDay')
-         {
-            if($min > 0) $min /= 4;
-            if($max > 0) $max /= 4;
          }
          $class = "";
          if($row->sum > $max)

@@ -66,7 +66,7 @@ function editEvent(calEvent) {
    };
    cancelShiftEdit();
    
-   buildStartEndInputs(form_obj, calEvent.editStart, calEvent.editEnd, "06:00:00", "21:00:00");
+   buildStartEndInputs(form_obj, calEvent.editStart, calEvent.editEnd, "06:00:00", "22:00:00");
 
    bootbox.confirm(buildForm(form_obj), function(result) {
       if(result) {
@@ -180,10 +180,50 @@ function initializeGoalTips(view) {
  *    revertFunc = Function that reverts the element back to its original position.
  *
  */
-function eventMove(event, dayDelta, minuteDelta, revertFunc, method) {
+function eventMove(event, dayDelta, minuteDelta, revertFunc, method, direction) {
    var title = event.title;
-   if (title == "Test Schedule") {
-      return true;
+   if(typeof direction != undefined && direction == "north") {
+      event.end.setMinutes(event.end.getMinutes() - minuteDelta);
+      event.start.setMinutes(event.start.getMinutes() - minuteDelta);
+   }
+   if(dayDelta > 0) {
+      sendRequest("POST", url + "index.php/manager/scheduleEmployee", {
+         employeeId: event.employeeId,
+         day: event.start.toDateString(),
+         start_time : event.start.toTimeString().split(" ")[0],
+         end_time : event.end.toTimeString().split(" ")[0],
+         category : event.area,
+         sfl : event.sfl,
+         eventTitle : (event.event == "false") ? -1 : event.area
+      }, function(msg) {
+         var result_arr = jQuery.parseJSON(msg);
+         var refetch = false;
+         var cal_event_arr = new Array();
+         for (var i = 0; i < result_arr.length; i++) {
+            var msgArr = jQuery.parseJSON(result_arr[i]);
+            cal_event_arr.push(jQuery.parseJSON(msgArr[0]));
+            refetch = (msgArr[1] || refetch) ? true : false;
+         }
+         if (refetch) {
+            $("#calendar").fullCalendar("refetchEvents");
+         }
+         else {
+            for (var i = 0; i < cal_event_arr.length; i++) {
+               $("#calendar").fullCalendar("renderEvent", cal_event_arr[i]);
+            }
+         }
+         if($("#statistics").is(":visible")) {
+            updateStatistics();
+         }
+         else if($("#graphs").is(":visible")) {
+            updateGraphs();
+         }
+
+         successMessage((cal_event_arr.length > 1) ? "Scheduled Employees" : "Scheduled Employee");
+      }, false);
+      
+      revertFunc();
+
    }
    else if (!(event.category == 'scheduled')) {
       revertFunc();
@@ -469,7 +509,7 @@ function continueScheduling(start, end, employeeInfo) {
 
    buildCategorySelectObj(form_obj, "SF");
 
-   buildStartEndInputs(form_obj, start.getHours() + ":" + start.getMinutes() + ":00", end.getHours() + ":" + end.getMinutes() + ":00", "06:00:00", "21:00:00");
+   buildStartEndInputs(form_obj, start.getHours() + ":" + start.getMinutes() + ":00", end.getHours() + ":" + end.getMinutes() + ":00", "06:00:00", "22:00:00");
 
    buildCategoryAdditionsObj(form_obj, "");
 
@@ -621,7 +661,7 @@ function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end) {
       title = "Schedule Employee for " + calEvent.title.split("(")[0] + " At " + calEvent.location;
       buildEmployeeSelectObj(form_obj);
       eventTitle = calEvent.title.split("(")[0];
-      buildStartEndInputs(form_obj, start, end, "06:00:00", "21:00:00");
+      buildStartEndInputs(form_obj, start, end, "06:00:00", "22:00:00");
       form_obj["elements"].push({
          "type" : "group", 
          "data" : [{
@@ -640,7 +680,7 @@ function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end) {
       var defaultTo = ( typeof calEvent.defaultTo != "undefined") ? calEvent.defaultTo : "SF";
 
       buildCategorySelectObj(form_obj, defaultTo);
-      buildStartEndInputs(form_obj, start, end, "06:00:00", "21:00:00");
+      buildStartEndInputs(form_obj, start, end, "06:00:00", "22:00:00");
       buildCategoryAdditionsObj(form_obj, "");
    }
 
@@ -658,7 +698,6 @@ function continueScheduleShiftClick(calEvent, employeeHoursLeft, start, end) {
          var id = (calEvent.category == "events") ? $("#employee_select_list").val() : calEvent.employeeId;
          var emptyShift = ($("#emptyShift").is(":checked")) ? true : false;
          var sfl = ($("#SFL").is(":checked")) ? 1 : 0;
-         alert(sfl);
          if (validateStartEndTimes($("#start_time").val(), $("#end_time").val()) === false) {
             alert("The start time must come before the end time");
             return false;
@@ -780,7 +819,7 @@ function fillEmptyShift(calEvent) {
       var defaultTo = "SF";
       buildEmployeeSelectObj(form_obj);
       buildCategorySelectObj(form_obj, defaultTo);
-      buildStartEndInputs(form_obj, start, end, "06:00:00", "21:00:00");
+      buildStartEndInputs(form_obj, start, end, "06:00:00", "22:00:00");
       buildCategoryAdditionsObj(form_obj, "");
    }
    else {
@@ -790,7 +829,7 @@ function fillEmptyShift(calEvent) {
 
       buildEmployeeSelectObj(form_obj);
       
-      buildStartEndInputs(form_obj, start, end, "06:00:00", "21:00:00");
+      buildStartEndInputs(form_obj, start, end, "06:00:00", "22:00:00");
    }
    form_obj["title"] = title;
    var form = buildForm(form_obj);
@@ -1438,7 +1477,7 @@ function addExternalEvent ()
       ]
    };
 
-   buildStartEndInputs(form_obj, "06:00:00", "21:00:00", "06:00:00", "21:00:00");
+   buildStartEndInputs(form_obj, "06:00:00", "22:00:00", "06:00:00", "22:00:00");
 
    bootbox.confirm(buildForm(form_obj), function(result)
    {
@@ -1484,7 +1523,7 @@ function updateStatistics () {
       endDate.setMonth(endDate.getMonth() + 1);
       endDate.setDate(0);
    }
-   else if (view.name == 'agendaWeek' || view.name == 'basicWeek') {
+   else {
       endDate.setDate(endDate.getDate() + 6 - endDate.getDay());
       startDate.setDate(startDate.getDate() - startDate.getDay());
    }
@@ -1513,7 +1552,8 @@ function updateGraphs () {
       endDate.setMonth(endDate.getMonth() + 1);
       endDate.setDate(0);
    }
-   else if (view.name == 'agendaWeek' || view.name == 'basicWeek') {
+   
+   else {
       endDate.setDate(endDate.getDate() + 6 - endDate.getDay());
       startDate.setDate(startDate.getDate() - startDate.getDay());
    }

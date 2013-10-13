@@ -38,12 +38,12 @@ $("#overrideAvailability li").click(function() {
    };
    if (category == "Custom") {
       var start = "06:00:00";
-      var end = "21:00:00";
+      var end = "23:00:00";
       if (eventObject.category == "Custom") {
          start = eventObject.start.getHours() + ":" + eventObject.start.getMinutes() + ":00";
          end = eventObject.end.getHours() + ":" + eventObject.end.getMinutes() + ":00";
       }
-      buildStartEndInputs(form_obj, start, end, "06:00:00", "21:00:00");
+      buildStartEndInputs(form_obj, start, end, "06:00:00", "23:00:00");
 
       form_obj["title"] = eventObject.title.split("-")[0];
 

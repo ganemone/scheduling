@@ -335,7 +335,18 @@ a.fc-event,
 	height: 100%     !important;
 	cursor: e-resize;
 	}
-	
+
+.ui-resizable-n {
+	top: 0        !important; /* importants override pre jquery ui 1.7 styles */
+	width: 100%      !important;
+	height: 8px      !important;
+	overflow: hidden !important;
+	line-height: 8px !important;
+	font-size: 11px  !important;
+	font-family: monospace;
+	text-align: center;
+	cursor: n-resize;
+	}
 .fc-event-hori .ui-resizable-w {
 	top: 0           !important;
 	left: -3px       !important;

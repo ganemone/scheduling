@@ -436,7 +436,15 @@ function buildStartEndInputs(form_obj, start_selected, end_selected, start_allow
          "name" : "8:45pm", "number" : 20.45,
       }, '21:00:00' : {
          "name" : "9:00pm", "number" : 21.0
-      }
+      }, '21:15:00' : {
+         "name" : "9:15pm", "number" : 21.15,
+      }, '21:30:00' : {
+         "name" : "9:30pm", "number" : 21.30,
+      }, '21:45:00' : {
+         "name" : "9:45pm", "number" : 21.45,
+      }, '22:00:00' : {
+         "name" : "10:00pm", "number" : 22.0
+      }, 
    }
    var start_selected_split = start_selected.split(":");
    var end_selected_split = end_selected.split(":");

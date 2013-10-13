@@ -99,7 +99,7 @@ function renderCalendar(slotMinutes, view, date) {
       slotMinutes : slotMinutes,
       slotEventOverlap : false,
       minTime : 6,
-      maxTime : 21,
+      maxTime : 22,
       editable : true,
       resizeable : true,
       droppable : true,
@@ -138,9 +138,6 @@ function renderCalendar(slotMinutes, view, date) {
          $('#calendar').fullCalendar('option', 'contentHeight', h);
 
       },
-      /* Function to display the loading gif.
-       *
-       */
       drop : function(date, allDay) {
          var draggedEvent = $(this).data('eventObject');
          var days = draggedEvent.days;
@@ -353,8 +350,8 @@ function renderCalendar(slotMinutes, view, date) {
       /* Function called when an event is resized on the calendar. Calls the eventMove function.
        *
        */
-      eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-         eventMove(event, dayDelta, minuteDelta, revertFunc, "resized");
+      eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, direction, view) {
+         eventMove(event, dayDelta, minuteDelta, revertFunc, "resized", direction);
       },
       /* Function called when a day selected, or a time range is selected.
        *    start = the beggining selected time.

@@ -3982,6 +3982,7 @@ function AgendaEventRenderer() {
 				skinCss +
 				"'" +
 			">" +
+			"<div class='ui-resizable-handle ui-resizable-n'>=</div><br>" +
 			"<div class='fc-event-inner'>" +
 			"<div class='fc-event-time'>" +
 			htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
@@ -4281,9 +4282,11 @@ function AgendaEventRenderer() {
 		var snapDelta, prevSnapDelta;
 		var snapHeight = getSnapHeight();
 		var snapMinutes = getSnapMinutes();
+
 		eventElement.resizable({
 			handles: {
-				s: '.ui-resizable-handle'
+				s: '.ui-resizable-s',
+				n: '.ui-resizable-n'
 			},
 			grid: snapHeight,
 			start: function(ev, ui) {
@@ -4293,6 +4296,7 @@ function AgendaEventRenderer() {
 			},
 			resize: function(ev, ui) {
 				// don't rely on ui.size.height, doesn't take grid into account
+				var direction = ($(ev.originalEvent.target).hasClass("ui-resizable-n")) ? "north" : "south";
 				snapDelta = Math.round((Math.max(snapHeight, eventElement.height()) - ui.originalSize.height) / snapHeight);
 				if (snapDelta != prevSnapDelta) {
 					timeElement.text(
@@ -4307,9 +4311,10 @@ function AgendaEventRenderer() {
 				}
 			},
 			stop: function(ev, ui) {
+				var direction = ($(ev.originalEvent.target).hasClass("ui-resizable-n")) ? "north" : "south";
 				trigger('eventResizeStop', this, event, ev, ui);
 				if (snapDelta) {
-					eventResize(this, event, 0, snapMinutes*snapDelta, ev, ui);
+					eventResize(this, event, 0, snapMinutes*snapDelta, ev, ui, direction);
 				}else{
 					showEvents(event, eventElement);
 					// BUG: if event was really short, need to put title back in span
@@ -4606,7 +4611,7 @@ function View(element, calendar, viewName) {
 	}
 	
 	
-	function eventResize(e, event, dayDelta, minuteDelta, ev, ui) {
+	function eventResize(e, event, dayDelta, minuteDelta, ev, ui, direction) {
 		var eventId = event._id;
 		elongateEvents(eventsByID[eventId], dayDelta, minuteDelta);
 		trigger(
@@ -4621,7 +4626,8 @@ function View(element, calendar, viewName) {
 				reportEventChange(eventId);
 			},
 			ev,
-			ui
+			ui,
+			direction
 		);
 		reportEventChange(eventId);
 	}
@@ -4931,7 +4937,23 @@ function View(element, calendar, viewName) {
 	// Returns a negative value if `a` should be first.
 	// Returns a positive value of `b` should be first.
 	function segmentCompare(a, b) {
-		return (a.title < b.title) ? -1 : 1;
+		if(a.event.allDay == true && b.event.allDay == false) {
+			return -1;	
+		}
+		if(a.event.allDay == false && b.event.allDay == true) {
+			return 1;
+		}
+		if(a.event.category == "Available" || a.event.category == "Custom") {
+			if(b.event.category == "scheduled" || b.event.category == "Busy") {
+				return -1;
+			}
+			return (a.event.title < b.event.title) ? -1 : 1;
+		}
+		if(b.event.category == "Available" || b.event.category == "Custom") {
+			return 1;
+		}
+		return (a.event.title < b.event.title) ? -1 : 1;
+		
 		/*return _segmentCompare(a, b) // sort by dimension
 			|| (a.event.start - b.event.start) // if a tie, sort by event start date
 			|| (a.event.title || "").localeCompare(b.event.title) // if a tie, sort by event title*/
