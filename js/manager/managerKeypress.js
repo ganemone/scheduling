@@ -2,6 +2,8 @@ $(document).keypress(function(e) {
    if ($(e.target).is('input') || $(e.target).is('select')) {
       return;
    }
+   $(".fc-event").tooltip("hide");
+   
    var code = (e.keyCode ? e.keyCode : e.which);
    if (code == 70 || code == 102)
       $("#sfl_employees").trigger('click');

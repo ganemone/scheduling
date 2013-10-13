@@ -3981,9 +3981,11 @@ function AgendaEventRenderer() {
 				"left:" + seg.left + "px;" +
 				skinCss +
 				"'" +
-			">" +
-			"<div class='ui-resizable-handle ui-resizable-n'>=</div><br>" +
-			"<div class='fc-event-inner'>" +
+			">";
+			if(isEventResizable(event)) {
+				html += "<div class='ui-resizable-handle ui-resizable-n'>=</div><br>" 
+			}
+			html += "<div class='fc-event-inner'>" +
 			"<div class='fc-event-time'>" +
 			htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
 			"</div>" +
@@ -4282,7 +4284,7 @@ function AgendaEventRenderer() {
 		var snapDelta, prevSnapDelta;
 		var snapHeight = getSnapHeight();
 		var snapMinutes = getSnapMinutes();
-
+		var direction;
 		eventElement.resizable({
 			handles: {
 				s: '.ui-resizable-s',
@@ -4290,20 +4292,20 @@ function AgendaEventRenderer() {
 			},
 			grid: snapHeight,
 			start: function(ev, ui) {
+				direction = ($(ev.originalEvent.target).hasClass("ui-resizable-n")) ? "north" : "south";
 				snapDelta = prevSnapDelta = 0;
 				hideEvents(event, eventElement);
 				trigger('eventResizeStart', this, event, ev, ui);
 			},
 			resize: function(ev, ui) {
 				// don't rely on ui.size.height, doesn't take grid into account
-				var direction = ($(ev.originalEvent.target).hasClass("ui-resizable-n")) ? "north" : "south";
 				snapDelta = Math.round((Math.max(snapHeight, eventElement.height()) - ui.originalSize.height) / snapHeight);
 				if (snapDelta != prevSnapDelta) {
 					timeElement.text(
 						formatDates(
-							event.start,
+							(direction == "south") ? event.start : addMinutes(cloneDate(event.start), -snapMinutes*snapDelta),
 							(!snapDelta && !event.end) ? null : // no change, so don't display time range
-								addMinutes(eventEnd(event), snapMinutes*snapDelta),
+								(direction == "south") ? addMinutes(eventEnd(event), snapMinutes*snapDelta) : event.end,
 							opt('timeFormat')
 						)
 					);
@@ -4311,7 +4313,6 @@ function AgendaEventRenderer() {
 				}
 			},
 			stop: function(ev, ui) {
-				var direction = ($(ev.originalEvent.target).hasClass("ui-resizable-n")) ? "north" : "south";
 				trigger('eventResizeStop', this, event, ev, ui);
 				if (snapDelta) {
 					eventResize(this, event, 0, snapMinutes*snapDelta, ev, ui, direction);
@@ -4513,7 +4514,6 @@ function View(element, calendar, viewName) {
 	function eventEnd(event) {
 		return event.end ? cloneDate(event.end) : defaultEventEnd(event);
 	}
-	
 	
 	
 	/* Event Elements

@@ -262,6 +262,9 @@ function renderCalendar(slotMinutes, view, date) {
             case 0 : position = "right"; break;
             default: position = "top"; break;
          }
+         if($("#calendar").fullCalendar("getView").name == "agendaDay") {
+            position = "top";
+         }
          element.tooltip({
             animation : false, title : content, container : 'body', placement : position, trigger : "manual"
          }).on({

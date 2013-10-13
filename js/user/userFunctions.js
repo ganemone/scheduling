@@ -10,7 +10,6 @@ function cal_select (start, end, allDay, jsEvent, view) {
       setDate(start);
    }
    else {
-      alert("doing stuff here...");
       updateEvent("Custom", start, false, start.toTimeString().split(" ")[0], end.toTimeString().split(" ")[0]);
       $("#calendar").fullCalendar('unselect');
    }
@@ -46,27 +45,15 @@ function cal_viewRender (view) {
       $("#pasteWeek").addClass("disabled", "disabled");
    }
    var _month = view.start.getFullYear() + "-" + (view.start.getMonth() + 1);
-   $.ajax(
-   {
-      type : "POST",
-      url : url + "index.php/user/populateMonthInfoForm",
-      data :
-      {
-         employeeId : employeeId,
-         month : _month
-      },
-      success : function(msg)
-      {
+   sendRequest("POST", url + "index.php/user/populateMonthInfoForm", {
+      employeeId : employeeId,
+      month : _month
+   }, function(msg) {
          var json = JSON.parse(msg);
          monthInfo.minHours = (typeof json["minHours"] !== "undefined") ? json["minHours"] : "";
          monthInfo.maxHours = (typeof json["maxHours"] !== "undefined") ? json["maxHours"] : "";
          monthInfo.notes = (typeof json["notes"] !== "undefined") ? json["notes"] : "";
-      },
-      error : function()
-      {
-         alert("ERROR!!!");
-      }
-   });
+   }, false);
 }
 function cal_eventClick (event, jsEvent, view) {
    var start, end, states;

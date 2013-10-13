@@ -115,10 +115,20 @@ $('#calendar').fullCalendar(
       '' : 'h:mm{ - h:mm}'
    },
    titleFormat : title_format,
-   eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view)
+   eventResize : function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, direction, view)
    {
       if(dayDelta > 0)
          return 0;
+      
+      if(isLockedOut(event.start)) {
+         bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
+         return revertFunc();
+      }
+      if(direction == "north") {
+         event.end.setMinutes(event.end.getMinutes() - minuteDelta);
+         event.start.setMinutes(event.start.getMinutes() - minuteDelta);
+      }
+      
       updateEvent("Custom", event.start, false, event.start.toTimeString().split(" ")[0], event.end.toTimeString().split(" ")[0]);
    },
    select : function(start, end, allDay, jsEvent, view)
