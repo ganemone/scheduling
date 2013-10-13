@@ -186,7 +186,7 @@ function eventMove(event, dayDelta, minuteDelta, revertFunc, method, direction) 
       event.end.setMinutes(event.end.getMinutes() - minuteDelta);
       event.start.setMinutes(event.start.getMinutes() - minuteDelta);
    }
-   if(dayDelta > 0) {
+   if(dayDelta != 0) {
       sendRequest("POST", url + "index.php/manager/scheduleEmployee", {
          employeeId: event.employeeId,
          day: event.start.toDateString(),
