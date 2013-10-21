@@ -140,7 +140,7 @@ class sfl extends CI_Controller
       $date = Date("Y-m-d", strtotime($this->input->post("date")));
 
       $result = "error";
-      if($this->valid_date($date)) {
+      if($this->validator->valid_date($date)) {
          $result = $this->leader->addStory($employeeId, $story, $date);
       }
       echo $result;

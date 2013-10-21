@@ -604,6 +604,7 @@ function edit_missed_sale (sale_id) {
 				parent.children("td.description").text(data.description);
 				parent.children("td.size").text(data.size);
 				parent.children("td.category").text(data.category);
+				parent.children("td.gender").text(data.gender);
 				parent.children("td.quantity").text(data.quantity);
 
 				successMessage("Updated Missed Sale");

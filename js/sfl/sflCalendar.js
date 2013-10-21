@@ -534,6 +534,9 @@ function addStory()
          {
             if (msg == "false")
                alert("I'm not sure who you are... Please try again, and make sure you entered your employeeId in correctly.");
+            else {
+               successMessage("Added information to nightly email");
+            }
          }, true);
       }
       return true;
