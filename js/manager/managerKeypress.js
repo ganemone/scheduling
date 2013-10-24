@@ -3,7 +3,6 @@ $(document).keypress(function(e) {
       return;
    }
    $(".fc-event").tooltip("hide");
-   
    var code = (e.keyCode ? e.keyCode : e.which);
    if (code == 70 || code == 102)
       $("#sfl_employees").trigger('click');
@@ -19,14 +18,6 @@ $(document).keypress(function(e) {
       $("#all_busy").trigger('click');
    else if (code == 97 || code == 65)
       $("#all_available").trigger('click');
-   else if (code == 37) {
-      $("#calendar").fullCalendar('prev');
-      e.preventDefault();
-   }
-   else if (code == 39) {
-      $("#calendar").fullCalendar('next');
-      e.preventDefault();
-   }
    else if (code == 100)
       $("#calendar").fullCalendar("changeView", "agendaDay");
    else if (code == 119 || code == 68)
@@ -34,3 +25,21 @@ $(document).keypress(function(e) {
    else if (code == 109 || code == 77)
       $("#calendar").fullCalendar("changeView", "month");
 });
+
+$(document).keydown(function(e) {
+   if ($(e.target).is('input') || $(e.target).is('select')) {
+      return;
+   }
+   $(".fc-event").tooltip("hide");
+   var c = (e.keyCode ? e.keyCode : e.which);
+
+   if (c == 37) {
+      $("#calendar").fullCalendar('prev');
+      e.preventDefault();
+   }
+   else if (c == 39) {
+      $("#calendar").fullCalendar('next');
+      e.preventDefault();
+   }
+
+})

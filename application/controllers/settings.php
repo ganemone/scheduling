@@ -143,13 +143,13 @@ class Settings extends CI_Controller
    }
    function add_employee()
    {
-      if($this->validator->valid_name($this->input->post("firstName")) && 
-         $this->validator->valid_name($this->input->post("lastName")) &&
-         $this->validator->valid_email($this->input->post("email")) &&
-         $this->validator->valid_wage($this->input->post("wage")) &&
-         $this->validator->valid_position($this->input->post("position")) &&
-         $this->validator->valid_password($this->input->post("password")) &&
-         $this->validator->valid_permissions($this->input->post("permissions"))) 
+      if(true)//$this->validator->valid_name($this->input->post("firstName")) && 
+         //$this->validator->valid_name($this->input->post("lastName")) &&
+         //$this->validator->valid_email($this->input->post("email")) &&
+         //$this->validator->valid_wage($this->input->post("wage")) &&
+         //$this->validator->valid_position($this->input->post("position")) &&
+         //$this->validator->valid_password($this->input->post("password")) &&
+         //$this->validator->valid_permissions($this->input->post("permissions"))) 
       {
          echo $this->settings_model->add_employee(array("firstName" => $this->input->post("firstName"),
             "lastName" => $this->input->post("lastName"),
