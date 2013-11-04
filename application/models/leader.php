@@ -230,7 +230,7 @@ class Leader extends CI_Model
       $missed_sales = $this->getMissedSales($date);
       $stories = $this->getStories($date, $employees);
       
-      $str = "<div id='emailTemplate'>";
+      $str = "<div id='emailTemplate' style='text-align: left;'>";
       $str.= "<b>Staff</b><br>";
       $str.= "<div id='emailEmployees'>";
       

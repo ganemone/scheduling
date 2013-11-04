@@ -151,11 +151,13 @@ function renderCalendar(slotMinutes, view, date) {
             if (result) {
                   var employee_id_arr = new Array();
                   var day_arr = new Array();
+                  alert($("#employee_select_list").val());
                   $("#templateForm > div > label > input").each(function() {
                   if ($(this).is(":checked")) {
                      employee_id_arr.push($(this).val());
                   }
-                  if($("#employee_select_list").val() != "NA" && $.inArray($("#employee_select_list").val(), employee_id_arr)) {
+
+                  if($("#employee_select_list").val() != "NA" && $.inArray($("#employee_select_list").val(), employee_id_arr) == -1) {
                      employee_id_arr.push($("#employee_select_list").val());
                   }
                });
