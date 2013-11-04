@@ -154,11 +154,11 @@ function renderCalendar(slotMinutes, view, date) {
                   $("#templateForm > div > label > input").each(function() {
                   if ($(this).is(":checked")) {
                      employee_id_arr.push($(this).val());
-                  }
-                  if($("#employee_select_list").val() != "NA" && $.inArray($("#employee_select_list").val(), employee_id_arr) == -1) {
-                     employee_id_arr.push($("#employee_select_list").val());
-                  }
+                  }                  
                });
+               if($("#employee_select_list").val() != "NA" && $.inArray($("#employee_select_list").val(), employee_id_arr) == -1) {
+                  employee_id_arr.push($("#employee_select_list").val());
+               }
                for (var i = 0; i < days.length; i++) {
                   var day = new Date();
                   day.setFullYear(startDate.getFullYear());
