@@ -159,22 +159,13 @@ class Leader extends CI_Model
       $price = ($price == "") ? "NA" : $price;
       $size  = ($size == "")  ? "NA" : $size;
       
-      $query = $this->db->query("SELECT *, COUNT(*) as count FROM missedSales WHERE category = '$cat' && gender = '$gender' && size = '$size' && date = '$date' && description = '$desc'" );
-      $row = $query->row();
-      if($row->count > 0)
-      {
-         $result = $this->db->query("UPDATE missedSales SET quantity = quantity + 1 WHERE id='$row->id'");
-         $result = "Updated Record";   
-      }
-      else
-      {
-         $result = $this->db->insert("missedSales", array(
-            'date' => $date,
-            'description' => $desc,
-            'size' => $size,
-            'price' => $price,
-            'category' => $cat,
-            'gender' => $gender));
+      $result = $this->db->insert("missedSales", array(
+         'date' => $date,
+         'description' => $desc,
+         'size' => $size,
+         'price' => $price,
+         'category' => $cat,
+         'gender' => $gender));
       }
       return $result;
    }
