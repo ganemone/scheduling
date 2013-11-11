@@ -527,41 +527,42 @@ class employee extends CI_Model
 
    function allStaffSource($employeeId)
    {
-      $query = $this->db->query("SELECT id, firstName, lastName, position FROM employees WHERE id != '$employeeId'");
+      $finalizedDate = $this->getFinalizedDate();
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.*
+         FROM employees
+         LEFT JOIN scheduled ON employees.id = scheduled.employeeId
+         WHERE scheduled.employeeId != '$employeeId' &&
+         scheduled.day < '$finalizedDate'");
       $_json = array();
       $busy = $this->input->cookie("busy");
       foreach ($query->result() as $row)
       {
          $name = "$row->firstName " . $row->lastName[0];
-         $_query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$row->id'");
-         foreach ($_query->result() as $_row)
-         {
-            $sfl = ($_row->sfl == 1) ? "(SFL)" : "";
-            $border = ($_row->sfl == 1) ? "BLACK" : "";
-            $begin = $_row->begin;
-            $end = $_row->end;
-            $start = Date('Y-m-d H:i:s', strtotime("$_row->day $begin"));
-            $_end = Date('Y-m-d H:i:s', strtotime("$_row->day $end"));
-            $cat = "";
-            if ($_row->category != "SF" && $_row->category != null && strpos($_row->category, "event") == false)
-               $cat = "($_row->category)";
-            $color = "#EB8F00";
+         $sfl = ($row->sfl == 1) ? "(SFL)" : "";
+         $border = ($row->sfl == 1) ? "BLACK" : "";
+         $begin = $row->begin;
+         $end = $row->end;
+         $start = Date('Y-m-d H:i:s', strtotime("$row->day $begin"));
+         $_end = Date('Y-m-d H:i:s', strtotime("$row->day $end"));
+         $cat = "";
+         if ($row->category != "SF" && $row->category != null && strpos($row->category, "event") == false)
+            $cat = "($row->category)";
+         $color = "#EB8F00";
 
-            array_push($_json, json_encode(array(
-               "title" => "$name $cat $sfl",
-               "start" => $start,
-               "end" => $_end,
-               "allDay" => false,
-               'color' => "$color",
-               "employeeId" => $row->id,
-               'category' => 'scheduled',
-               'id' => $_row->id,
-               'position' => $row->position,
-               'area' => $_row->category,
-               'borderColor' => $border,
-               'sfl' => $sfl
-            )));
-         }
+         array_push($_json, json_encode(array(
+            "title" => "$name $cat $sfl",
+            "start" => $start,
+            "end" => $_end,
+            "allDay" => false,
+            'color' => "$color",
+            "employeeId" => $row->id,
+            'category' => 'scheduled',
+            'id' => $row->id,
+            'position' => $row->position,
+            'area' => $row->category,
+            'borderColor' => $border,
+            'sfl' => $sfl
+         )));
       }
       return $_json;
    }

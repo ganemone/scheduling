@@ -166,7 +166,7 @@ class Leader extends CI_Model
          'price' => $price,
          'category' => $cat,
          'gender' => $gender));
-      }
+      
       return $result;
    }
 
