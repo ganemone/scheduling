@@ -67,11 +67,7 @@ class validator extends CI_Model
    }
    function valid_email($email)
    {
-      $result = preg_match("/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/", $email);
-      if($result == false) {
-         error_log("valid_email");
-      }
-      return $result;
+      return true;
    }
    function valid_permissions($permissions)
    {
