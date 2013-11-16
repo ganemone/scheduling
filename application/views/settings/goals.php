@@ -3,7 +3,7 @@
 			<div class="alert alert-<? echo $message_type ?> notifications bottom-right"><? echo $message ?></div>
 		<? endif; ?>
 		<div class='table-container'>
-			<table class='table table-condensed'>
+			<table class='table table-condensed table-striped'>
 				<th>Date</th>
 				<th>Goal</th>
 				<th>Edit</th>

@@ -1,6 +1,6 @@
 		<div class='notifications top-right'></div>
 		<div class='table-container'>
-			<table class='table table-condensed'>
+			<table class='table table-condensed table-striped'>
 				<tr>
 					<th>Employee Id</th>
 					<th>First Name</th>

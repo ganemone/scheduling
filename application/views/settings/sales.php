@@ -3,7 +3,7 @@
 			<div class="alert alert-<? echo $message_type ?> notifications bottom-right"><? echo $message ?></div>
 		<? endif; ?>
 		<div class='table-container'>
-			<table class='table table-condensed'>
+			<table class='table table-condensed table-striped'>
 				<th class='text-center'><a href='<? echo base_url() ?>index.php/settings/sales?order_by=1' class='btn btn-primary'>Date</a></th>
 				<th class='text-center'><a href='<? echo base_url() ?>index.php/settings/sales?order_by=2' class='btn btn-primary'>Price</a></th>
 				<th class='text-center'><a href='<? echo base_url() ?>index.php/settings/sales?order_by=3' class='btn btn-primary'>Vendor</a></th>

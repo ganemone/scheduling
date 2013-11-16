@@ -14,7 +14,7 @@
 					<td class='group-name'><? echo $row["name"] ?></td>
 					<td class='group-abbr'><? echo $row["abbr"] ?></td>
 					<td class='employees'>
-						<table class='table'>
+						<table class='table table-striped'>
 							<? if(count($row["employees"]) == 0): ?>
 							<tr class='remove'>
 								<td>&nbsp</td>

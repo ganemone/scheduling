@@ -1,6 +1,6 @@
 		<div class='notifications top-right'></div>
 		<div class='table-container'>
-			<table class='table table-condensed'>
+			<table class='table table-condensed table-striped'>
 				<th>Category Name</th>
 				<th>Category Abbreviation</th>
 				<th>Edit</th>
