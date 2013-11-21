@@ -260,7 +260,7 @@ class employee extends CI_Model
             )));
          }
       }
-      $_query = $this->db->query("SELECT scheduled.* FROM scheduled LEFT JOIN requests ON scheduled.id = requests.shiftId WHERE requests.shiftId IS Null && scheduled.day < '$finalizedDate' && scheduled.day <= '" . date("Y-m-d", $end) . "' && scheduled.day >= '" . date("Y-m-d", strtotime($start)) ."' && scheduled.employeeId = '$employeeId'");
+      $_query = $this->db->query("SELECT scheduled.* FROM scheduled LEFT JOIN requests ON scheduled.id = requests.shiftId WHERE requests.shiftId IS Null && scheduled.day <= '$finalizedDate' && scheduled.day <= '" . date("Y-m-d", $end) . "' && scheduled.day >= '" . date("Y-m-d", strtotime($start)) ."' && scheduled.employeeId = '$employeeId'");
       foreach ($_query->result() as $row)
       {
          $title = ($row->category != "SF") ? "($row->category)" : "Floor";
@@ -532,7 +532,7 @@ class employee extends CI_Model
          FROM employees
          LEFT JOIN scheduled ON employees.id = scheduled.employeeId
          WHERE scheduled.employeeId != '$employeeId' &&
-         scheduled.day < '$finalizedDate'");
+         scheduled.day <= '$finalizedDate'");
       $_json = array();
       $busy = $this->input->cookie("busy");
       foreach ($query->result() as $row)
