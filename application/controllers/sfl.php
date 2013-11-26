@@ -120,6 +120,7 @@ class sfl extends CI_Controller
    {
       $desc = mysql_real_escape_string($this->input->post('description'));
       $size = mysql_real_escape_string($this->input->post('size'));
+      $vendor = mysql_real_escape_string($this->input->post('vendor'));
       $cat = $this->input->post("category");
       $gender = $this->input->post("gender");
       $date = Date("Y-m-d");
@@ -128,7 +129,7 @@ class sfl extends CI_Controller
       $result = "error";
 
       if($this->validator->valid_date($date)) {
-         $result = $this->leader->addMissedSale($desc, $size, $price, $date, $cat, $gender);
+         $result = $this->leader->addMissedSale($desc, $vendor, $size, $price, $date, $cat, $gender);
       }
       echo $result;
    }

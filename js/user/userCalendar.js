@@ -165,13 +165,16 @@ $('#calendar').fullCalendar(
       var draggedEvent = $(this).data('eventObject');
       if(!isLockedOut(date))
       {
-         if (draggedEvent.title == 'Custom')
-            customEvent(date, false);
-         else
-            updateEvent(draggedEvent.title, date, true, '', '');
+         if (draggedEvent.category == "availability") {
+            if(draggedEvent.allDay == false) {
+               customEvent(date, false);   
+            }
+            else {
+               updateEvent(draggedEvent.title, date, true, '', '');
+            }
+         }
       }
-      else
-      {
+      else {
          bootbox.alert("It is too late to update your availability on this day. Please contact Tim Martin at tmartin@gazellesports.com");
       }
    },

@@ -153,14 +153,16 @@ class Leader extends CI_Model
       return $_json;
    }
 
-   function addMissedSale($desc, $size, $price, $date, $cat, $gender)
+   function addMissedSale($desc, $vendor, $size, $price, $date, $cat, $gender)
    {
       $desc  = ($desc == "")  ? "NA" : $desc;
       $price = ($price == "") ? "NA" : $price;
       $size  = ($size == "")  ? "NA" : $size;
+      $vendor = ($vendor == "") ? "NA" : $vendor;
       
       $result = $this->db->insert("missedSales", array(
          'date' => $date,
+         'vendor' => $vendor,
          'description' => $desc,
          'size' => $size,
          'price' => $price,

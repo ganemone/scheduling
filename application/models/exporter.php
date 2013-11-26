@@ -9,7 +9,9 @@ class exporter extends CI_Model
 
    function getScheduledExports($employeeId, $start, $end, $events, $google)
    {
-      $query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$employeeId' && day >= '$start' && day <= '$end'");
+      $query = $this->db->query("SELECT viewable FROM settings");
+      $finalized = ($query->num_rows() > 0) ? Date('Y-m-d', strtotime($query->row()->viewable)) : Date('Y-m-d', mktime(0, 0, 0, Date('m') + 2, 1, Date('Y')));
+      $query = $this->db->query("SELECT * FROM scheduled WHERE employeeId = '$employeeId' && day >= '$start' && day <= '$end' && day <= '$finalized'");
       $array = array();
       foreach ($query->result() as $row)
       {

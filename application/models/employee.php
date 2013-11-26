@@ -189,6 +189,7 @@ class employee extends CI_Model
       return array(
          "title"  => ($row->available == "Custom") ? "" : $row->available,
          "allDay" => $allDay,
+         "category" => "availability",
          "start"  => $row->day . $start,
          "end"    => $row->day . $end,
          "color"  => "#" . $row->color,
