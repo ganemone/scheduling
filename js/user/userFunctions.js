@@ -366,13 +366,25 @@ function copyWeek() {
    var date_obj = getStartAndEndDates("agendaWeek", date);
    if (availability == true) {
       var events = $("#calendar").fullCalendar("clientEvents", function(event) {
-         if (event.start < date_obj.startDate || event.start > date_obj.endDate || event.category != "availability")
+         var endCompare = new Date();
+         endCompare.setDate(event.start.getDate());
+         endCompare.setFullYear(event.start.getFullYear());
+         endCompare.setMonth(event.start.getMonth());
+         endCompare.setHours(0);
+         endCompare.setMinutes(0);
+         endCompare.setSeconds(0);
+         endCompare.setMilliseconds(0);
+         console.log(endCompare);
+         console.log(date_obj.endDate);
+         console.log(endCompare > date_obj.endDate);
+         if (event.start < date_obj.startDate || endCompare > date_obj.endDate || event.category != "availability")
             return false;
          return true;
       });
       clipboard = events;
       if (clipboard.length > 0) {
             successMessage("Copied Week");
+            console.log(clipboard);
       }
       else {
          errorMessage("There are no events here to copy");
@@ -405,8 +417,8 @@ function pasteWeek() {
 
    });
    sendRequest("POST",  url + "index.php/user/pasteWeek", {
-      week_start : date_obj.startDate,
-      week_end : date_obj.endDate,
+      week_start : date_obj.startDate.toDateString(),
+      week_end : date_obj.endDate.toDateString(),
       week : JSON.stringify(event_obj_arr)
    }, 
    function(msg) {
