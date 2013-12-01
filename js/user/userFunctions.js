@@ -427,32 +427,6 @@ function pasteWeek() {
    }, false);
 }
 
-function validateDownloadForm(f) {
-   if (!f.start)
-      return new Array(false, "The Start Date Field is Required");
-   if (!f.end)
-      return new Array(false, "The End Date Field is Required");
-   var start_arr, end_arr;
-   start_arr = f.start.split("-");
-   end_arr = f.end.split("-");
-   var reg = new RegExp('[^0-9\-]');
-   if (reg.test(f.start))
-      return new Array(false, "Please do not include any characters other than numbers and dashes in the start date.");
-   if (reg.test(f.end))
-      return new Array(false, "Please do not include any characters other than numbers and dashes in the end date.");
-   if (start_arr.length != 3 || start_arr[0].length != 4 || start_arr[1].length != 2 || start_arr[2].length != 2)
-      return new Array(false, "Please enter the start date with the following format: YYYY-MM-DD");
-   if (end_arr.length != 3 || end_arr[0].length != 4 || end_arr[1].length != 2 || end_arr[2].length != 2)
-      return new Array(false, "Please enter the end date with the following format: YYYY-MM-DD");
-   if (start_arr[1] > 12 || start_arr[2] > 31)
-      return new Array(false, "Please enter a valid start date.");
-   if (end_arr[1] > 12 || end_arr[1] > 31)
-      return new Array(false, "Please enter a valid end date.");
-   if (end_arr[0] < start_arr[0] || end_arr[1] < start_arr[1] || (end_arr[0] == start_arr[0] && end_arr[1] == start_arr[1] && end_arr[2] < start_arr[2]))
-      return new Array(false, "The end date must come after the start date");
-   return new Array(true);
-}
-
 function validateEmpty(variable) {
    if (variable === null || variable === false || variable === "")
       return false;
@@ -474,7 +448,7 @@ function validateStartEndDates(start, end) {
    }
    start_split = start.split("-");
    end_split = end.split("-");
-   if (start_split[0] > end_split[0] || start_split[1] > end_split[1] || start_split[1] == end_split[1] && start_split[2] > end_split[2])
+   if (start_split[0] > end_split[0] || (start_split[1] > end_split[1] && start_split[0] >= end_split[0]) || (start_split[0] >= end_split[0] && start_split[1] == end_split[1] && start_split[2] > end_split[2]))
       return new Array(false, "The start date must come after the end date");
    return new Array(true);
 }
