@@ -24,10 +24,9 @@ class ics extends CI_Controller
       $employeeId = $this->input->get("employeeId");
       $start = $this->input->get("start");
       $end = $this->input->get('end');
-      $events = $this->input->get("events");
       $google = $this->input->get("google");
       $this->google = $google;
-      $array = $this->exporter->getScheduledExports($employeeId, $start, $end, $events, $google);
+      $array = $this->exporter->getScheduledExports($employeeId, $start, $end, $google);
       foreach ($array as $value)
       {
          $title = $value['title'];

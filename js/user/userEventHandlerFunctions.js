@@ -115,15 +115,8 @@ $("#downloadCalendar").click(function() {
     "<input type='hidden' value='<? echo $employeeId ?>' name='employeeId' />" +
     "<div class='form-group text-left'>" +
     "<div class='checkbox'>" +
-    "<label for='events'>" +
-    "<input type='checkbox' name='events' id='events' />Include Store Events" +
-    "</label>" +
-    "</div>" +
-    "</div>" +
-    "<div class='form-group text-left'>" +
-    "<div class='checkbox'>" +
     "<label for='google'>" +
-    "<input type='checkbox' name='google' id='google' />Google Calendar Format" +
+    "<input type='checkbox' name='google' id='google' />Google Calendar/Android Devices" +
     "</label>" +
     "</div>" +
     "</div></fieldset>" +
