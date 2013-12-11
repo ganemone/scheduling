@@ -50,6 +50,12 @@ class admin extends CI_Model
          else {
             $employee["sfl"] = false;
          }
+         if($row->position == "SP") {
+            $employee["sp"] = true;
+         } 
+         else {
+            $employee["sp"] = false;
+         }
 
          $employee["firstName"] = $row->firstName;
          $employee["lastName"] = $row->lastName;

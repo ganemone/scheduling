@@ -178,14 +178,14 @@ class Leader extends CI_Model
       if ($query->num_rows() == 0)
          return "There were no missed sales recorded today.";
 
-      $str = "<table class='nightlyEmailTable'><tr><th>Description</th><th>Size</th><th>Category</th><th>Gender</th><th>Price</th><th>Quantity</th><th>Total</th></tr>";
+      $str = "<table class='nightlyEmailTable'><tr><th>Description</th><th>Size</th><th>Gender</th><th>Price</th><th>Total</th></tr>";
       //$_total = 0;
       foreach ($query->result() as $row)
       {
          //$_total += $row->price*$row->quantity;
          $total = '$' . number_format($row->price * $row->quantity, 2, ".", ",");
          $price = '$' . number_format($row->price, 2, '.', ',');
-         $str.= "<tr><td>$row->description</td><td>$row->size</td><td>$row->category</td><td>$row->gender</td><td>$price</td><td>$row->quantity</td><td>$total</td></tr>";         
+         $str.= "<tr><td>$row->description</td><td>$row->size</td><td>$row->gender</td><td>$price</td><td>$total</td></tr>";         
       }
       //$_total = '$' . number_format($_total, 2, '.',',');
       //$str.= "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td>$_total</td></tr></table>";

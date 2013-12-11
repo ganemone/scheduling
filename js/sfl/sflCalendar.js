@@ -424,6 +424,12 @@ function addMissedSale()
          }
       },
       {
+         type : "hidden",
+         name : "day",
+         id : "missed_sale_date",
+         value : new Date().toDateString()
+      },
+      {
          type : "select",
          name : "gender",
          id : "miss_gender",

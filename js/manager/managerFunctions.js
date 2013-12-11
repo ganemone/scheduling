@@ -310,6 +310,7 @@ function getEmployeesAvailable(begin, end) {
       }
       return false;
    });
+
    return events;
 }
 
@@ -410,9 +411,11 @@ function scheduleEmployee(start, end, startTime, endTime) {
    var weekStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() - start.getDay());
    var weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
    var employees = getEmployeesAvailable(start, end);
+
    for (var i = 0; i < employees.length; i++) {
       employees[i] = employees[i].employeeId;
    }
+
    if(employees.length == 0) {
       return continueScheduling(start, end, null);
    }
@@ -456,6 +459,26 @@ function buildEmployeeChecklistObj(form_obj, employeeInfo) {
          }
       }
    }
+   var employeeA;
+   var employeeB;
+
+   element_arr.sort(function(a,b) {
+      employeeA = global_employee_obj[a.value];
+      employeeB = global_employee_obj[b.value];
+      
+      if(employeeA.sfl == true && employeeB.sfl == false) {
+         return -1;
+      } else if(employeeB.sfl == true) {
+         return 1;
+      } else if(employeeA.sp == true && employeeB.sp == false) {
+         return 1;
+      } else if(employeeB.sp == true) {
+         return -1;
+      } else {
+         return (employeeA.firstName < employeeB.firstName) ? -1 : 1;
+      }
+   });
+   
    form_obj["elements"].push({
       "type" : "group",
       "data" : element_arr
@@ -493,6 +516,7 @@ function buildCategoryAdditionsObj(form_obj, defaultTo) {
 }
 
 function continueScheduling(start, end, employeeInfo) {
+
    var form_obj = {
       "name" : "schedule_employee", "id" : "schedule_employee", "style" : "width: 420px;", "elements" : new Array()
    };
@@ -627,7 +651,7 @@ function buildHoursLeft(employeeHoursLeft, employee_id) {
 }
 
 function buildEmployeeSelectObj(form_obj) {
-   var data = {}
+   var data = {};
    var employee_obj;
    data["NA"] = {
       "name" : "--------------", "selected" : true
@@ -639,6 +663,7 @@ function buildEmployeeSelectObj(form_obj) {
          }
       }
    }
+
    form_obj["elements"].push({
       "type" : "select", "label" : "Employees: ", "name" : "employee_select_list", "id" : "employee_select_list", "label_class" : "control-label col-3", "input_class" : "col-9", "data" : data
    });

@@ -121,9 +121,9 @@ class sfl extends CI_Controller
       $desc = mysql_real_escape_string($this->input->post('description'));
       $size = mysql_real_escape_string($this->input->post('size'));
       $vendor = mysql_real_escape_string($this->input->post('vendor'));
+      $date = date("Y-m-d", strtotime($this->input->post("day")));
       $cat = $this->input->post("category");
       $gender = $this->input->post("gender");
-      $date = Date("Y-m-d");
       $price = $this->input->post('price');
 
       $result = "error";
