@@ -468,7 +468,7 @@ function buildEmployeeChecklistObj(form_obj, employeeInfo) {
       
       if(employeeA.sfl == true && employeeB.sfl == false) {
          return -1;
-      } else if(employeeB.sfl == true) {
+      } else if(employeeB.sfl == true && employeeA.sfl == false) {
          return 1;
       } else if(employeeA.sp == true && employeeB.sp == false) {
          return 1;
