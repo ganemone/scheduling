@@ -218,7 +218,7 @@ class Leader extends CI_Model
 
    function getEmailTemplate($date)
    {
-      $employees = $this->getEmployeesWorking($date);
+      $employees = $this->getEmployeesClosing($date);
       $goal = $this->getGoal($date);
       $missed_sales = $this->getMissedSales($date);
       $stories = $this->getStories($date, $employees);
@@ -238,7 +238,6 @@ class Leader extends CI_Model
       $str.= "<b>Customer Care</b><br><br><br>";
       $str.= "<b>Missed Sales</b><br>";
       $str.= "<div id='emailMissedSales'>$missed_sales</div><br>";
-      $str.= "<b>Transfers</b><br><br><br>";
       $str.= "<b>Misc:</b><br><br><br>";
       $str.= "<b>Today Sales $</b><br>";
       $str.= "<b>Sales Goal $goal</b><br>";
@@ -295,4 +294,26 @@ class Leader extends CI_Model
       return $employees;
    }
 
+   function getEmployeesClosing($date) 
+   {
+      $day = date("w", strtotime($date));
+      $closingTime = "20:00:00";
+      if($day == 0) {
+         $closingTime = "17:00:00";
+      } else if($day == 6) {
+         $closingTime = "18:00:00";
+      }
+      $query = $this->db->query("SELECT employeeId FROM scheduled WHERE day = '$date' && category != 'SP' && event = 0 && end >= '$closingTime'");
+      $employees = array();
+      $count = 0;
+      foreach($query->result() as $row)
+      {
+         $count++;
+         $_query = $this->db->query("SELECT firstName, lastName FROM employees WHERE id = '$row->employeeId'");
+         $_row = $_query->row();
+         if(isset($_row->firstName) && isset($_row->lastName))
+            $employees[$row->employeeId] = array("name" => $_row->firstName . " " . $_row->lastName, "story" => "NOTHING INPUTTED");
+      }
+      return $employees;
+   }
 }
