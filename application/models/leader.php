@@ -262,18 +262,8 @@ class Leader extends CI_Model
       $query = $this->db->query("SELECT * FROM stories WHERE date = '$date'");
       foreach($query->result() as $row)
       {
-         if(isset($employees[$row->employeeId]['story']) && $employees[$row->employeeId]['story'] == "NOTHING INPUTTED")
-            $employees[$row->employeeId]['story'] = $row->description;
-         else if(isset($employees[$row->employeeId]['story']))
-            $employees[$row->employeeId]['story'] .= "<br>" . $row->description;
-      }
-      foreach ($employees as $key => $val_arr) 
-      {
-         if($val_arr['story'] != "NOTHING INPUTTED" && $val_arr['story'] != "")
-         {
-            $str.= "<b>" . $val_arr['name'] . "</b><br>";
-            $str.= "<div class='story'>" . $val_arr['story'] . "</div>";
-         }
+         $str.= "<b>" . $row->name . "</b><br>";
+         $str.= "<div class='story'>" . $row->description . "</div";
       }
       return $str;
    }
