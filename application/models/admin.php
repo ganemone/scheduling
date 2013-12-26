@@ -477,7 +477,7 @@ class admin extends CI_Model
          FROM scheduled 
          LEFT JOIN employees 
          ON scheduled.employeeId = employees.id 
-         WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
+         WHERE scheduled.day >= '$start' && scheduled.day <= '$end' ORDER BY CASE employees.position WHEN 'SFL' THEN 1 WHEN 'SA' THEN 2 WHEN 'SP' THEN 3 END, employees.firstName ASC");
       $result = $query->row_array();
       $settings = $this->db->query("SELECT editable, viewable FROM settings")->row();
       $goal = $this->getGoal($start, $end, false);
@@ -512,7 +512,7 @@ class admin extends CI_Model
          AND scheduled.day >= '$start' && scheduled.day <= '$end'
          LEFT JOIN weekInfo ON weekInfo.employeeId = scheduled.employeeId
          AND weekInfo.month LIKE '" . date("Y-m", strtotime($start)) . "-%%'
-         GROUP BY employees.id");
+         GROUP BY employees.id ORDER BY CASE employees.position WHEN 'SFL' THEN 1 WHEN 'SA' THEN 2 WHEN 'SP' THEN 3 END, employees.firstName ASC");
 
       $ret = "<table class='table table-striped table-condensed'><tr><th>Name</th><th>Scheduled</th><th>Desired</th></tr>";
       

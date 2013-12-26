@@ -221,7 +221,7 @@ class Leader extends CI_Model
       $employees = $this->getEmployeesClosing($date);
       $goal = $this->getGoal($date);
       $missed_sales = $this->getMissedSales($date);
-      $stories = $this->getStories($date, $employees);
+      $stories = $this->getStories($date);
       
       $str = "<div id='emailTemplate' style='text-align: left;'>";
       $str.= "<b>Staff</b><br>";
@@ -256,14 +256,14 @@ class Leader extends CI_Model
       return '$' . number_format($row->goal, 0, ".", ",");
    }
 
-   function getStories($date, $employees)
+   function getStories($date)
    {
       $str = "";
       $query = $this->db->query("SELECT * FROM stories WHERE date = '$date'");
       foreach($query->result() as $row)
       {
-         $str.= "<b>" . $row->name . "</b><br>";
-         $str.= "<div class='story'>" . $row->description . "</div";
+         //$str.= "<b>" . $row->name . "</b><br>";
+         $str.= "<div class='story'> - " . $row->description . "</div>";
       }
       return $str;
    }
