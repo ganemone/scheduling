@@ -329,7 +329,7 @@ class User extends CI_Controller
       $result = "error";
       
       if($this->validator->valid_date($week_start) && $this->validator->valid_date($week_end)) {
-         $result = $this->employee->pasteWeek($week_start, $week_end, json_decode($this->input->post("week"), $this->employeeInfo['employeeId']));
+         $result = $this->employee->pasteWeek($week_start, $week_end, json_decode($this->input->post("week")), $this->employeeInfo['employeeId']);
       }
       echo $result;
    }

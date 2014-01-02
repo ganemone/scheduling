@@ -426,6 +426,7 @@ function pasteWeek() {
       week : JSON.stringify(event_obj_arr)
    }, 
    function(msg) {
+      console.log(msg);
       $("#calendar").fullCalendar("refetchEvents");
       successMessage("Pasted Week");
    }, false);
