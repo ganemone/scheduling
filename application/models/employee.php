@@ -610,9 +610,10 @@ class employee extends CI_Model
       return FALSE;
    }
 
-   function pasteWeek($week_start, $week_end, $week_obj)
+   function pasteWeek($week_start, $week_end, $week_obj, $employeeId)
    {
-      $del_query = "DELETE FROM hours WHERE day >= '$week_start' && day <= '$week_end'";
+
+      $del_query = "DELETE FROM hours WHERE day >= '$week_start' && day <= '$week_end' && employeeId = '$employeeId'";
       $this->db->query($del_query);
 
       $add_query = "INSERT INTO hours (employeeId, available, day, begin, end) VALUES ";

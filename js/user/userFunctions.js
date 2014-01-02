@@ -410,7 +410,11 @@ function pasteWeek() {
       var title = (val.allDay === true) ? val.title : "Custom";
 
       var event_obj = {
-         day : val.start.getDay(), start : val.start.toTimeString().split(" ")[0], end : end, available : title, employeeId : employeeId
+         day : val.start.getDay(), 
+         start : val.start.toTimeString().split(" ")[0], 
+         end : end, 
+         available : title, 
+         employeeId : employeeId
       };
 
       event_obj_arr.push(event_obj);
