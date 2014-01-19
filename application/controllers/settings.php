@@ -271,12 +271,12 @@ class Settings extends CI_Controller
             $this->data['message_type'] = "success";
          }
          else {
-            $this->data['message'] = "Failed to upload goals.";
+            $this->data['message'] = "Failed to upload goals. Error in uploading goals.";
             $this->data['message_type'] = "danger";   
          }
       }
       else {
-         $this->data['message'] = "Failed to upload goals.";
+         $this->data['message'] = "Failed to upload goals. Invalid file.";
          $this->data['message_type'] = "danger";
       }
       

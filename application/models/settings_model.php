@@ -244,7 +244,7 @@ class settings_model extends CI_Model
             }
          }
          else {
-            return false;
+            //return false;
          }
       }
       return true;

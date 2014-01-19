@@ -226,6 +226,7 @@ function initializeForm(start, end) {
    time_arr['20:30:00'] = "8:30pm";
    time_arr['20:45:00'] = "8:45pm";
    time_arr['21:00:00'] = "9:00pm";
+   time_arr['21:15:00'] = "9:15pm";
 
    var start_split = start.split(":");
    var end_split = end.split(":");
@@ -237,7 +238,7 @@ function initializeForm(start, end) {
    var end_minute = (Number(end_split[1]) > 0) ? Number(end_split[1]) / 15 : 0;
    var rep_number = (end_hour - start_hour) * 4 - start_minute + end_minute;
 
-   for (var i = 0; i < rep_number; i++) {
+   for (var i = 0; i <= rep_number; i++) {
       options += "<option value='" + start + "'>" + time_arr[start] + "</option>";
       start_split = start.split(":");
       if (start_split[1] == "45")

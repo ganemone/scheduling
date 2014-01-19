@@ -9,7 +9,7 @@ $(document).keypress(function(e) {
    else if (code == 103 || code == 71)
       $("#viewInfo").trigger('click');
    else if (code == 101 || code == 69)
-      $("#all_employees").trigger('click');
+      $("#event_all").trigger('click');
    else if (code == 68)
       $("#deleteOption").trigger('click');
    else if (code == 115 || code == 83)
