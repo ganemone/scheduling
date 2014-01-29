@@ -106,7 +106,7 @@ class settings_model extends CI_Model
       if($this->db->query("SELECT COUNT(*) AS count FROM event_settings WHERE category_abbr = '$category_abbr'")->row()->count > 0) {
          return "error";
       }
-      $this->db->insert("event_settings", array("category_name" => $category_name, "category_abbr" => $category_abbr));
+      $this->db->insert("event_settings", array("category_name" => $category_name, "category_abbr" => $category_abbr, "color" => "3366CC", "border" => "3366CC"));
       $ret = "<tr class='$category_abbr'>";
       $ret.= "<td>$category_name</td>";
       $ret.= "<td>$category_abbr</td>";

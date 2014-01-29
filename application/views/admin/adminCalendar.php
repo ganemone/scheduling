@@ -130,9 +130,31 @@
           <a href="#"></a>
           <ul id="editEventPopup" class="dropdown-menu" role="menu" aria-labelledby="dropdownmenu2">
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Floor<input type="radio" name="category" value="SF" class="rightClickMenuItem" /></a></li>
+            <script type='text/javascript'>var global_categories_obj = {
+               "select_list" : {
+                  "name"     : "category",
+                  "label"    : "Category: ",
+                   "id"       : "category",
+                   "elements" : []
+                 }, "additions" : [
+             {
+                  "type"  : "checkbox",
+                  "name"  : "sfl",
+                  "id"    : "SFL",
+                  "label" : "Sales Floor Leader: ",
+                  "abbr"  : "SFL",
+             },
+             {
+                  "name"  : "emptyShift",
+                  "id"    : "emptyShift",
+                  "label" : "Add Empty Shift: ",
+                  "type"  : "checkbox" 
+             }]};</script>
             <? foreach ($shift_categories->result() as $row): ?>
+            <script type='text/javascript'>global_categories_obj.select_list.elements.push({ "name" : "<? echo $row->category_name; ?>", "abbr" : "<? echo $row->category_abbr ?>"});</script>
               <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'><? echo $row->category_name ?><input type="radio" name="category" value="<? echo $row->category_abbr ?>" class="rightClickMenuItem" /></a></li>
             <? endforeach; ?>
+            <script type="text/javascript">console.log(global_categories_obj);</script>
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input type="checkbox" name="SFL" value="1" id="sflRightClickItem" class='preventDefault' /></a></li>
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Support<input type="radio" name="category" value="SP" class="rightClickMenuItem" onclick="clearEditEventPopup();" /></a></li>
          </ul>
@@ -184,7 +206,7 @@
          "prevView" : "month"
     };       
 
-    var global_categories_obj = {
+    /*var global_categories_obj = {
          "select_list" : {
              "name"     : "category",
              "label"    : "Category: ",
@@ -239,7 +261,7 @@
                   "type"  : "checkbox" 
              }
          ]
-    };
+    };*/
 
     for (var j = 0; j < names.length; j++)
     {
