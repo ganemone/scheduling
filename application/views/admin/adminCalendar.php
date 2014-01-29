@@ -154,7 +154,6 @@
             <script type='text/javascript'>global_categories_obj.select_list.elements.push({ "name" : "<? echo $row->category_name; ?>", "abbr" : "<? echo $row->category_abbr ?>"});</script>
               <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'><? echo $row->category_name ?><input type="radio" name="category" value="<? echo $row->category_abbr ?>" class="rightClickMenuItem" /></a></li>
             <? endforeach; ?>
-            <script type="text/javascript">console.log(global_categories_obj);</script>
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>SFL<input type="checkbox" name="SFL" value="1" id="sflRightClickItem" class='preventDefault' /></a></li>
             <li rol="presentation"><a role="menuitem" tabindex="-1" href="#" onclick='updateCategory(this);'>Support<input type="radio" name="category" value="SP" class="rightClickMenuItem" onclick="clearEditEventPopup();" /></a></li>
          </ul>
