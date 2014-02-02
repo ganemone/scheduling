@@ -488,8 +488,6 @@ function buildEmployeeChecklistObj(form_obj, employeeInfo) {
 function buildCategorySelectObj(form_obj, defaultTo) {
    var data = {}
    var category;
-   console.log(defaultTo);
-   console.log(global_categories_obj);
    for (category in global_categories_obj["select_list"]["elements"]) {
       if (global_categories_obj["select_list"]["elements"].hasOwnProperty(category)) {
          var selected = (defaultTo == global_categories_obj["select_list"]["elements"][category]["abbr"]) ? true : false;

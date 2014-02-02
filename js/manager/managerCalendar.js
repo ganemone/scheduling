@@ -215,6 +215,11 @@ function renderCalendar(slotMinutes, view, date) {
                $("#editEventPopup").show().offset({
                     top : e.pageY, left : e.pageX
                }).dropdown();
+               if($("#editEventPopup").offset().top + $("#editEventPopup").height() > $(window).height()) {
+                  $("#editEventPopup").offset({
+                     top: $(window).height() - $("#editEventPopup").height() - 10
+                  });
+               }
                e.preventDefault();
             });
          }
