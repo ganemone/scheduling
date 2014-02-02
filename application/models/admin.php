@@ -1063,7 +1063,7 @@ class admin extends CI_Model
    
    function getShiftCategories()
    {
-      return $this->db->query("SELECT category_name, category_abbr FROM event_settings WHERE category_abbr != 'SF' && category_abbr != 'SFL' && category_abbr != 'A' && category_abbr != 'B' && category_abbr != 'C'");
+      return $this->db->query("SELECT category_name, category_abbr FROM event_settings WHERE category_abbr != 'SFL' && category_abbr != 'A' && category_abbr != 'B' && category_abbr != 'C'");
    }
 
 }
