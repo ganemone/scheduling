@@ -443,7 +443,7 @@ class Manager extends CI_Controller
 
    function addExternalEvent()
    {
-      $title     = $this->input->post("event_title");
+      $title     = mysql_real_escape_string($this->input->post("event_title"));
       $date      = date("Y-m-d", strtotime($this->input->post("event_date")));
       $repeating = $this->input->post("event_repeat");
       $location  = $this->input->post("event_location");
@@ -461,7 +461,7 @@ class Manager extends CI_Controller
    function editExternalEvent()
    {
       $event_id = $this->input->post("eventId");
-      $title = $this->input->post("event_title");
+      $title = mysql_real_escape_string($this->input->post("event_title"));
       $location = $this->input->post("event_location");
       $start = $this->input->post("start_time");
       $end = $this->input->post("end_time");
