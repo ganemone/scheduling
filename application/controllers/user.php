@@ -101,8 +101,11 @@ class User extends CI_Controller
       $this->employeeInfo['firstName'] = $info['firstName'];
       $this->employeeInfo['lastName'] = $info['lastName'];
       $this->employeeInfo['resize'] = "\"\"";
+      $this->employeeInfo['editable_date'] = $this->employee->getLockedDate();
       $this->employeeInfo['maxMonth'] = json_encode($this->employee->getFinalizedDate());
       $this->employeeInfo['employeeId'] = $this->input->cookie('EmployeeId');
+      $this->employeeInfo['mobile'] = false;
+      $this->employeeInfo['alerts'] = "none";
       $this->load->view("includes.php");
       $this->load->view("/sfl/print.php");
       $this->load->view("/user/availabilityCalendar.php", $this->employeeInfo);

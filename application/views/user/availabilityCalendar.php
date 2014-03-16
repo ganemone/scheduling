@@ -96,7 +96,6 @@
       
          var clipboard = null;
          var selectedDate;
-
          var availability_due = new Date();
          availability_due.setMonth(availability_due.getMonth() + 3);
          availability_due.setDate(-1);

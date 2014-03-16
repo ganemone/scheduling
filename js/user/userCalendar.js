@@ -1,3 +1,4 @@
+
 var monthInfo = {
    "minHours": null,
    "maxHours": null,
