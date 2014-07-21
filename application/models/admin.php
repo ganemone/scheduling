@@ -52,7 +52,7 @@ class admin extends CI_Model
          }
          if($row->position == "SP") {
             $employee["sp"] = true;
-         } 
+         }
          else {
             $employee["sp"] = false;
          }
@@ -76,11 +76,11 @@ class admin extends CI_Model
          }
 
 
-         $_query = $this->db->query("SELECT * FROM groups 
-            LEFT JOIN employee_groups 
-            ON employee_groups.group_id = groups.group_id 
+         $_query = $this->db->query("SELECT * FROM groups
+            LEFT JOIN employee_groups
+            ON employee_groups.group_id = groups.group_id
             WHERE employee_groups.employee_id = '$row->id'");
-         
+
          if($_query->num_rows() == 0) {
             $employee["groups"] = array();
          }
@@ -88,7 +88,7 @@ class admin extends CI_Model
             $employee["groups"][] = $_row;
          }
 
-         $employees[] = $employee;       
+         $employees[] = $employee;
       }
       return $employees;
    }
@@ -102,14 +102,14 @@ class admin extends CI_Model
       $group_arr["Male"] = 0;
       $group_arr["Female"] = 0;
 
-      $query = $this->db->query("SELECT employees.groups, employees.gender 
-         FROM employees 
-         LEFT JOIN scheduled 
+      $query = $this->db->query("SELECT employees.groups, employees.gender
+         FROM employees
+         LEFT JOIN scheduled
          ON employees.id = scheduled.employeeId
          WHERE scheduled.day >= '$start' && scheduled.day <= '$end'");
 
       foreach ($query->result() as $row) {
-         
+
          $emp_group_arr = explode(" ", $row->groups);
          foreach ($emp_group_arr as $group) {
             if(isset($group_arr[$group])) {
@@ -125,7 +125,7 @@ class admin extends CI_Model
          }
       }
 
-      $query = $this->db->query("SELECT scheduled.employeeId, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum 
+      $query = $this->db->query("SELECT scheduled.employeeId, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum
          FROM employees
          LEFT JOIN scheduled
          ON scheduled.employeeId = employees.id
@@ -139,7 +139,7 @@ class admin extends CI_Model
       foreach ($query->result() as $row) {
          $min = $row->minHours;
          $max = $row->maxHours;
-   
+
          if($view == "month") {
             $min *= 4;
             $max *= 4;
@@ -208,8 +208,8 @@ class admin extends CI_Model
    {
       $json = array();
       $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, scheduled.*
-      FROM scheduled 
-      LEFT JOIN employees ON scheduled.employeeId = employees.id
+      FROM scheduled
+      JOIN employees ON scheduled.employeeId = employees.id
       WHERE scheduled.day >= '$start_date' && scheduled.day <= '$end_date'
       ORDER BY employees.firstName");
 
@@ -264,9 +264,9 @@ class admin extends CI_Model
     */
    function getEventFeed($employee_obj, $start_date, $end_date)
    {
-      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, hours.* 
-         FROM hours 
-         LEFT JOIN employees 
+      $query = $this->db->query("SELECT employees.id, employees.firstName, employees.lastName, employees.position, hours.*
+         FROM hours
+         LEFT JOIN employees
          ON employees.id = hours.employeeId
          WHERE hours.day >= '$start_date'
          AND hours.day <= '$end_date' ORDER BY firstName, lastName");
@@ -472,11 +472,11 @@ class admin extends CI_Model
 
    function getInfoSpan($start, $end)
    {
-      $query = $this->db->query("SELECT SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600*employees.wage) AS wages, 
-         SUM(TIME_TO_SEC(TIMEDIFF(end, begin))/3600) AS hours 
-         FROM scheduled 
-         LEFT JOIN employees 
-         ON scheduled.employeeId = employees.id 
+      $query = $this->db->query("SELECT SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600*employees.wage) AS wages,
+         SUM(TIME_TO_SEC(TIMEDIFF(end, begin))/3600) AS hours
+         FROM scheduled
+         LEFT JOIN employees
+         ON scheduled.employeeId = employees.id
          WHERE scheduled.day >= '$start' && scheduled.day <= '$end' ORDER BY CASE employees.position WHEN 'SFL' THEN 1 WHEN 'SA' THEN 2 WHEN 'SP' THEN 3 END, employees.firstName ASC");
       $result = $query->row_array();
       $settings = $this->db->query("SELECT editable, viewable FROM settings")->row();
@@ -505,7 +505,7 @@ class admin extends CI_Model
    {
       $graph_data = array();
       $array = array();
-      $q = $this->db->query("SELECT scheduled.employeeId, employees.firstName, employees.lastName, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum 
+      $q = $this->db->query("SELECT scheduled.employeeId, employees.firstName, employees.lastName, weekInfo.*, SUM(TIME_TO_SEC(TIMEDIFF(scheduled.end, scheduled.begin))/3600) as sum
          FROM employees
          LEFT JOIN scheduled
          ON scheduled.employeeId = employees.id
@@ -515,7 +515,7 @@ class admin extends CI_Model
          GROUP BY employees.id ORDER BY CASE employees.position WHEN 'SFL' THEN 1 WHEN 'SA' THEN 2 WHEN 'SP' THEN 3 END, employees.firstName ASC");
 
       $ret = "<table class='table table-striped table-condensed'><tr><th>Name</th><th>Scheduled</th><th>Desired</th></tr>";
-      
+
       foreach ($q->result() as $row)
       {
          $min = $max = 0;
@@ -538,7 +538,7 @@ class admin extends CI_Model
          if($row->sum > $max)
          {
             $class = "danger";
-         } 
+         }
          else if($row->sum < $min)
          {
             $class = "warning";
@@ -605,8 +605,8 @@ class admin extends CI_Model
    function buildScheduledEventObj($event_id)
    {
       $query = $this->db->query("SELECT scheduled.*, event_settings.color, event_settings.border, employees.firstName, employees.lastName, employees.position
-         FROM scheduled 
-         LEFT JOIN event_settings 
+         FROM scheduled
+         LEFT JOIN event_settings
          ON scheduled.category = event_settings.category_abbr
          LEFT JOIN employees
          ON scheduled.employeeId = employees.id
@@ -660,8 +660,8 @@ class admin extends CI_Model
    function buildAvailabilityEventObj($event_id)
    {
       $query = $this->db->query("SELECT hours.*, event_settings.color, event_settings.border, employees.firstName, employees.lastName, employees.position
-         FROM hours 
-         LEFT JOIN event_settings 
+         FROM hours
+         LEFT JOIN event_settings
          ON hours.availability = event_settings.category_name
          LEFT JOIN employees
          ON hours.employeeId = employees.id
@@ -761,8 +761,8 @@ class admin extends CI_Model
    {
       $ret = array();
       $refetch = false;
-      for ($j=0; $j < count($day_arr); $j++) 
-      { 
+      for ($j=0; $j < count($day_arr); $j++)
+      {
          $this->scheduleEmployeeFloor($employeeId_arr, $day_arr[$j], $begin_arr[$j], $end_arr[$j], $category_arr[$j], 0);
       }
       return true;
@@ -770,11 +770,11 @@ class admin extends CI_Model
    function scheduleEmployeeFloor($employee_arr, $day, $begin, $end, $category, $sfl)
    {
        $ret = array();
-      foreach ($employee_arr as $employeeId) 
+      foreach ($employee_arr as $employeeId)
       {
          $ids = $this->getOverlappingEvents($employeeId, $day, $begin, $end);
          $refetch = (count($ids) > 0) ? true : false;
-         
+
          $calIds = array();
          foreach ($ids as $value)
          {
@@ -808,7 +808,7 @@ class admin extends CI_Model
    function scheduleEmployeeEvent($employee_arr, $date, $start, $end, $eventTitle)
    {
       $ret = array();
-      foreach ($employee_arr as $employeeId) 
+      foreach ($employee_arr as $employeeId)
       {
          $ids = $this->getOverlappingEvents($employeeId, $date, $start, $end);
          $refetch = (count($ids) > 0) ? true : false;
@@ -841,13 +841,13 @@ class admin extends CI_Model
       }
       return json_encode($ret);
    }
-   function updateScheduledEvent($shift_id, $employee_id, $date, $start, $end)  
+   function updateScheduledEvent($shift_id, $employee_id, $date, $start, $end)
    {
       $ids = $this->getOverlappingEvents($employee_id, $date, $start, $end, $shift_id);
 
       $this->db->where("id", $shift_id);
       $this->db->update("scheduled", array("day" => $date, "begin" => $start, "end" => $end));
-   
+
       if(count($ids) > 0)
       {
          $this->db->where_in("id", $ids);
@@ -1040,7 +1040,7 @@ class admin extends CI_Model
       $query = $this->db->query("UPDATE hours SET available = '$availability', begin = '$start', end='$end' WHERE id='$id'");
       return $query;
    }
-   
+
    function initializeGoals()
    {
       $start_date = Date("Y-m-d", strtotime("-3 months"));
@@ -1057,10 +1057,10 @@ class admin extends CI_Model
             $ret_arr[$start_date] = "$0";
          $start_date = Date("Y-m-d", strtotime($start_date . " +1 day"));
       }
-      
+
       return $ret_arr;
    }
-   
+
    function getShiftCategories()
    {
       return $this->db->query("SELECT category_name, category_abbr FROM event_settings WHERE category_abbr != 'SFL' && category_abbr != 'A' && category_abbr != 'B' && category_abbr != 'C'");
